@@ -43,7 +43,8 @@ lib/
 │   └── storage/               # Stockage local et clés de persistance
 └── features/                  # Modules fonctionnels
     ├── splash/                # Écran 0 : Splash & saut de Pi
-    ├── onboarding/            # Écran 1 : Profil enfant (Prénom, avatar, classe CP→3e)
+    ├── profile/               # Modèle enfant (Léa, CP→3e, avatar) & stockage local
+    ├── onboarding/            # Écran 1 : Écran onboarding & sélecteur de classe
     ├── home/                  # Écran 1 bis : Salon de Pi & ses 3 jauges (Faim, Joie, Énergie)
     ├── quiz/                  # Écran 2 & 3 : Moteur mathématique adaptatif & résultats
     ├── care/                  # Écran 4 : Soins et interactions avec Pi
@@ -91,7 +92,7 @@ flutter run
 ## 🗺 Feuille de Route (Roadmap)
 
 - [x] **Phase 1.1** : Socle technique, Design System WCAG, `ChunkyButton`, assets de Pi & tests.
-- [ ] **Phase 1.2** : Modèle enfant (`ChildProfile`), persistance locale `shared_preferences` & providers Riverpod.
+- [x] **Phase 1.2** : Modèle enfant (`ChildProfile`, `SchoolGrade`), persistance locale `shared_preferences` & providers Riverpod (`activeProfileProvider`).
 - [ ] **Phase 1.3** : Écrans Splash (saut de Pi) et Onboarding (sélecteur CP→3e).
 - [ ] **Phase 2** : Moteur de génération mathématique CP→3e & Quiz adaptatif.
 - [ ] **Phase 3** : Compagnon Pi, état des 3 jauges & boucle de soin.
