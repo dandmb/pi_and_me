@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -9,7 +10,7 @@ import '../../profile/domain/child_profile.dart';
 import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
 
-/// Écran 1 : Onboarding & Création du Profil Enfant.
+/// Écran 1 : Onboarding & Création du Profil Enfant (Bilingue EN/FR).
 /// Conforme à DESIGN_SYSTEM.md §12 et Stitch Screen 11566295510221200974.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -19,17 +20,23 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final TextEditingController _nameController = TextEditingController(text: 'Léa');
+  late final TextEditingController _nameController;
   String _selectedAvatar = 'avatar_dog';
   SchoolGrade _selectedGrade = SchoolGrade.cm1;
   String? _errorMessage;
 
-  final List<({String id, String label, String emoji})> _avatars = const [
-    (id: 'avatar_dog', label: 'Pi', emoji: '🐶'),
-    (id: 'avatar_cat', label: 'Minou', emoji: '🐱'),
-    (id: 'avatar_fox', label: 'Renard', emoji: '🦊'),
-    (id: 'avatar_bear', label: 'Ourson', emoji: '🐻'),
+  final List<({String id, String emoji})> _avatars = const [
+    (id: 'avatar_dog', emoji: '🐶'),
+    (id: 'avatar_cat', emoji: '🐱'),
+    (id: 'avatar_fox', emoji: '🦊'),
+    (id: 'avatar_bear', emoji: '🐻'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: 'Léa');
+  }
 
   @override
   void dispose() {
@@ -37,11 +44,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.dispose();
   }
 
-  Future<void> _handleSaveProfile() async {
+  Future<void> _handleSaveProfile(String emptyError) async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       setState(() {
-        _errorMessage = 'Wouf ! Quel est ton prénom ?';
+        _errorMessage = emptyError;
       });
       return;
     }
@@ -71,6 +78,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = ref.watch(stringsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: SafeArea(
@@ -80,7 +89,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpace.s5,
-                vertical: AppSpace.s4,
+                vertical: AppSpace.s3,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,7 +119,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             border: Border.all(color: AppColors.ink200, width: 2),
                           ),
                           child: Text(
-                            'Wouf ! Crée ton profil pour jouer avec moi !',
+                            strings.onboardingWelcome,
                             style: AppText.body.copyWith(color: AppColors.ink900),
                           ),
                         ),
@@ -118,11 +127,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: AppSpace.s6),
+                  const SizedBox(height: AppSpace.s5),
 
                   // Titre
                   Text(
-                    'Qui va jouer avec Pi ?',
+                    strings.whoWillPlay,
                     style: AppText.h2,
                     textAlign: TextAlign.center,
                   ),
@@ -131,7 +140,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                   // 1. Choix de l'avatar
                   Text(
-                    'Choisis ton avatar',
+                    strings.chooseAvatar,
                     style: AppText.label.copyWith(color: AppColors.ink600),
                   ),
                   const SizedBox(height: AppSpace.s2),
@@ -170,7 +179,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                   // 2. Saisie du prénom
                   Text(
-                    'Ton prénom',
+                    strings.yourName,
                     style: AppText.label.copyWith(color: AppColors.ink600),
                   ),
                   const SizedBox(height: AppSpace.s2),
@@ -181,7 +190,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: AppColors.surface,
-                      hintText: 'Ex: Léa',
+                      hintText: strings.nameHint,
                       counterText: '',
                       errorText: _errorMessage,
                       contentPadding: const EdgeInsets.symmetric(
@@ -206,18 +215,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                   const SizedBox(height: AppSpace.s4),
 
-                  // 3. Sélecteur de classe (CP à 3e)
+                  // 3. Sélecteur de classe (CP à 3e / Grade 1 to 9)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Ta classe',
+                        strings.yourGrade,
                         style: AppText.label.copyWith(color: AppColors.ink600),
                       ),
                       const SizedBox(width: AppSpace.s2),
                       Flexible(
                         child: Text(
-                          _selectedGrade.cycleLabel,
+                          strings.getCycleLabel(_selectedGrade),
                           style: AppText.bodyS.copyWith(
                             color: AppColors.sky800,
                             fontWeight: FontWeight.w700,
@@ -236,6 +245,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     runSpacing: AppSpace.s2,
                     children: SchoolGrade.values.map((grade) {
                       final isSelected = _selectedGrade == grade;
+                      final gradeLabel = strings.getGradeLabel(grade);
                       return GestureDetector(
                         onTap: () {
                           setState(() => _selectedGrade = grade);
@@ -264,10 +274,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                grade.label,
+                                gradeLabel,
                                 style: AppText.mathM.copyWith(
                                   color: isSelected ? AppColors.sky800 : AppColors.ink900,
                                   fontWeight: FontWeight.w700,
+                                  fontSize: gradeLabel.length > 5 ? 15 : 20,
                                 ),
                               ),
                               if (isSelected) ...[
@@ -287,12 +298,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                   const SizedBox(height: AppSpace.s8),
 
-                  // Bouton CTA principal « C'est parti ! »
+                  // Bouton CTA principal
                   ChunkyButton(
-                    label: 'C\'est parti !',
+                    label: strings.letsGo,
                     variant: ChunkyButtonVariant.primary,
                     height: 56,
-                    onPressed: _handleSaveProfile,
+                    onPressed: () => _handleSaveProfile(strings.nameEmptyError),
                   ),
 
                   const SizedBox(height: AppSpace.s4),

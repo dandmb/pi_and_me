@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pi_et_moi/core/localization/locale_controller.dart';
 import 'package:pi_et_moi/main.dart';
 
 void main() {
@@ -9,17 +10,25 @@ void main() {
   });
 
   testWidgets('PiEtMoiApp boots on SplashScreen and transitions', (WidgetTester tester) async {
-    await tester.pumpWidget(const ProviderScope(child: PiEtMoiApp()));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'en')),
+        ],
+        child: const PiEtMoiApp(),
+      ),
+    );
     await tester.pump();
 
-    // Verify splash screen content
+    // Verify splash screen in English
     expect(find.text('Pi & Moi'), findsOneWidget);
-    expect(find.text('Programmes officiels du CP à la 3e'), findsOneWidget);
+    expect(find.text('Official curriculum from Grade 1 to 9'), findsOneWidget);
 
     // Let the animation and navigation settle
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    // Navigated to Onboarding because no profile exists
-    expect(find.text('Qui va jouer avec Pi ?'), findsOneWidget);
+    // Navigated to Onboarding
+    expect(find.text('Who will play with Pi?'), findsOneWidget);
+    expect(find.text('Let\'s go!'), findsOneWidget);
   });
 }
