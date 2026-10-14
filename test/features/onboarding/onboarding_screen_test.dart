@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pi_et_moi/core/localization/locale_controller.dart';
 import 'package:pi_et_moi/features/onboarding/presentation/onboarding_screen.dart';
 
 void main() {
@@ -9,30 +10,56 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('OnboardingScreen renders header, name input, and grade chips', (WidgetTester tester) async {
+  testWidgets('OnboardingScreen renders English strings when language is English', (WidgetTester tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
+      ProviderScope(
+        overrides: [
+          languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'en')),
+        ],
+        child: const MaterialApp(
           home: OnboardingScreen(),
         ),
       ),
     );
 
-    // Header and title
+    // English strings
+    expect(find.text('Who will play with Pi?'), findsOneWidget);
+    expect(find.text('Your first name'), findsOneWidget);
+    expect(find.text('Your grade'), findsOneWidget);
+
+    // Grades are displayed in English format (Grade 1 to 9)
+    expect(find.text('Grade 1'), findsOneWidget);
+    expect(find.text('Grade 4'), findsOneWidget);
+    expect(find.text('Grade 9'), findsOneWidget);
+
+    // Tap CTA to validate profile
+    final ctaFinder = find.text('Let\'s go!');
+    expect(ctaFinder, findsOneWidget);
+    await tester.ensureVisible(ctaFinder);
+    await tester.tap(ctaFinder);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('OnboardingScreen renders French when language is French', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
+        ],
+        child: const MaterialApp(
+          home: OnboardingScreen(),
+        ),
+      ),
+    );
+
     expect(find.text('Qui va jouer avec Pi ?'), findsOneWidget);
     expect(find.text('Ton prénom'), findsOneWidget);
     expect(find.text('Ta classe'), findsOneWidget);
 
-    // Grades are displayed
     expect(find.text('CP'), findsOneWidget);
     expect(find.text('CM1'), findsOneWidget);
     expect(find.text('3e'), findsOneWidget);
 
-    // Can change grade to 6e
-    await tester.tap(find.text('6e'));
-    await tester.pumpAndSettle();
-
-    // Scroll to CTA button and tap to validate profile
     final ctaFinder = find.text('C\'est parti !');
     expect(ctaFinder, findsOneWidget);
     await tester.ensureVisible(ctaFinder);

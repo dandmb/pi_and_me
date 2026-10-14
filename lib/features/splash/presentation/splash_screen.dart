@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -102,6 +103,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final strings = ref.watch(stringsProvider);
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -182,7 +185,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
               // Titre de l'application
               Text(
-                'Pi & Moi',
+                strings.appTitle,
                 style: AppText.display.copyWith(
                   color: Colors.white,
                   letterSpacing: -0.5,
@@ -215,7 +218,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                     const SizedBox(width: AppSpace.s2),
                     Text(
-                      'Programmes officiels du CP à la 3e',
+                      strings.splashBadge,
                       style: AppText.bodyS.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -254,7 +257,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                     const SizedBox(height: AppSpace.s2),
                     Text(
-                      'Chargement...',
+                      strings.loading,
                       style: AppText.bodyS.copyWith(
                         color: Colors.white.withValues(alpha: 0.8),
                       ),

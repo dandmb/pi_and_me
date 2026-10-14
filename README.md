@@ -14,6 +14,7 @@ Application mobile ludo-éducative d'apprentissage des mathématiques du CP à l
 - **Typographie** : `google_fonts: ^6.2.1`
   - **Quicksand** (500, 600, 700) pour tous les textes et interfaces
   - **Lexend** (600, 700, 800) pour tous les nombres, calculs et fractions
+- **Internationalisation** : Bilingue natif (🇬🇧 Anglais par défaut / 🇫🇷 Français activable, persistance SharedPreferences)
 - **Graphismes & Animations** : `flutter_svg`, `flutter_animate`
 - **Moteur de rendu** : Impeller
 
@@ -39,7 +40,8 @@ lib/
 ├── main.dart                  # Point d'entrée avec ProviderScope et Bootstrap
 ├── core/                      # Socle réutilisable
 │   ├── theme/                 # Charte graphique (AppColors, AppText, AppSpace, AppTheme)
-│   ├── widgets/               # Composants UI partagés (ChunkyButton, etc.)
+│   ├── localization/          # Bilinguisme EN/FR (AppLanguage, AppStrings, LanguageNotifier)
+│   ├── widgets/               # Composants UI partagés (ChunkyButton, LanguageSwitcher)
 │   └── storage/               # Stockage local et clés de persistance
 └── features/                  # Modules fonctionnels
     ├── splash/                # Écran 0 : Splash & saut de Pi
@@ -94,6 +96,7 @@ flutter run
 - [x] **Phase 1.1** : Socle technique, Design System WCAG, `ChunkyButton`, assets de Pi & tests.
 - [x] **Phase 1.2** : Modèle enfant (`ChildProfile`, `SchoolGrade`), persistance locale `shared_preferences` & providers Riverpod (`activeProfileProvider`).
 - [x] **Phase 1.3** : Écrans Splash (saut réaliste de Pi), Onboarding (avatar, prénom, sélecteur CP→3e) et Salon de Pi (Hub).
+- [x] **Internationalisation** : Support bilingue natif (🇬🇧 Anglais par défaut / 🇫🇷 Français activable, sélecteur tactile `LanguageSwitcher`, persistance locale).
 - [ ] **Phase 2** : Moteur de génération mathématique CP→3e & Quiz adaptatif.
 - [ ] **Phase 3** : Compagnon Pi, état des 3 jauges & boucle de soin.
 - [ ] **Phase 4** : Économie des Os dorés, inventaire & boutique de déguisements.

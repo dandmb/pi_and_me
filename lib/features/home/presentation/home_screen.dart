@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../onboarding/presentation/onboarding_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
+import 'settings_sheet.dart';
 
-/// Écran 1 bis : Le Salon de Pi (Hub Principal de l'application).
+/// Écran 1 bis : Le Salon de Pi (Hub Principal bilingue EN/FR).
 /// Présente l'enfant, l'état de Pi et le point d'accès au Quiz.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -15,6 +17,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(activeProfileProvider);
+    final strings = ref.watch(stringsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -28,7 +31,9 @@ class HomeScreen extends ConsumerWidget {
           ),
           data: (profile) {
             final childName = profile?.name ?? 'Ami';
-            final gradeLabel = profile?.grade.label ?? 'CM1';
+            final gradeLabel = profile != null
+                ? strings.getGradeLabel(profile.grade)
+                : (strings.isFrench ? 'CM1' : 'Grade 4');
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
@@ -37,7 +42,7 @@ class HomeScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  // Barre supérieure : Pastille profil & Solde d'Os
+                  // Barre supérieure : Pastille profil, Solde d'Os & Sélecteur de langue
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -91,6 +96,32 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
+
+                      // Bouton Paramètres (ouvre la feuille des réglages et du choix de langue)
+                      GestureDetector(
+                        onTap: () => SettingsSheet.show(context),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.ink200, width: 1.5),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: AppColors.ink100,
+                                offset: Offset(0, 2),
+                                blurRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.settings_rounded,
+                            size: 22,
+                            color: AppColors.ink600,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
 
@@ -116,7 +147,7 @@ class HomeScreen extends ConsumerWidget {
                       ],
                     ),
                     child: Text(
-                      'Wouf ! Prête pour le quiz, $childName ?',
+                      strings.readyForQuiz(childName),
                       style: AppText.bodyL.copyWith(color: AppColors.ink900),
                       textAlign: TextAlign.center,
                     ),
@@ -172,21 +203,21 @@ class HomeScreen extends ConsumerWidget {
                       children: [
                         _GaugeRow(
                           icon: '🍖',
-                          label: 'Faim',
+                          label: strings.hunger,
                           value: 0.80,
                           color: AppColors.green500,
                         ),
                         const SizedBox(height: AppSpace.s3),
                         _GaugeRow(
                           icon: '🎾',
-                          label: 'Joie',
+                          label: strings.joy,
                           value: 0.65,
                           color: AppColors.sky500,
                         ),
                         const SizedBox(height: AppSpace.s3),
                         _GaugeRow(
                           icon: '🌙',
-                          label: 'Énergie',
+                          label: strings.energy,
                           value: 0.90,
                           color: AppColors.teal400,
                         ),
@@ -198,14 +229,14 @@ class HomeScreen extends ConsumerWidget {
 
                   // Bouton principal pour lancer le quiz
                   ChunkyButton(
-                    label: 'Jouer au Quiz',
+                    label: strings.playQuiz,
                     variant: ChunkyButtonVariant.primary,
                     height: 56,
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Le moteur mathématique arrive en Phase 2 !'),
-                          duration: Duration(seconds: 2),
+                        SnackBar(
+                          content: Text(strings.phase2Notice),
+                          duration: const Duration(seconds: 2),
                         ),
                       );
                     },
@@ -223,7 +254,7 @@ class HomeScreen extends ConsumerWidget {
                       );
                     },
                     child: Text(
-                      'Changer de profil',
+                      strings.changeProfile,
                       style: AppText.label.copyWith(color: AppColors.sky800),
                     ),
                   ),
@@ -259,7 +290,7 @@ class _GaugeRow extends StatelessWidget {
         Text(icon, style: const TextStyle(fontSize: 16)),
         const SizedBox(width: AppSpace.s2),
         SizedBox(
-          width: 60,
+          width: 70,
           child: Text(label, style: AppText.label),
         ),
         const SizedBox(width: AppSpace.s2),
