@@ -93,7 +93,7 @@ flutter run
 
 - [x] **Phase 1.1** : Socle technique, Design System WCAG, `ChunkyButton`, assets de Pi & tests.
 - [x] **Phase 1.2** : Modèle enfant (`ChildProfile`, `SchoolGrade`), persistance locale `shared_preferences` & providers Riverpod (`activeProfileProvider`).
-- [ ] **Phase 1.3** : Écrans Splash (saut de Pi) et Onboarding (sélecteur CP→3e).
+- [x] **Phase 1.3** : Écrans Splash (saut réaliste de Pi), Onboarding (avatar, prénom, sélecteur CP→3e) et Salon de Pi (Hub).
 - [ ] **Phase 2** : Moteur de génération mathématique CP→3e & Quiz adaptatif.
 - [ ] **Phase 3** : Compagnon Pi, état des 3 jauges & boucle de soin.
 - [ ] **Phase 4** : Économie des Os dorés, inventaire & boutique de déguisements.
