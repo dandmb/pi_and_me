@@ -110,4 +110,64 @@ class AppStrings {
   String get settings => isFrench ? 'Paramètres' : 'Settings';
   String get languageTitle => isFrench ? 'Langue de l\'application' : 'App Language';
   String get close => isFrench ? 'Fermer' : 'Close';
+
+  // --- Quiz ---
+  String get stressFree => isFrench ? '🌱 Sans stress' : '🌱 Stress-free';
+  String questionProgress(int current, int total) =>
+      isFrench ? 'Question $current / $total' : 'Question $current / $total';
+  String get validateAnswer =>
+      isFrench ? 'Valider la réponse 🚀' : 'Submit answer 🚀';
+  String get nextQuestion =>
+      isFrench ? 'Question suivante ➔' : 'Next question ➔';
+  String get seeResults =>
+      isFrench ? 'Voir les résultats ✨' : 'See results ✨';
+  String get selectAnOptionNotice =>
+      isFrench ? 'Choisis une réponse pour valider' : 'Select an answer to submit';
+  String get correctFeedback =>
+      isFrench ? 'Bravo ! C\'est la bonne réponse ! 🐾' : 'Great job! That\'s correct! 🐾';
+  String wrongFeedback(String answer) => isFrench
+      ? 'Presque ! La bonne réponse était $answer. 🐾'
+      : 'Almost! The correct answer was $answer. 🐾';
+  String get quitQuizTitle =>
+      isFrench ? 'Quitter le quiz ?' : 'Leave quiz?';
+  String get quitQuizMessage => isFrench
+      ? 'Ta progression sur ce quiz ne sera pas enregistrée.'
+      : 'Your progress in this quiz will not be saved.';
+  String get stay => isFrench ? 'Continuer' : 'Continue';
+  String get quit => isFrench ? 'Quitter' : 'Leave';
+
+  // --- Résultats / Results ---
+  String get quizCompleted =>
+      isFrench ? '✨ Quiz Terminé !' : '✨ Quiz Completed!';
+  String quizBravo(String name) =>
+      isFrench ? 'Bravo $name !' : 'Well done $name!';
+  String quizSummary(int score, int total) =>
+      isFrench ? 'Score : $score / $total' : 'Score: $score / $total';
+  String quizEncouragement(int score, int total) {
+    if (score == total) {
+      return isFrench
+          ? 'Incroyable ! Un sans-faute parfait ! 🌟'
+          : 'Incredible! A perfect score! 🌟';
+    } else if (score >= total / 2) {
+      return isFrench
+          ? 'Super travail ! Tu progresses à grands pas ! 🐾'
+          : 'Great work! You are making huge progress! 🐾';
+    } else {
+      return isFrench
+          ? 'Bien joué ! Chaque entraînement te rend plus fort ! 💪'
+          : 'Well done! Practice makes you stronger! 💪';
+    }
+  }
+  String get rewardsEarned =>
+      isFrench ? 'Récompenses gagnées' : 'Earned rewards';
+  String get goldenBones => isFrench ? 'Os dorés' : 'Golden bones';
+  String get croquettes => isFrench ? 'Croquettes' : 'Kibbles';
+  String get balls => isFrench ? 'Balles' : 'Balls';
+  String streakDays(int days) => isFrench
+      ? '🔥 Série : $days jour${days > 1 ? "s" : ""}'
+      : '🔥 Streak: $days day${days > 1 ? "s" : ""}';
+  String get feedAndCare =>
+      isFrench ? 'Nourrir & Soigner Pi 🍖' : 'Feed & Care for Pi 🍖';
+  String get backToHome =>
+      isFrench ? 'Retour au salon 🏠' : 'Back to living room 🏠';
 }

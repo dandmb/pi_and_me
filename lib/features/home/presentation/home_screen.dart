@@ -6,7 +6,10 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../onboarding/presentation/onboarding_screen.dart';
+import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
+import '../../quiz/presentation/quiz_controller.dart';
+import '../../quiz/presentation/quiz_screen.dart';
 import 'settings_sheet.dart';
 
 /// Écran 1 bis : Le Salon de Pi (Hub Principal bilingue EN/FR).
@@ -233,10 +236,11 @@ class HomeScreen extends ConsumerWidget {
                     variant: ChunkyButtonVariant.primary,
                     height: 56,
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(strings.phase2Notice),
-                          duration: const Duration(seconds: 2),
+                      final grade = profile?.grade ?? SchoolGrade.cm1;
+                      ref.read(quizControllerProvider.notifier).startQuiz(grade);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const QuizScreen(),
                         ),
                       );
                     },

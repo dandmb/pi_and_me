@@ -97,7 +97,7 @@ flutter run
 - [x] **Phase 1.2** : Modèle enfant (`ChildProfile`, `SchoolGrade`), persistance locale `shared_preferences` & providers Riverpod (`activeProfileProvider`).
 - [x] **Phase 1.3** : Écrans Splash (saut réaliste de Pi), Onboarding (avatar, prénom, sélecteur CP→3e) et Salon de Pi (Hub).
 - [x] **Internationalisation** : Support bilingue natif (🇬🇧 Anglais par défaut / 🇫🇷 Français activable, sélecteur tactile `LanguageSwitcher`, persistance locale).
-- [ ] **Phase 2** : Moteur de génération mathématique CP→3e & Quiz adaptatif.
+- [x] **Phase 2** : Moteur de génération mathématique CP→3e (Cycles 2, 3 et 4 / Grades 1 to 9), session de 6 questions sans stress, écrans de Quiz & Résultats bienveillants avec célébration de Pi et attribution des récompenses (🦴 Os dorés, 🍖 Croquettes, 🎾 Balles).
 - [ ] **Phase 3** : Compagnon Pi, état des 3 jauges & boucle de soin.
 - [ ] **Phase 4** : Économie des Os dorés, inventaire & boutique de déguisements.
 - [ ] **Phase 5** : Limite quotidienne 6/6 & Espace Parents sécurisé (porte mathématique).
