@@ -224,6 +224,11 @@ class PiCompanion {
     );
   }
 
+  /// Débite des Os dorés pour un achat dans la boutique
+  PiCompanion deductBones(int amount) {
+    return copyWith(bones: (bones - amount).clamp(0, 999999));
+  }
+
   PiCompanion copyWith({
     double? hunger,
     double? joy,

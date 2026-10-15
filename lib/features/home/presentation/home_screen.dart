@@ -12,6 +12,9 @@ import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
 import '../../quiz/presentation/quiz_controller.dart';
 import '../../quiz/presentation/quiz_screen.dart';
+import '../../shop/presentation/shop_controller.dart';
+import '../../shop/presentation/shop_screen.dart';
+import '../../shop/presentation/widgets/accessory_overlay_widget.dart';
 import 'settings_sheet.dart';
 
 /// Écran 1 bis : Le Salon de Pi (Hub Principal bilingue EN/FR).
@@ -24,6 +27,7 @@ class HomeScreen extends ConsumerWidget {
     final profileAsync = ref.watch(activeProfileProvider);
     final strings = ref.watch(stringsProvider);
     final companion = ref.watch(careControllerProvider);
+    final shopState = ref.watch(shopControllerProvider);
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -205,6 +209,10 @@ class HomeScreen extends ConsumerWidget {
                               color: AppColors.sky600,
                             ),
                           ),
+                          AccessoryOverlayWidget(
+                            accessoryId: shopState.equippedAccessoryId,
+                            piSize: 130,
+                          ),
                         ],
                       ),
                     ),
@@ -310,11 +318,123 @@ class HomeScreen extends ConsumerWidget {
                       style: AppText.label.copyWith(color: AppColors.sky800),
                     ),
                   ),
+
+                  const SizedBox(height: AppSpace.s3),
+
+                  // 3-Tab Bottom Dock (Soigner, Salon, Boutique)
+                  _buildBottomDock(context, strings),
                 ],
               ),
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildBottomDock(BuildContext context, dynamic strings) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.xxl),
+        border: Border.all(color: AppColors.ink200, width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.ink100,
+            offset: Offset(0, 2),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          // 1. Soigner
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CareScreen()),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.favorite_rounded,
+                    size: 18,
+                    color: AppColors.ink500,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    strings.careDockLabel,
+                    style: AppText.bodyS.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // 2. Salon (Actif)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.sky50,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              border: Border.all(color: AppColors.sky500, width: 1.5),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.home_rounded,
+                  size: 18,
+                  color: AppColors.sky600,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  strings.salonDockLabel,
+                  style: AppText.bodyS.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.sky700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 3. Boutique
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ShopScreen()),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.storefront_rounded,
+                    size: 18,
+                    color: AppColors.ink500,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    strings.shopDockLabel,
+                    style: AppText.bodyS.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

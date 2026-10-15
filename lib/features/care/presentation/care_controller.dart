@@ -123,6 +123,12 @@ class CareController extends StateNotifier<PiCompanion> {
     _saveToStorage();
   }
 
+  /// Débite des Os dorés lors d'un achat dans la boutique
+  void deductBones(int amount) {
+    state = state.deductBones(amount);
+    _saveToStorage();
+  }
+
   /// Sert une croquette dans l'assiette
   void serveBowl({String? message}) {
     state = state.serveBowl(message: message);
