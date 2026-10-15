@@ -5,7 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/domain/child_profile.dart';
 import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
@@ -13,7 +13,12 @@ import '../../profile/presentation/profile_controller.dart';
 /// Écran 1 : Onboarding & Création du Profil Enfant (Bilingue EN/FR).
 /// Conforme à DESIGN_SYSTEM.md §12 et Stitch Screen 11566295510221200974.
 class OnboardingScreen extends ConsumerStatefulWidget {
-  const OnboardingScreen({super.key});
+  final bool canCancel;
+
+  const OnboardingScreen({
+    super.key,
+    this.canCancel = false,
+  });
 
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -25,11 +30,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   SchoolGrade _selectedGrade = SchoolGrade.cm1;
   String? _errorMessage;
 
-  final List<({String id, String emoji})> _avatars = const [
-    (id: 'avatar_dog', emoji: '🐶'),
-    (id: 'avatar_cat', emoji: '🐱'),
-    (id: 'avatar_fox', emoji: '🦊'),
-    (id: 'avatar_bear', emoji: '🐻'),
+  final List<({String id, IconData icon, Color color})> _avatars = const [
+    (id: 'avatar_dog', icon: Icons.pets_rounded, color: AppColors.sky600),
+    (id: 'avatar_cat', icon: Icons.cruelty_free_rounded, color: AppColors.coral500),
+    (id: 'avatar_fox', icon: Icons.forest_rounded, color: AppColors.green600),
+    (id: 'avatar_bear', icon: Icons.theater_comedy_rounded, color: Color(0xFF8B5CF6)),
   ];
 
   @override
@@ -65,15 +70,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: AppMotion.base,
-      ),
-    );
+    if (widget.canCancel) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const MainShellScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: AppMotion.base,
+        ),
+      );
+    }
   }
 
   @override
@@ -94,6 +103,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Bouton Annuler si ouvert depuis le switcher de profil
+                  if (widget.canCancel) ...[
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.ink200, width: 1.5),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_rounded,
+                              size: 20,
+                              color: AppColors.ink600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpace.s3),
+                        Text(
+                          strings.addProfile,
+                          style: AppText.h3.copyWith(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpace.s3),
+                  ],
+
                   // En-tête avec Pi et sa bulle
                   Row(
                     children: [
@@ -138,7 +178,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                   const SizedBox(height: AppSpace.s5),
 
-                  // 1. Choix de l'avatar
+                  // 1. Choix de l'avatar vectoriel
                   Text(
                     strings.chooseAvatar,
                     style: AppText.label.copyWith(color: AppColors.ink600),
@@ -166,9 +206,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             ),
                           ),
                           alignment: Alignment.center,
-                          child: Text(
-                            avatar.emoji,
-                            style: const TextStyle(fontSize: 32),
+                          child: Icon(
+                            avatar.icon,
+                            size: 32,
+                            color: isSelected ? avatar.color : AppColors.ink500,
                           ),
                         ),
                       );

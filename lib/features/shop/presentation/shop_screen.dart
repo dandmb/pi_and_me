@@ -20,7 +20,12 @@ import 'widgets/accessory_overlay_widget.dart';
 /// Permet à l'enfant de dépenser ses Os dorés gagnés lors des quiz
 /// pour débloquer, essayer et équiper des chapeaux, lunettes, colliers et capes.
 class ShopScreen extends ConsumerStatefulWidget {
-  const ShopScreen({super.key});
+  final bool isEmbedded;
+
+  const ShopScreen({
+    super.key,
+    this.isEmbedded = false,
+  });
 
   @override
   ConsumerState<ShopScreen> createState() => _ShopScreenState();
@@ -50,10 +55,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           ),
           child: Column(
             children: [
-              // 1. Barre supérieure : Retour, Titre & Solde d'Os dorés
-              _buildHeader(context, companion.bones, strings),
-
-              const SizedBox(height: AppSpace.s2),
+              // 1. Barre supérieure (si non embarqué)
+              if (!widget.isEmbedded) ...[
+                _buildHeader(context, companion.bones, strings),
+                const SizedBox(height: AppSpace.s2),
+              ],
 
               // 2. Sélecteur de catégories d'accessoires (Chapeaux, Lunettes, Colliers, Capes)
               _buildCategorySelector(shopState.selectedCategory, shopNotifier, strings),
@@ -82,10 +88,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 ),
               ),
 
-              const SizedBox(height: AppSpace.s2),
-
-              // 6. Barre de navigation inférieure (Soigner, Salon, Boutique)
-              _buildBottomDock(context, strings),
+              // 6. Barre de navigation inférieure (si non embarqué)
+              if (!widget.isEmbedded) ...[
+                const SizedBox(height: AppSpace.s2),
+                _buildBottomDock(context, strings),
+              ],
             ],
           ),
         ),

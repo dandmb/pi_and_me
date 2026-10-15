@@ -111,6 +111,34 @@ class AppStrings {
   String get languageTitle => isFrench ? 'Langue de l\'application' : 'App Language';
   String get close => isFrench ? 'Fermer' : 'Close';
 
+  // --- Profils & Sélecteur ---
+  String get profilesTitle => isFrench ? 'Profils des enfants' : 'Child Profiles';
+  String get activeProfileLabel => isFrench ? 'Actif' : 'Active';
+  String get addProfile => isFrench ? 'Ajouter un profil' : 'Add profile';
+  String get maxProfilesReached => isFrench ? 'Maximum 4 profils atteints' : 'Maximum 4 profiles reached';
+  String get deleteProfileConfirm => isFrench ? 'Supprimer ce profil ?' : 'Delete this profile?';
+  String deleteProfileWarning(String name) => isFrench
+      ? 'La progression et les données de $name seront définitivement effacées.'
+      : 'All progress and data for $name will be permanently deleted.';
+  String get cancel => isFrench ? 'Annuler' : 'Cancel';
+  String get delete => isFrench ? 'Supprimer' : 'Delete';
+  String get profileActivated => isFrench ? 'Profil activé !' : 'Profile activated!';
+
+  // --- Confirmation Quitter l'application ---
+  String get confirmExitTitle => isFrench ? 'Quitter Pi & Moi ?' : 'Exit Pi & Moi?';
+  String get confirmExitMessage => isFrench
+      ? 'À très vite pour jouer et apprendre avec Pi !'
+      : 'See you very soon to learn and play with Pi!';
+  String get continuePlaying => isFrench ? 'Continuer à jouer' : 'Keep playing';
+
+  // --- Gestion des erreurs ---
+  String get errorTitle => isFrench ? 'Oups ! Une petite bêtise...' : 'Oops! A little hiccup...';
+  String get errorMessage => isFrench
+      ? 'Pi s\'occupe de tout réparer !'
+      : 'Pi is taking care of everything!';
+  String get retry => isFrench ? 'Réessayer' : 'Retry';
+  String get returnToHome => isFrench ? 'Retour au salon' : 'Return to Home';
+
   // --- Quiz ---
   String get stressFree => isFrench ? '🌱 Sans stress' : '🌱 Stress-free';
   String questionProgress(int current, int total) =>

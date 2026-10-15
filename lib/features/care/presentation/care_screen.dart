@@ -26,9 +26,14 @@ import 'widgets/tennis_ball_widget.dart';
 /// le lancer de balle et la gamelle de croquettes sans aucun emoji artificiel.
 class CareScreen extends ConsumerStatefulWidget {
   final CareInteractionMode initialMode;
+  final bool isEmbedded;
+  final bool isActive;
+
   const CareScreen({
     super.key,
     this.initialMode = CareInteractionMode.play,
+    this.isEmbedded = false,
+    this.isActive = true,
   });
 
   @override
@@ -58,12 +63,31 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!widget.isActive) return;
       final prefs = await SharedPreferences.getInstance();
       final seen = prefs.getBool('has_completed_care_showcase_v1') ?? false;
       if (!seen && mounted) {
         _startShowcase();
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant CareScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final prefs = await SharedPreferences.getInstance();
+        final seen = prefs.getBool('has_completed_care_showcase_v1') ?? false;
+        if (!seen && mounted) {
+          _startShowcase();
+        }
+      });
+    } else if (!widget.isActive && oldWidget.isActive) {
+      try {
+        ShowcaseView.get().dismiss();
+      } catch (_) {}
+    }
   }
 
   void _startShowcase() {
@@ -317,10 +341,38 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           ),
           child: Column(
             children: [
-              // 1. Barre supérieure : Retour, Titre, Aide Showcase & Solde d'Os dorés
-              _buildHeader(context, companion, strings),
-
-              const SizedBox(height: AppSpace.s2),
+              // 1. Barre supérieure : Retour, Titre, Aide Showcase & Solde d'Os dorés (si non embarqué)
+              if (!widget.isEmbedded) ...[
+                _buildHeader(context, companion, strings),
+                const SizedBox(height: AppSpace.s2),
+              ] else ...[
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: _startShowcase,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: AppSpace.s1),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                        border: Border.all(color: AppColors.ink200, width: 1.5),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.help_outline_rounded, size: 16, color: AppColors.sky700),
+                          const SizedBox(width: 4),
+                          Text(
+                            strings.isFrench ? 'Aide' : 'Help',
+                            style: AppText.label.copyWith(fontSize: 12, color: AppColors.sky800),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
 
               // 2. Sélecteur de cadres / décors (Salon, Jardin, Plage, Forêt)
               Showcase(
@@ -384,10 +436,11 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 child: _buildActionTray(companion, strings),
               ),
 
-              const SizedBox(height: AppSpace.s2),
-
-              // 7. Barre de navigation inférieure (Salon / Soigner)
-              _buildBottomDock(context, strings),
+              // 7. Barre de navigation inférieure (si non embarqué)
+              if (!widget.isEmbedded) ...[
+                const SizedBox(height: AppSpace.s2),
+                _buildBottomDock(context, strings),
+              ],
             ],
           ),
         ),

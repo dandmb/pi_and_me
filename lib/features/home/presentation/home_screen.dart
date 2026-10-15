@@ -4,12 +4,13 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
+import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../care/presentation/care_controller.dart';
 import '../../care/presentation/care_screen.dart';
-import '../../onboarding/presentation/onboarding_screen.dart';
 import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
+import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
 import '../../quiz/presentation/quiz_controller.dart';
 import '../../quiz/presentation/quiz_screen.dart';
 import '../../shop/presentation/shop_controller.dart';
@@ -20,7 +21,14 @@ import 'settings_sheet.dart';
 /// Écran 1 bis : Le Salon de Pi (Hub Principal bilingue EN/FR).
 /// Présente l'enfant, l'état de Pi et le point d'accès au Quiz.
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+  final bool isEmbedded;
+  final ValueChanged<int>? onSwitchTab;
+
+  const HomeScreen({
+    super.key,
+    this.isEmbedded = false,
+    this.onSwitchTab,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,8 +44,9 @@ class HomeScreen extends ConsumerWidget {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.sky600),
           ),
-          error: (err, _) => Center(
-            child: Text('Erreur : $err', style: AppText.body),
+          error: (err, _) => AppErrorView(
+            isFrench: strings.isFrench,
+            onRetry: () => ref.invalidate(activeProfileProvider),
           ),
           data: (profile) {
             final childName = profile?.name ?? 'Ami';
@@ -52,11 +61,12 @@ class HomeScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  // Barre supérieure : Pastille profil, Solde d'Os & Sélecteur de langue
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Pastille profil enfant
+                  // Barre supérieure : Pastille profil, Solde d'Os & Sélecteur de langue (si non embarqué)
+                  if (!isEmbedded) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Pastille profil enfant
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: AppSpace.s3,
@@ -142,8 +152,8 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: AppSpace.s4),
+                ],
 
                   // Bulle de dialogue de Pi
                   Container(
@@ -176,9 +186,13 @@ class HomeScreen extends ConsumerWidget {
                   // Mascotte Pi avec ombre au sol (Cliquer ouvre l'aire de jeu / soins)
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const CareScreen()),
-                      );
+                      if (onSwitchTab != null) {
+                        onSwitchTab!(1);
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const CareScreen()),
+                        );
+                      }
                     },
                     child: SizedBox(
                       height: 160,
@@ -223,9 +237,13 @@ class HomeScreen extends ConsumerWidget {
                   // Jauges de Pi (cliquables pour ouvrir l'aire de jeu)
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const CareScreen()),
-                      );
+                      if (onSwitchTab != null) {
+                        onSwitchTab!(1);
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const CareScreen()),
+                        );
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(AppSpace.s4),
@@ -294,11 +312,15 @@ class HomeScreen extends ConsumerWidget {
                     variant: ChunkyButtonVariant.secondary,
                     height: 48,
                     onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const CareScreen(),
-                        ),
-                      );
+                      if (onSwitchTab != null) {
+                        onSwitchTab!(1);
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CareScreen(),
+                          ),
+                        );
+                      }
                     },
                   ),
 
@@ -306,23 +328,18 @@ class HomeScreen extends ConsumerWidget {
 
                   // Bouton secondaire pour changer d'enfant / profil
                   TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (_) => const OnboardingScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: () => ProfileSwitcherSheet.show(context),
                     child: Text(
                       strings.changeProfile,
                       style: AppText.label.copyWith(color: AppColors.sky800),
                     ),
                   ),
 
-                  const SizedBox(height: AppSpace.s3),
-
-                  // 3-Tab Bottom Dock (Soigner, Salon, Boutique)
-                  _buildBottomDock(context, strings),
+                  // 3-Tab Bottom Dock (si non embarqué dans MainShellScreen)
+                  if (!isEmbedded) ...[
+                    const SizedBox(height: AppSpace.s3),
+                    _buildBottomDock(context, strings),
+                  ],
                 ],
               ),
             );

@@ -8,6 +8,7 @@ import '../../../core/widgets/chunky_button.dart';
 import '../../../core/widgets/language_switcher.dart';
 import '../../care/presentation/widgets/feed_walkthrough_dialog.dart';
 import '../../care/presentation/widgets/play_onboarding_dialog.dart';
+import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
 
 /// Feuille modale des Paramètres (accessible via l'icône engrenage).
 /// Contient le réglage de la langue (EN / FR) et les préférences.
@@ -88,6 +89,61 @@ class SettingsSheet extends ConsumerWidget {
                   ),
                   const LanguageSwitcher(),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: AppSpace.s3),
+
+            // Profils des enfants (lister et switcher de profil)
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+                ProfileSwitcherSheet.show(context);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(AppSpace.s4),
+                decoration: BoxDecoration(
+                  color: AppColors.bg,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  border: Border.all(color: AppColors.ink200, width: 1.5),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSpace.s2),
+                      decoration: BoxDecoration(
+                        color: AppColors.sky50,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: const Icon(
+                        Icons.supervised_user_circle_rounded,
+                        color: AppColors.sky600,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpace.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            strings.profilesTitle,
+                            style: AppText.label.copyWith(color: AppColors.ink900),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            strings.changeProfile,
+                            style: AppText.bodyS.copyWith(color: AppColors.ink600),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.ink500,
+                    ),
+                  ],
+                ),
               ),
             ),
 
