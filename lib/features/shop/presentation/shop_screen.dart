@@ -6,8 +6,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../care/presentation/care_controller.dart';
-import '../../care/presentation/care_screen.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
 import '../domain/accessory_category.dart';
@@ -107,7 +106,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         GestureDetector(
           onTap: () {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
+              MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
               (route) => false,
             );
           },
@@ -668,8 +667,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           // 1. Soigner
           GestureDetector(
             onTap: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const CareScreen()),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 1)),
+                (route) => false,
               );
             },
             child: Container(
@@ -698,7 +698,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
                 (route) => false,
               );
             },

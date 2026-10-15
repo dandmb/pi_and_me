@@ -9,9 +9,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/presentation/main_shell_screen.dart';
 import '../../shop/presentation/shop_controller.dart';
-import '../../shop/presentation/shop_screen.dart';
 import '../domain/care_interaction_mode.dart';
 import '../domain/pi_companion.dart';
 import '../domain/play_environment.dart';
@@ -549,7 +548,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         GestureDetector(
           onTap: () {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
+              MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
               (route) => false,
             );
           },
@@ -1285,7 +1284,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
                 (route) => false,
               );
             },
@@ -1314,8 +1313,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           // 3. Boutique
           GestureDetector(
             onTap: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const ShopScreen()),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 2)),
+                (route) => false,
               );
             },
             child: Container(

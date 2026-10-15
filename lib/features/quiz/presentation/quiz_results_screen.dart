@@ -6,8 +6,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../care/presentation/care_controller.dart';
-import '../../care/presentation/care_screen.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
 import 'quiz_controller.dart';
 
@@ -15,6 +14,22 @@ import 'quiz_controller.dart';
 /// Attribue les récompenses en Os dorés 🦴, croquettes 🍖 et balles 🎾.
 class QuizResultsScreen extends ConsumerWidget {
   const QuizResultsScreen({super.key});
+
+  void _finishAndNavigate(BuildContext context, WidgetRef ref, int targetIndex) {
+    final quizState = ref.read(quizControllerProvider);
+    ref.read(careControllerProvider.notifier).addRewards(
+          bones: quizState.bonesEarned,
+          croquettes: quizState.croquettesEarned,
+          balls: quizState.ballsEarned,
+        );
+    ref.read(quizControllerProvider.notifier).resetQuiz();
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => MainShellScreen(initialIndex: targetIndex),
+      ),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,9 +41,16 @@ class QuizResultsScreen extends ConsumerWidget {
     final score = quizState.score;
     final total = quizState.totalQuestions > 0 ? quizState.totalQuestions : 6;
 
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: SafeArea(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _finishAndNavigate(context, ref, 0);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.bg,
+        body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpace.s4,
@@ -66,8 +88,9 @@ class QuizResultsScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildHeader(
     dynamic strings,
@@ -353,43 +376,20 @@ class QuizResultsScreen extends ConsumerWidget {
     WidgetRef ref,
     dynamic strings,
   ) {
-    final quizState = ref.watch(quizControllerProvider);
-
     return Column(
       children: [
         ChunkyButton(
           label: strings.feedAndCare,
           variant: ChunkyButtonVariant.primary,
           height: 52,
-          onPressed: () {
-            ref.read(careControllerProvider.notifier).addRewards(
-                  bones: quizState.bonesEarned,
-                  croquettes: quizState.croquettesEarned,
-                  balls: quizState.ballsEarned,
-                );
-            ref.read(quizControllerProvider.notifier).resetQuiz();
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const CareScreen()),
-            );
-          },
+          onPressed: () => _finishAndNavigate(context, ref, 1),
         ),
         const SizedBox(height: AppSpace.s2),
         ChunkyButton(
           label: strings.backToHome,
           variant: ChunkyButtonVariant.secondary,
           height: 48,
-          onPressed: () {
-            ref.read(careControllerProvider.notifier).addRewards(
-                  bones: quizState.bonesEarned,
-                  croquettes: quizState.croquettesEarned,
-                  balls: quizState.ballsEarned,
-                );
-            ref.read(quizControllerProvider.notifier).resetQuiz();
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-              (route) => false,
-            );
-          },
+          onPressed: () => _finishAndNavigate(context, ref, 0),
         ),
       ],
     );
