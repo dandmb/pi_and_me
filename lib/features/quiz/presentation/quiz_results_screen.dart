@@ -5,6 +5,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
+import '../../care/presentation/care_controller.dart';
+import '../../care/presentation/care_screen.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
 import 'quiz_controller.dart';
@@ -351,6 +353,8 @@ class QuizResultsScreen extends ConsumerWidget {
     WidgetRef ref,
     dynamic strings,
   ) {
+    final quizState = ref.watch(quizControllerProvider);
+
     return Column(
       children: [
         ChunkyButton(
@@ -358,10 +362,14 @@ class QuizResultsScreen extends ConsumerWidget {
           variant: ChunkyButtonVariant.primary,
           height: 52,
           onPressed: () {
+            ref.read(careControllerProvider.notifier).addRewards(
+                  bones: quizState.bonesEarned,
+                  croquettes: quizState.croquettesEarned,
+                  balls: quizState.ballsEarned,
+                );
             ref.read(quizControllerProvider.notifier).resetQuiz();
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-              (route) => false,
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const CareScreen()),
             );
           },
         ),
@@ -371,6 +379,11 @@ class QuizResultsScreen extends ConsumerWidget {
           variant: ChunkyButtonVariant.secondary,
           height: 48,
           onPressed: () {
+            ref.read(careControllerProvider.notifier).addRewards(
+                  bones: quizState.bonesEarned,
+                  croquettes: quizState.croquettesEarned,
+                  balls: quizState.ballsEarned,
+                );
             ref.read(quizControllerProvider.notifier).resetQuiz();
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => const HomeScreen()),

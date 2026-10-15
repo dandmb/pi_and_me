@@ -167,19 +167,28 @@ class _ChunkyButtonState extends State<ChunkyButton> {
                     border: _border,
                   ),
                   alignment: Alignment.center,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (widget.icon != null) ...[
-                        widget.icon!,
-                        const SizedBox(width: AppSpace.s2),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (widget.icon != null) ...[
+                          widget.icon!,
+                          const SizedBox(width: AppSpace.s2),
+                        ],
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              widget.label,
+                              style: _textStyle,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ),
                       ],
-                      Text(
-                        widget.label,
-                        style: _textStyle,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
