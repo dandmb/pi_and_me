@@ -33,13 +33,13 @@ class AppErrorView extends StatelessWidget {
           margin: const EdgeInsets.all(AppSpace.s5),
           padding: const EdgeInsets.all(AppSpace.s6),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.appSurface,
             borderRadius: BorderRadius.circular(AppRadius.xxl),
-            border: Border.all(color: AppColors.ink200, width: 2),
-            boxShadow: const [
+            border: Border.all(color: context.appBorder, width: 2),
+            boxShadow: [
               BoxShadow(
-                color: AppColors.ink100,
-                offset: Offset(0, 4),
+                color: context.appShadow,
+                offset: const Offset(0, 4),
                 blurRadius: 0,
               ),
             ],
@@ -52,7 +52,7 @@ class AppErrorView extends StatelessWidget {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: AppColors.sky50,
+                  color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: AppColors.sky500.withValues(alpha: 0.3),
@@ -71,7 +71,7 @@ class AppErrorView extends StatelessWidget {
               // Titre rassurant
               Text(
                 strings.errorTitle,
-                style: AppText.h3.copyWith(color: AppColors.ink900),
+                style: AppText.h3.copyWith(color: context.appText),
                 textAlign: TextAlign.center,
               ),
 
@@ -80,7 +80,7 @@ class AppErrorView extends StatelessWidget {
               // Message bienveillant
               Text(
                 customMessage ?? strings.errorMessage,
-                style: AppText.body.copyWith(color: AppColors.ink600),
+                style: AppText.body.copyWith(color: context.appSubText),
                 textAlign: TextAlign.center,
               ),
 

@@ -33,9 +33,9 @@ class ProfileSwitcherSheet extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.all(AppSpace.s5),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+      decoration: BoxDecoration(
+        color: context.appSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
       ),
       child: SafeArea(
         top: false,
@@ -50,7 +50,7 @@ class ProfileSwitcherSheet extends ConsumerWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: AppSpace.s4),
                 decoration: BoxDecoration(
-                  color: AppColors.ink200,
+                  color: context.appBorder,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
               ),
@@ -68,7 +68,7 @@ class ProfileSwitcherSheet extends ConsumerWidget {
                 const SizedBox(width: AppSpace.s2),
                 Text(
                   strings.profilesTitle,
-                  style: AppText.h3.copyWith(color: AppColors.ink900),
+                  style: AppText.h3.copyWith(color: context.appText),
                 ),
               ],
             ),
@@ -190,6 +190,7 @@ class ProfileSwitcherSheet extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
+        backgroundColor: context.appSurface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.xl),
         ),
@@ -200,14 +201,14 @@ class ProfileSwitcherSheet extends ConsumerWidget {
             Expanded(
               child: Text(
                 strings.deleteProfileConfirm,
-                style: AppText.h3.copyWith(fontSize: 18),
+                style: AppText.h3.copyWith(fontSize: 18, color: context.appText),
               ),
             ),
           ],
         ),
         content: Text(
           strings.deleteProfileWarning(profile.name),
-          style: AppText.body,
+          style: AppText.body.copyWith(color: context.appSubText),
         ),
         actions: [
           TextButton(
@@ -257,15 +258,19 @@ class _ProfileCard extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpace.s3),
       decoration: BoxDecoration(
-        color: isActive ? AppColors.sky50 : AppColors.surface,
+        color: isActive
+            ? (context.isDark ? AppColors.darkSky50 : AppColors.sky50)
+            : context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
         border: Border.all(
-          color: isActive ? AppColors.sky500 : AppColors.ink200,
+          color: isActive ? AppColors.sky500 : context.appBorder,
           width: isActive ? 2 : 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: isActive ? AppColors.sky50 : AppColors.ink100,
+            color: isActive
+                ? (context.isDark ? Colors.transparent : AppColors.sky50)
+                : context.appShadow,
             offset: const Offset(0, 2),
             blurRadius: 0,
           ),
@@ -288,12 +293,14 @@ class _ProfileCard extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: isActive ? AppColors.sky500 : AppColors.ink100,
+                    color: isActive
+                        ? AppColors.sky500
+                        : (context.isDark ? AppColors.darkSurfaceAlt : AppColors.ink100),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     _getAvatarIcon(profile.avatar),
-                    color: isActive ? Colors.white : AppColors.ink600,
+                    color: isActive ? Colors.white : context.appSubText,
                     size: 24,
                   ),
                 ),
@@ -308,14 +315,14 @@ class _ProfileCard extends ConsumerWidget {
                         profile.name,
                         style: AppText.h3.copyWith(
                           fontSize: 17,
-                          color: AppColors.ink900,
+                          color: context.appText,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         gradeLabel,
                         style: AppText.bodyS.copyWith(
-                          color: AppColors.ink600,
+                          color: context.appSubText,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -355,9 +362,9 @@ class _ProfileCard extends ConsumerWidget {
                   )
                 else if (canDelete)
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.delete_outline_rounded,
-                      color: AppColors.ink500,
+                      color: context.appSubText,
                       size: 22,
                     ),
                     tooltip: strings.delete,

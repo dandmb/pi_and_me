@@ -119,7 +119,7 @@ class InteractivePlayArea extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(horizontal: 24),
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                         decoration: BoxDecoration(
-                          color: AppColors.surface.withValues(alpha: 0.95),
+                          color: (context.isDark ? AppColors.darkSurface : AppColors.surface).withValues(alpha: 0.95),
                           borderRadius: BorderRadius.circular(AppRadius.xl),
                           border: Border.all(color: const Color(0xFF818CF8), width: 2),
                           boxShadow: [
@@ -135,21 +135,21 @@ class InteractivePlayArea extends StatelessWidget {
                           children: [
                             Container(
                               padding: const EdgeInsets.all(12),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFEEF2FF),
+                              decoration: BoxDecoration(
+                                color: context.isDark ? const Color(0xFF312E81) : const Color(0xFFEEF2FF),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
                                 Icons.bedtime_rounded,
                                 size: 30,
-                                color: Color(0xFF6366F1),
+                                color: Color(0xFF818CF8),
                               ),
                             ),
                             const SizedBox(height: 10),
                             Text(
                               'Pi dort paisiblement',
                               style: AppText.h3.copyWith(
-                                color: AppColors.ink900,
+                                color: context.appText,
                                 fontSize: 16,
                               ),
                             ),
@@ -158,7 +158,7 @@ class InteractivePlayArea extends StatelessWidget {
                               'Il se repose bien au chaud dans sa chambre étoilée. Réveille-le d\'abord dans l\'onglet Dodo pour pouvoir jouer ou prendre soin de lui !',
                               textAlign: TextAlign.center,
                               style: AppText.bodyS.copyWith(
-                                color: AppColors.ink600,
+                                color: context.appSubText,
                                 fontSize: 12,
                                 height: 1.3,
                               ),

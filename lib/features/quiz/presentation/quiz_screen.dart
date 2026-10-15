@@ -38,17 +38,17 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.appSurface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.xl),
         ),
         title: Text(
           strings.quitQuizTitle,
-          style: AppText.h3.copyWith(color: AppColors.ink900),
+          style: AppText.h3.copyWith(color: context.appText),
         ),
         content: Text(
           strings.quitQuizMessage,
-          style: AppText.body.copyWith(color: AppColors.ink600),
+          style: AppText.body.copyWith(color: context.appSubText),
         ),
         actions: [
           TextButton(
@@ -82,8 +82,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
     if (question == null) {
       return Scaffold(
-        backgroundColor: AppColors.bg,
-        body: Center(
+        backgroundColor: context.appBg,
+        body: const Center(
           child: CircularProgressIndicator(color: AppColors.sky600),
         ),
       );
@@ -99,7 +99,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         if (!didPop) _confirmExit(context);
       },
       child: Scaffold(
-        backgroundColor: AppColors.bg,
+        backgroundColor: context.appBg,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -165,11 +165,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.appSurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.ink200, width: 1.5),
+              border: Border.all(color: context.appBorder, width: 1.5),
             ),
-            child: const Icon(Icons.close_rounded, size: 20, color: AppColors.ink600),
+            child: Icon(Icons.close_rounded, size: 20, color: context.appSubText),
           ),
         ),
 
@@ -186,7 +186,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   Text(
                     strings.questionProgress(current, total),
                     style: AppText.bodyS.copyWith(
-                      color: AppColors.ink600,
+                      color: context.appSubText,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -205,7 +205,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 10,
-                  backgroundColor: AppColors.ink200,
+                  backgroundColor: context.isDark ? AppColors.darkInk200 : AppColors.ink200,
                   valueColor: const AlwaysStoppedAnimation<Color>(AppColors.green500),
                 ),
               ),
@@ -222,9 +222,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             vertical: AppSpace.s1,
           ),
           decoration: BoxDecoration(
-            color: AppColors.amber50,
+            color: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
             borderRadius: BorderRadius.circular(AppRadius.pill),
-            border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
+            border: Border.all(
+              color: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+              width: 1.5,
+            ),
           ),
           child: Row(
             children: [
@@ -234,7 +237,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 '50',
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: AppColors.amber900,
+                  color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
                 ),
               ),
             ],
@@ -248,13 +251,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpace.s4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 2),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 2),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 4),
+            color: context.appShadow,
+            offset: const Offset(0, 4),
             blurRadius: 0,
           ),
         ],
@@ -265,13 +268,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFE0F2F1),
+              color: context.isDark ? const Color(0xFF042F2E) : const Color(0xFFE0F2F1),
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
             child: Text(
               question.getCategory(isFrench),
               style: AppText.bodyS.copyWith(
-                color: const Color(0xFF00897B),
+                color: context.isDark ? const Color(0xFF2DD4BF) : const Color(0xFF00897B),
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
               ),
@@ -284,7 +287,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           Text(
             question.getPrompt(isFrench),
             style: AppText.h3.copyWith(
-              color: AppColors.ink900,
+              color: context.appText,
               fontSize: 17,
             ),
             textAlign: TextAlign.center,
@@ -297,14 +300,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: AppSpace.s3, horizontal: AppSpace.s4),
             decoration: BoxDecoration(
-              color: AppColors.bg,
+              color: context.appBg,
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: AppColors.ink200, width: 1.5),
+              border: Border.all(color: context.appBorder, width: 1.5),
             ),
             child: Text(
               question.mathExpression,
               style: AppText.mathL.copyWith(
-                color: AppColors.ink900,
+                color: context.appText,
                 fontSize: 26,
               ),
               textAlign: TextAlign.center,
@@ -336,18 +339,18 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         final isAnswered = quizState.isAnswered;
 
         // Détermination du style selon l'état
-        Color bgColor = AppColors.surface;
-        Color borderColor = AppColors.ink200;
-        Color shadowColor = AppColors.ink300;
-        Color textColor = AppColors.ink900;
+        Color bgColor = context.appSurface;
+        Color borderColor = context.appBorder;
+        Color shadowColor = context.appShadow;
+        Color textColor = context.appText;
         Widget? badge;
 
         if (isAnswered) {
           if (isCorrect) {
-            bgColor = const Color(0xFFE8F8F5);
+            bgColor = context.isDark ? const Color(0xFF064E3B) : const Color(0xFFE8F8F5);
             borderColor = AppColors.green500;
             shadowColor = const Color(0xFF15803D);
-            textColor = const Color(0xFF15803D);
+            textColor = context.isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D);
             badge = Container(
               padding: const EdgeInsets.all(2),
               decoration: const BoxDecoration(
@@ -357,10 +360,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               child: const Icon(Icons.check, size: 12, color: Colors.white),
             );
           } else if (isSelected) {
-            bgColor = const Color(0xFFFEE2E2);
+            bgColor = context.isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFEE2E2);
             borderColor = AppColors.coral500;
             shadowColor = const Color(0xFFB91C1C);
-            textColor = AppColors.coral500;
+            textColor = context.isDark ? const Color(0xFFFCA5A5) : AppColors.coral500;
             badge = Container(
               padding: const EdgeInsets.all(2),
               decoration: const BoxDecoration(
@@ -370,14 +373,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               child: const Icon(Icons.close, size: 12, color: Colors.white),
             );
           } else {
-            bgColor = AppColors.surface.withValues(alpha: 0.6);
-            textColor = AppColors.ink500;
+            bgColor = context.appSurface.withValues(alpha: 0.6);
+            textColor = context.appSubText;
           }
         } else if (isSelected) {
-          bgColor = const Color(0xFFE0F2FE);
+          bgColor = context.isDark ? AppColors.darkSky50 : const Color(0xFFE0F2FE);
           borderColor = AppColors.sky600;
           shadowColor = AppColors.sky700;
-          textColor = AppColors.sky700;
+          textColor = context.isDark ? AppColors.darkSky500 : AppColors.sky700;
         }
 
         return GestureDetector(
@@ -416,7 +419,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         style: AppText.bodyS.copyWith(
                           color: isSelected && !isAnswered
                               ? AppColors.sky600
-                              : AppColors.ink500,
+                              : context.appSubText,
                           fontWeight: FontWeight.w800,
                           fontSize: 10,
                         ),
@@ -460,13 +463,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpace.s3),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -479,9 +482,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             height: 48,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.amber50,
+              color: context.isDark ? AppColors.darkSurfaceAlt : AppColors.amber50,
               borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(color: const Color(0xFFFDE68A), width: 1),
+              border: Border.all(
+                color: context.isDark ? AppColors.darkInk200 : const Color(0xFFFDE68A),
+                width: 1,
+              ),
             ),
             child: Image.asset(
               'assets/images/pi_transparent.png',
@@ -501,7 +507,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             child: Text(
               message,
               style: AppText.label.copyWith(
-                color: AppColors.ink900,
+                color: context.appText,
                 fontSize: 13,
               ),
             ),

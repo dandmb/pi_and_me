@@ -378,7 +378,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final shopState = ref.watch(shopControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: context.appBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -400,18 +400,18 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                       margin: const EdgeInsets.only(bottom: AppSpace.s1),
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.appSurface,
                         borderRadius: BorderRadius.circular(AppRadius.pill),
-                        border: Border.all(color: AppColors.ink200, width: 1.5),
+                        border: Border.all(color: context.appBorder, width: 1.5),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.help_outline_rounded, size: 16, color: AppColors.sky700),
+                          Icon(Icons.help_outline_rounded, size: 16, color: context.isDark ? AppColors.darkSky500 : AppColors.sky700),
                           const SizedBox(width: 4),
                           Text(
                             strings.isFrench ? 'Aide' : 'Help',
-                            style: AppText.label.copyWith(fontSize: 12, color: AppColors.sky800),
+                            style: AppText.label.copyWith(fontSize: 12, color: context.isDark ? AppColors.darkSky500 : AppColors.sky800),
                           ),
                         ],
                       ),
@@ -513,13 +513,13 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -545,7 +545,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: AppColors.ink900,
+                      color: context.appText,
                       fontSize: 12,
                     ),
                   ),
@@ -603,14 +603,14 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.appSurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.ink200, width: 1.5),
+              border: Border.all(color: context.appBorder, width: 1.5),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_rounded,
               size: 20,
-              color: AppColors.ink600,
+              color: context.appSubText,
             ),
           ),
         ),
@@ -621,7 +621,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppText.h3.copyWith(color: AppColors.ink900, fontSize: 17),
+            style: AppText.h3.copyWith(color: context.appText, fontSize: 17),
           ),
         ),
         const SizedBox(width: AppSpace.s2),
@@ -634,14 +634,14 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.appSurface,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.ink200, width: 1.5),
+                  border: Border.all(color: context.appBorder, width: 1.5),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.help_outline_rounded,
                   size: 18,
-                  color: AppColors.ink600,
+                  color: context.appSubText,
                 ),
               ),
             ),
@@ -649,9 +649,12 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.amber50,
+                color: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
-                border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
+                border: Border.all(
+                  color: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+                  width: 1.5,
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -662,7 +665,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     '${companion.bones}',
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w900,
-                      color: AppColors.amber900,
+                      color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
                     ),
                   ),
                 ],
@@ -695,10 +698,12 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.sky50 : AppColors.surface,
+                  color: isSelected
+                      ? (context.isDark ? AppColors.darkSky50 : AppColors.sky50)
+                      : context.appSurface,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(
-                    color: isSelected ? AppColors.sky600 : AppColors.ink200,
+                    color: isSelected ? AppColors.sky600 : context.appBorder,
                     width: isSelected ? 2 : 1,
                   ),
                   boxShadow: isSelected
@@ -716,7 +721,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     Icon(
                       env.icon,
                       size: 16,
-                      color: isSelected ? AppColors.sky700 : AppColors.ink600,
+                      color: isSelected
+                          ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                          : context.appSubText,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -724,7 +731,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                       style: AppText.bodyS.copyWith(
                         fontWeight:
                             isSelected ? FontWeight.w900 : FontWeight.w700,
-                        color: isSelected ? AppColors.sky700 : AppColors.ink600,
+                        color: isSelected
+                            ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                            : context.appSubText,
                         fontSize: 12,
                       ),
                     ),
@@ -745,9 +754,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
+        border: Border.all(color: context.appBorder, width: 1.5),
       ),
       child: Row(
         children: [
@@ -847,7 +856,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           child: LinearProgressIndicator(
             value: val,
             minHeight: 5,
-            backgroundColor: AppColors.ink100,
+            backgroundColor: context.appSurfaceAlt,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -864,13 +873,13 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -884,7 +893,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   strings.balls,
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: AppColors.ink900,
+                    color: context.appText,
                     fontSize: 12,
                   ),
                 ),
@@ -951,13 +960,13 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -972,7 +981,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   strings.croquettes,
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: AppColors.ink900,
+                    color: context.appText,
                     fontSize: 12,
                   ),
                 ),
@@ -1093,13 +1102,13 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -1127,7 +1136,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: AppColors.ink900,
+                      color: context.appText,
                       fontSize: 12,
                     ),
                   ),
@@ -1162,13 +1171,13 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpace.s2),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 2),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 2),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 3),
+            color: context.appShadow,
+            offset: const Offset(0, 3),
             blurRadius: 0,
           ),
         ],
@@ -1246,10 +1255,12 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
         decoration: BoxDecoration(
-          color: isSelected ? accentColor.withValues(alpha: 0.12) : AppColors.bg,
+          color: isSelected
+              ? accentColor.withValues(alpha: context.isDark ? 0.25 : 0.12)
+              : context.appSurfaceAlt,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
-            color: isSelected ? accentColor : AppColors.ink200,
+            color: isSelected ? accentColor : context.appBorder,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -1267,7 +1278,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             Icon(
               icon,
               size: 20,
-              color: isSelected ? accentColor : AppColors.ink600,
+              color: isSelected
+                  ? accentColor
+                  : context.appSubText,
             ),
             const SizedBox(height: 2),
             FittedBox(
@@ -1277,7 +1290,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
                   fontSize: 11,
-                  color: isSelected ? accentColor : AppColors.ink900,
+                  color: isSelected ? accentColor : context.appText,
                 ),
               ),
             ),
@@ -1289,7 +1302,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 style: AppText.bodyS.copyWith(
                   fontSize: 8.5,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? accentColor : AppColors.ink500,
+                  color: isSelected ? accentColor : (context.isDark ? AppColors.darkInk500 : AppColors.ink500),
                 ),
               ),
             ),
@@ -1303,9 +1316,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
+        border: Border.all(color: context.appBorder, width: 1.5),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1314,7 +1327,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.sky50,
+              color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
               borderRadius: BorderRadius.circular(AppRadius.md),
               border: Border.all(color: AppColors.sky500, width: 1),
             ),

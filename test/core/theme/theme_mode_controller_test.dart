@@ -9,14 +9,14 @@ void main() {
   });
 
   group('ThemeModeNotifier Tests', () {
-    test('initializes with default light theme', () {
+    test('initializes with default system theme', () {
       final notifier = ThemeModeNotifier();
-      expect(notifier.state, equals(ThemeMode.light));
+      expect(notifier.state, equals(ThemeMode.system));
     });
 
-    test('toggleTheme toggles between light and dark', () async {
+    test('toggleTheme toggles from system to dark then light', () async {
       final notifier = ThemeModeNotifier();
-      expect(notifier.state, equals(ThemeMode.light));
+      expect(notifier.state, equals(ThemeMode.system));
 
       await notifier.toggleTheme();
       expect(notifier.state, equals(ThemeMode.dark));
@@ -31,6 +31,9 @@ void main() {
 
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('pi_theme_mode_key'), equals('dark'));
+
+      await notifier.setTheme(ThemeMode.system);
+      expect(prefs.getString('pi_theme_mode_key'), equals('system'));
     });
   });
 }

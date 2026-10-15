@@ -46,42 +46,48 @@ class _ChunkyButtonState extends State<ChunkyButton> {
     return widget.variant == ChunkyButtonVariant.primary ? AppEdge.primary : AppEdge.standard;
   }
 
-  Color get _faceColor {
-    if (widget.onPressed == null) return AppColors.ink100;
+  Color _getFaceColor(bool isDark) {
+    if (widget.onPressed == null) {
+      return isDark ? AppColors.darkSurfaceAlt : AppColors.ink100;
+    }
     switch (widget.variant) {
       case ChunkyButtonVariant.primary:
         return AppColors.sky600;
       case ChunkyButtonVariant.secondary:
       case ChunkyButtonVariant.danger:
-        return AppColors.surface;
+        return isDark ? AppColors.darkSurface : AppColors.surface;
       case ChunkyButtonVariant.success:
         return AppColors.green600;
     }
   }
 
-  Color get _edgeColor {
+  Color _getEdgeColor(bool isDark) {
     if (widget.onPressed == null) return Colors.transparent;
     switch (widget.variant) {
       case ChunkyButtonVariant.primary:
         return AppColors.sky700;
       case ChunkyButtonVariant.secondary:
-        return AppColors.ink300;
+        return isDark ? AppColors.darkInk200 : AppColors.ink300;
       case ChunkyButtonVariant.success:
         return AppColors.green700;
       case ChunkyButtonVariant.danger:
-        return const Color(0xFFF5B5BE);
+        return isDark ? const Color(0xFF7F1D1D) : const Color(0xFFF5B5BE);
     }
   }
 
-  TextStyle get _textStyle {
+  TextStyle _getTextStyle(bool isDark) {
     if (widget.onPressed == null) {
-      return AppText.buttonM.copyWith(color: AppColors.ink500);
+      return AppText.buttonM.copyWith(
+        color: isDark ? AppColors.darkInk500 : AppColors.ink500,
+      );
     }
     switch (widget.variant) {
       case ChunkyButtonVariant.primary:
         return AppText.buttonL;
       case ChunkyButtonVariant.secondary:
-        return AppText.buttonM.copyWith(color: AppColors.ink900);
+        return AppText.buttonM.copyWith(
+          color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+        );
       case ChunkyButtonVariant.success:
         return AppText.buttonM;
       case ChunkyButtonVariant.danger:
@@ -89,11 +95,14 @@ class _ChunkyButtonState extends State<ChunkyButton> {
     }
   }
 
-  Border? get _border {
+  Border? _getBorder(bool isDark) {
     if (widget.onPressed == null) return null;
     switch (widget.variant) {
       case ChunkyButtonVariant.secondary:
-        return Border.all(color: AppColors.ink200, width: 2);
+        return Border.all(
+          color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+          width: 2,
+        );
       case ChunkyButtonVariant.danger:
         return Border.all(color: AppColors.coral500, width: 2);
       default:
@@ -120,6 +129,7 @@ class _ChunkyButtonState extends State<ChunkyButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final edge = _edgeHeight;
     final totalHeight = widget.height;
     final faceHeight = totalHeight - edge;
@@ -146,7 +156,7 @@ class _ChunkyButtonState extends State<ChunkyButton> {
                 height: totalHeight - 2,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: _edgeColor,
+                    color: _getEdgeColor(isDark),
                     borderRadius: radius,
                   ),
                 ),
@@ -162,9 +172,9 @@ class _ChunkyButtonState extends State<ChunkyButton> {
                 height: faceHeight,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: _faceColor,
+                    color: _getFaceColor(isDark),
                     borderRadius: radius,
-                    border: _border,
+                    border: _getBorder(isDark),
                   ),
                   alignment: Alignment.center,
                   child: Padding(
@@ -182,7 +192,7 @@ class _ChunkyButtonState extends State<ChunkyButton> {
                             fit: BoxFit.scaleDown,
                             child: Text(
                               widget.label,
-                              style: _textStyle,
+                              style: _getTextStyle(isDark),
                               maxLines: 1,
                             ),
                           ),

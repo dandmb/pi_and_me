@@ -52,9 +52,11 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   }
 
   Future<bool> _showExitDialog(BuildContext context, dynamic strings) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.xl),
         ),
@@ -65,14 +67,19 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
             Expanded(
               child: Text(
                 strings.confirmExitTitle,
-                style: AppText.h3.copyWith(fontSize: 18),
+                style: AppText.h3.copyWith(
+                  fontSize: 18,
+                  color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                ),
               ),
             ),
           ],
         ),
         content: Text(
           strings.confirmExitMessage,
-          style: AppText.body,
+          style: AppText.body.copyWith(
+            color: isDark ? AppColors.darkInk600 : AppColors.ink600,
+          ),
         ),
         actions: [
           TextButton(
@@ -302,34 +309,6 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                       ),
                     ),
                   ],
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              // Bouton Toggle Mode Sombre / Clair rapide
-              GestureDetector(
-                onTap: () => ref.read(themeModeProvider.notifier).toggleTheme(),
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: surfaceColor,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: borderColor, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: shadowColor,
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                    size: 18,
-                    color: isDark ? const Color(0xFFFBBF24) : const Color(0xFF6366F1),
-                  ),
                 ),
               ),
 

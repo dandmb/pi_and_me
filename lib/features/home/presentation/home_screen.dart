@@ -38,7 +38,7 @@ class HomeScreen extends ConsumerWidget {
     final shopState = ref.watch(shopControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: context.appBg,
       body: SafeArea(
         child: profileAsync.when(
           loading: () => const Center(
@@ -73,9 +73,9 @@ class HomeScreen extends ConsumerWidget {
                           vertical: AppSpace.s1,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: context.appSurface,
                           borderRadius: BorderRadius.circular(AppRadius.pill),
-                          border: Border.all(color: AppColors.ink200, width: 1.5),
+                          border: Border.all(color: context.appBorder, width: 1.5),
                         ),
                         child: Row(
                           children: [
@@ -87,7 +87,7 @@ class HomeScreen extends ConsumerWidget {
                             const SizedBox(width: AppSpace.s2),
                             Text(
                               '$childName ($gradeLabel)',
-                              style: AppText.label.copyWith(color: AppColors.ink900),
+                              style: AppText.label.copyWith(color: context.appText),
                             ),
                           ],
                         ),
@@ -100,10 +100,10 @@ class HomeScreen extends ConsumerWidget {
                           vertical: AppSpace.s1,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.amber50,
+                          color: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
                           borderRadius: BorderRadius.circular(AppRadius.pill),
                           border: Border.all(
-                            color: const Color(0xFFFDE68A),
+                            color: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
                             width: 1.5,
                           ),
                         ),
@@ -118,7 +118,7 @@ class HomeScreen extends ConsumerWidget {
                             Text(
                               '${companion.bones}',
                               style: AppText.mathS.copyWith(
-                                color: AppColors.amber900,
+                                color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
                               ),
                             ),
                           ],
@@ -132,21 +132,21 @@ class HomeScreen extends ConsumerWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: context.appSurface,
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.ink200, width: 1.5),
-                            boxShadow: const [
+                            border: Border.all(color: context.appBorder, width: 1.5),
+                            boxShadow: [
                               BoxShadow(
-                                color: AppColors.ink100,
-                                offset: Offset(0, 2),
+                                color: context.appShadow,
+                                offset: const Offset(0, 2),
                                 blurRadius: 0,
                               ),
                             ],
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.settings_rounded,
                             size: 22,
-                            color: AppColors.ink600,
+                            color: context.appSubText,
                           ),
                         ),
                       ),
@@ -163,20 +163,20 @@ class HomeScreen extends ConsumerWidget {
                       vertical: AppSpace.s3,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: context.appSurface,
                       borderRadius: BorderRadius.circular(AppRadius.xl),
-                      border: Border.all(color: AppColors.ink200, width: 2),
-                      boxShadow: const [
+                      border: Border.all(color: context.appBorder, width: 2),
+                      boxShadow: [
                         BoxShadow(
-                          color: AppColors.ink100,
-                          offset: Offset(0, 4),
+                          color: context.appShadow,
+                          offset: const Offset(0, 4),
                           blurRadius: 0,
                         ),
                       ],
                     ),
                     child: Text(
                       strings.readyForQuiz(childName),
-                      style: AppText.bodyL.copyWith(color: AppColors.ink900),
+                      style: AppText.bodyL.copyWith(color: context.appText),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -248,9 +248,16 @@ class HomeScreen extends ConsumerWidget {
                     child: Container(
                       padding: const EdgeInsets.all(AppSpace.s4),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.appSurface,
                         borderRadius: BorderRadius.circular(AppRadius.xl),
-                        border: Border.all(color: AppColors.ink200, width: 2),
+                        border: Border.all(color: context.appBorder, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: context.appShadow,
+                            offset: const Offset(0, 4),
+                            blurRadius: 0,
+                          ),
+                        ],
                       ),
                       child: Column(
                         children: [
@@ -479,8 +486,11 @@ class _GaugeRow extends StatelessWidget {
         Icon(icon, size: 16, color: color),
         const SizedBox(width: AppSpace.s2),
         SizedBox(
-          width: 70,
-          child: Text(label, style: AppText.label),
+          width: 82,
+          child: Text(
+            label,
+            style: AppText.label.copyWith(color: context.appText),
+          ),
         ),
         const SizedBox(width: AppSpace.s2),
         Expanded(
@@ -488,7 +498,7 @@ class _GaugeRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.pill),
             child: Container(
               height: 10,
-              color: AppColors.ink100,
+              color: context.appSurfaceAlt,
               child: FractionallySizedBox(
                 alignment: Alignment.centerLeft,
                 widthFactor: value.clamp(0.0, 1.0),
@@ -505,7 +515,7 @@ class _GaugeRow extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Text(
               '$percent %',
-              style: AppText.mathXS,
+              style: AppText.mathXS.copyWith(color: context.appSubText),
             ),
           ),
         ),

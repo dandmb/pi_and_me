@@ -90,7 +90,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final strings = ref.watch(stringsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: context.appBg,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -113,21 +113,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             width: 38,
                             height: 38,
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: context.appSurface,
                               shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.ink200, width: 1.5),
+                              border: Border.all(color: context.appBorder, width: 1.5),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.arrow_back_rounded,
                               size: 20,
-                              color: AppColors.ink600,
+                              color: context.appSubText,
                             ),
                           ),
                         ),
                         const SizedBox(width: AppSpace.s3),
                         Text(
                           strings.addProfile,
-                          style: AppText.h3.copyWith(fontSize: 18),
+                          style: AppText.h3.copyWith(fontSize: 18, color: context.appText),
                         ),
                       ],
                     ),
@@ -154,13 +154,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             vertical: AppSpace.s3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: context.appSurface,
                             borderRadius: BorderRadius.circular(AppRadius.lg),
-                            border: Border.all(color: AppColors.ink200, width: 2),
+                            border: Border.all(color: context.appBorder, width: 2),
                           ),
                           child: Text(
                             strings.onboardingWelcome,
-                            style: AppText.body.copyWith(color: AppColors.ink900),
+                            style: AppText.body.copyWith(color: context.appText),
                           ),
                         ),
                       ),
@@ -172,7 +172,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   // Titre
                   Text(
                     strings.whoWillPlay,
-                    style: AppText.h2,
+                    style: AppText.h2.copyWith(color: context.appText),
                     textAlign: TextAlign.center,
                   ),
 
@@ -181,7 +181,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   // 1. Choix de l'avatar vectoriel
                   Text(
                     strings.chooseAvatar,
-                    style: AppText.label.copyWith(color: AppColors.ink600),
+                    style: AppText.label.copyWith(color: context.appSubText),
                   ),
                   const SizedBox(height: AppSpace.s2),
                   Row(
@@ -198,10 +198,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           width: 68,
                           height: 68,
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.sky50 : AppColors.surface,
+                            color: isSelected
+                                ? (context.isDark ? AppColors.darkSky50 : AppColors.sky50)
+                                : context.appSurface,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isSelected ? AppColors.sky500 : AppColors.ink200,
+                              color: isSelected ? AppColors.sky500 : context.appBorder,
                               width: isSelected ? 3.0 : 2.0,
                             ),
                           ),
@@ -209,7 +211,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           child: Icon(
                             avatar.icon,
                             size: 32,
-                            color: isSelected ? avatar.color : AppColors.ink500,
+                            color: isSelected ? avatar.color : context.appSubText,
                           ),
                         ),
                       );
@@ -221,16 +223,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   // 2. Saisie du prénom
                   Text(
                     strings.yourName,
-                    style: AppText.label.copyWith(color: AppColors.ink600),
+                    style: AppText.label.copyWith(color: context.appSubText),
                   ),
                   const SizedBox(height: AppSpace.s2),
                   TextField(
                     controller: _nameController,
                     maxLength: 12,
-                    style: AppText.bodyL,
+                    style: AppText.bodyL.copyWith(color: context.appText),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: AppColors.surface,
+                      fillColor: context.appSurface,
                       hintText: strings.nameHint,
                       counterText: '',
                       errorText: _errorMessage,
@@ -240,7 +242,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: const BorderSide(color: AppColors.ink200, width: 2),
+                        borderSide: BorderSide(color: context.appBorder, width: 2),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -262,14 +264,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     children: [
                       Text(
                         strings.yourGrade,
-                        style: AppText.label.copyWith(color: AppColors.ink600),
+                        style: AppText.label.copyWith(color: context.appSubText),
                       ),
                       const SizedBox(width: AppSpace.s2),
                       Flexible(
                         child: Text(
                           strings.getCycleLabel(_selectedGrade),
                           style: AppText.bodyS.copyWith(
-                            color: AppColors.sky800,
+                            color: context.isDark ? AppColors.darkSky500 : AppColors.sky800,
                             fontWeight: FontWeight.w700,
                           ),
                           textAlign: TextAlign.end,
@@ -296,15 +298,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           width: (MediaQuery.of(context).size.width.clamp(0.0, AppSpace.maxContentWidth) - 40 - 16) / 3,
                           height: 52,
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.sky50 : AppColors.surface,
+                            color: isSelected
+                                ? (context.isDark ? AppColors.darkSky50 : AppColors.sky50)
+                                : context.appSurface,
                             borderRadius: BorderRadius.circular(AppRadius.md),
                             border: Border.all(
-                              color: isSelected ? AppColors.sky500 : AppColors.ink200,
+                              color: isSelected ? AppColors.sky500 : context.appBorder,
                               width: isSelected ? 3 : 2,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: isSelected ? AppColors.sky700 : AppColors.ink300,
+                                color: isSelected
+                                    ? AppColors.sky700
+                                    : context.appShadow,
                                 offset: const Offset(0, 4),
                                 blurRadius: 0,
                               ),
@@ -317,7 +323,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               Text(
                                 gradeLabel,
                                 style: AppText.mathM.copyWith(
-                                  color: isSelected ? AppColors.sky800 : AppColors.ink900,
+                                  color: isSelected
+                                      ? (context.isDark ? AppColors.darkSky500 : AppColors.sky800)
+                                      : context.appText,
                                   fontWeight: FontWeight.w700,
                                   fontSize: gradeLabel.length > 5 ? 15 : 20,
                                 ),

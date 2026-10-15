@@ -19,13 +19,13 @@ class LanguageSwitcher extends ConsumerWidget {
       height: 38,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.pill),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -42,7 +42,9 @@ class LanguageSwitcher extends ConsumerWidget {
               duration: AppMotion.fast,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.sky50 : Colors.transparent,
+                color: isSelected
+                    ? (context.isDark ? AppColors.darkSky50 : AppColors.sky50)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 border: isSelected
                     ? Border.all(color: AppColors.sky500, width: 1.5)
@@ -56,7 +58,9 @@ class LanguageSwitcher extends ConsumerWidget {
                   Text(
                     lang.label,
                     style: AppText.label.copyWith(
-                      color: isSelected ? AppColors.sky800 : AppColors.ink600,
+                      color: isSelected
+                          ? (context.isDark ? AppColors.darkSky500 : AppColors.sky800)
+                          : context.appSubText,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                       fontSize: 12,
                     ),

@@ -55,4 +55,40 @@ abstract final class AppColors {
   static const darkInk900 = Color(0xFFF8FAFC);     // Texte principal sombre (Slate 50)
   static const darkSky50 = Color(0xFF0C4A6E);      // Fond bleu nuit accent (Sky 900)
   static const darkSky500 = Color(0xFF38BDF8);     // Marque claire pour contraste sombre (Sky 400)
+
+  // Aides sémantiques adaptées au mode clair / sombre
+  static bool isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  static Color bgOf(BuildContext context) =>
+      isDark(context) ? darkBg : bg;
+
+  static Color surfaceOf(BuildContext context) =>
+      isDark(context) ? darkSurface : surface;
+
+  static Color surfaceAltOf(BuildContext context) =>
+      isDark(context) ? darkSurfaceAlt : ink100;
+
+  static Color borderOf(BuildContext context) =>
+      isDark(context) ? darkInk200 : ink200;
+
+  static Color textOf(BuildContext context) =>
+      isDark(context) ? darkInk900 : ink900;
+
+  static Color subTextOf(BuildContext context) =>
+      isDark(context) ? darkInk600 : ink600;
+
+  static Color shadowOf(BuildContext context) =>
+      isDark(context) ? Colors.black.withValues(alpha: 0.3) : ink100;
+}
+
+extension AppThemeX on BuildContext {
+  bool get isDark => AppColors.isDark(this);
+  Color get appBg => AppColors.bgOf(this);
+  Color get appSurface => AppColors.surfaceOf(this);
+  Color get appSurfaceAlt => AppColors.surfaceAltOf(this);
+  Color get appBorder => AppColors.borderOf(this);
+  Color get appText => AppColors.textOf(this);
+  Color get appSubText => AppColors.subTextOf(this);
+  Color get appShadow => AppColors.shadowOf(this);
 }

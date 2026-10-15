@@ -10,7 +10,7 @@ final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((r
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   static const _prefKey = 'pi_theme_mode_key';
 
-  ThemeModeNotifier({ThemeMode initial = ThemeMode.light}) : super(initial) {
+  ThemeModeNotifier({ThemeMode initial = ThemeMode.system}) : super(initial) {
     _loadTheme();
   }
 
@@ -21,7 +21,7 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
       state = ThemeMode.dark;
     } else if (saved == 'light') {
       state = ThemeMode.light;
-    } else if (saved == 'system') {
+    } else {
       state = ThemeMode.system;
     }
   }
