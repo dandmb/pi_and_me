@@ -65,7 +65,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Vérifie les textes d'en-tête
-      expect(find.text('✨ Quiz Terminé !'), findsOneWidget);
+      expect(find.text('Quiz Terminé !'), findsOneWidget);
       expect(find.text('Bravo Léa !'), findsOneWidget);
       expect(find.text('Score : 5 / 6'), findsOneWidget);
 
@@ -76,8 +76,8 @@ void main() {
       expect(find.text('Balles'), findsOneWidget);
 
       // Vérifie les boutons d'action
-      expect(find.text('Nourrir & Soigner Pi 🍖'), findsOneWidget);
-      expect(find.text('Retour au salon 🏠'), findsOneWidget);
+      expect(find.text('Nourrir & Soigner Pi'), findsOneWidget);
+      expect(find.text('Retour au salon'), findsOneWidget);
     });
 
     testWidgets('renders in English when language is English', (tester) async {
@@ -88,14 +88,14 @@ void main() {
       await tester.pumpWidget(buildTestableResultsScreen(systemLocale: 'en', score: 6));
       await tester.pumpAndSettle();
 
-      expect(find.text('✨ Quiz Completed!'), findsOneWidget);
+      expect(find.text('Quiz Completed!'), findsOneWidget);
       expect(find.text('Well done Léa!'), findsOneWidget);
       expect(find.text('Score: 6 / 6'), findsOneWidget);
       expect(find.text('Golden bones'), findsOneWidget);
       expect(find.text('Kibbles'), findsOneWidget);
       expect(find.text('Balls'), findsOneWidget);
-      expect(find.text('Feed & Care for Pi 🍖'), findsOneWidget);
-      expect(find.text('Back to living room 🏠'), findsOneWidget);
+      expect(find.text('Feed & Care for Pi'), findsOneWidget);
+      expect(find.text('Back to living room'), findsOneWidget);
     });
   });
 }

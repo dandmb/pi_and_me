@@ -138,7 +138,7 @@ class AppStrings {
 
   // --- Résultats / Results ---
   String get quizCompleted =>
-      isFrench ? '✨ Quiz Terminé !' : '✨ Quiz Completed!';
+      isFrench ? 'Quiz Terminé !' : 'Quiz Completed!';
   String quizBravo(String name) =>
       isFrench ? 'Bravo $name !' : 'Well done $name!';
   String quizSummary(int score, int total) =>
@@ -146,16 +146,16 @@ class AppStrings {
   String quizEncouragement(int score, int total) {
     if (score == total) {
       return isFrench
-          ? 'Incroyable ! Un sans-faute parfait ! 🌟'
-          : 'Incredible! A perfect score! 🌟';
+          ? 'Incroyable ! Un sans-faute parfait !'
+          : 'Incredible! A perfect score!';
     } else if (score >= total / 2) {
       return isFrench
-          ? 'Super travail ! Tu progresses à grands pas ! 🐾'
-          : 'Great work! You are making huge progress! 🐾';
+          ? 'Super travail ! Tu progresses à grands pas !'
+          : 'Great work! You are making huge progress!';
     } else {
       return isFrench
-          ? 'Bien joué ! Chaque entraînement te rend plus fort ! 💪'
-          : 'Well done! Practice makes you stronger! 💪';
+          ? 'Bien joué ! Chaque entraînement te rend plus fort !'
+          : 'Well done! Practice makes you stronger!';
     }
   }
   String get rewardsEarned =>
@@ -164,10 +164,90 @@ class AppStrings {
   String get croquettes => isFrench ? 'Croquettes' : 'Kibbles';
   String get balls => isFrench ? 'Balles' : 'Balls';
   String streakDays(int days) => isFrench
-      ? '🔥 Série : $days jour${days > 1 ? "s" : ""}'
-      : '🔥 Streak: $days day${days > 1 ? "s" : ""}';
+      ? 'Série : $days jour${days > 1 ? "s" : ""}'
+      : 'Streak: $days day${days > 1 ? "s" : ""}';
   String get feedAndCare =>
-      isFrench ? 'Nourrir & Soigner Pi 🍖' : 'Feed & Care for Pi 🍖';
+      isFrench ? 'Nourrir & Soigner Pi' : 'Feed & Care for Pi';
   String get backToHome =>
-      isFrench ? 'Retour au salon 🏠' : 'Back to living room 🏠';
+      isFrench ? 'Retour au salon' : 'Back to living room';
+
+  // --- Soins & Aire de Jeu (Care & Play) ---
+  String get careTitle =>
+      isFrench ? 'Prendre soin de Pi' : 'Care for Pi';
+  String get playArea =>
+      isFrench ? 'Aire de jeu' : 'Playground';
+  String get livingRoomEnv =>
+      isFrench ? 'Salon' : 'Living Room';
+  String get gardenEnv =>
+      isFrench ? 'Jardin' : 'Garden';
+  String get beachEnv =>
+      isFrench ? 'Plage' : 'Beach';
+  String get forestEnv =>
+      isFrench ? 'Forêt' : 'Forest';
+  String get feedAction =>
+      isFrench ? 'Nourrir' : 'Feed';
+  String get playAction =>
+      isFrench ? 'Jouer' : 'Play';
+  String get walkAction =>
+      isFrench ? 'Guider' : 'Guide';
+  String get sleepAction =>
+      isFrench ? 'Dodo' : 'Sleep';
+  String available(int count) =>
+      isFrench ? '$count dispo' : '$count left';
+  String get unlimited =>
+      isFrench ? 'Illimité' : 'Unlimited';
+  String get tapToPlay => isFrench
+      ? 'Touche le terrain pour diriger Pi !'
+      : 'Tap the ground to guide Pi!';
+  String get throwBallAction =>
+      isFrench ? 'Lancer la balle' : 'Throw the ball';
+  String get piChasingBall =>
+      isFrench ? 'Pi court après la balle !' : 'Pi is running after the ball!';
+  String get piFetchedBall =>
+      isFrench ? 'Wouf ! Balle rapportée ! (+25% Joie)' : 'Woof! Ball fetched! (+25% Joy)';
+  String get ballInPlay => isFrench
+      ? 'Une balle est déjà en jeu ! Touche le terrain pour guider Pi.'
+      : 'A ball is already in play! Tap the screen to guide Pi.';
+  String get noBallsLeft => isFrench
+      ? 'Plus de balle ! Réussis un quiz pour en gagner.'
+      : 'No balls left! Complete a quiz to get more.';
+  String get serveAction =>
+      isFrench ? 'Servir' : 'Serve';
+  String get comeEatAction =>
+      isFrench ? 'Viens manger !' : 'Come eat!';
+  String get bowlFilled => isFrench
+      ? 'Croquette servie dans la gamelle !'
+      : 'Kibble served in the bowl!';
+  String get bowlFull => isFrench
+      ? 'La gamelle est pleine !'
+      : 'The bowl is full!';
+  String get piEating => isFrench
+      ? 'Miam miam miam...'
+      : 'Yum yum yum...';
+  String get piFinishedEating => isFrench
+      ? 'Miam ! Délicieux repas, merci ! (+Faim)'
+      : 'Yum! Delicious meal, thank you! (+Hunger)';
+  String get noFoodLeft => isFrench
+      ? 'Plus de croquettes ! Réussis un quiz pour en gagner.'
+      : 'No kibbles left! Complete a quiz to get more.';
+  String get cleanAction =>
+      isFrench ? 'Laver' : 'Wash';
+  String get piCleaned => isFrench
+      ? 'Tout propre et tout frais ! (+15% Joie)'
+      : 'All clean and fresh! (+15% Joy)';
+  String get cleanliness =>
+      isFrench ? 'Propreté' : 'Cleanliness';
+  String get piRested => isFrench
+      ? 'Chut... Pi se repose bien (+30% Énergie)'
+      : 'Shh... Pi is resting well (+30% Energy)';
+  String get piFed => isFrench
+      ? 'Miam ! Pi s\'est régalé ! (+25% Faim)'
+      : 'Yum! Pi enjoyed the treat! (+25% Hunger)';
+  String get needMoreQuiz => isFrench
+      ? 'Fais un quiz pour gagner plus de récompenses !'
+      : 'Take a quiz to win more rewards!';
+  String get careDockLabel =>
+      isFrench ? 'Soigner' : 'Care';
+  String get salonDockLabel =>
+      isFrench ? 'Salon' : 'Home';
 }
