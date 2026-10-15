@@ -43,18 +43,18 @@ abstract final class AppColors {
   static const bg = Color(0xFFF8F9FA);     // Fond d'écran
   static const surface = Color(0xFFFFFFFF);// Cartes, tuiles
 
-  // Mode Sombre (Dark Theme)
-  static const darkBg = Color(0xFF0F172A);         // Fond sombre profond (Slate 900)
-  static const darkSurface = Color(0xFF1E293B);    // Cartes & docks sombres (Slate 800)
-  static const darkSurfaceAlt = Color(0xFF273549); // Cartes secondaires sombres (Slate 750)
-  static const darkInk100 = Color(0xFF1E293B);
-  static const darkInk200 = Color(0xFF334155);     // Bordures sombres (Slate 700)
-  static const darkInk300 = Color(0xFF475569);     // Bords chunky sombres (Slate 600)
-  static const darkInk500 = Color(0xFF94A3B8);     // Texte tertiaire sombre (Slate 400)
-  static const darkInk600 = Color(0xFFCBD5E1);     // Texte secondaire sombre (Slate 300)
-  static const darkInk900 = Color(0xFFF8FAFC);     // Texte principal sombre (Slate 50)
-  static const darkSky50 = Color(0xFF0C4A6E);      // Fond bleu nuit accent (Sky 900)
-  static const darkSky500 = Color(0xFF38BDF8);     // Marque claire pour contraste sombre (Sky 400)
+  // Mode Sombre (Vrai Noir AMOLED / Pure Black Theme)
+  static const darkBg = Color(0xFF000000);         // Fond noir pur (AMOLED Black)
+  static const darkSurface = Color(0xFF121212);    // Cartes, conteneurs & docks sombres
+  static const darkSurfaceAlt = Color(0xFF1E1E1E); // Cartes secondaires sombres
+  static const darkInk100 = Color(0xFF181818);
+  static const darkInk200 = Color(0xFF2A2A2A);     // Bordures sombres neutres
+  static const darkInk300 = Color(0xFF383838);     // Bords chunky sombres
+  static const darkInk500 = Color(0xFF8E8E93);     // Texte tertiaire sombre
+  static const darkInk600 = Color(0xFFCCCCCC);     // Texte secondaire sombre
+  static const darkInk900 = Color(0xFFFFFFFF);     // Texte principal blanc pur
+  static const darkSky50 = Color(0xFF0A2233);      // Fond bleu nuit accent
+  static const darkSky500 = Color(0xFF38BDF8);     // Marque claire pour contraste sombre
 
   // Aides sémantiques adaptées au mode clair / sombre
   static bool isDark(BuildContext context) =>

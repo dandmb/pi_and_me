@@ -156,8 +156,15 @@ void main() {
       await tester.pumpWidget(buildTestableCareScreen(systemLocale: 'fr'));
       await tester.pumpAndSettle();
 
-      // Clic sur Dodo
+      // Clic sur Dodo : Pi ne dort pas directement, l'enfant appuie sur « Faire dodo »
       await tester.tap(find.text('Dodo'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pi a besoin d\'un bon dodo'), findsOneWidget);
+      expect(find.widgetWithText(ChunkyButton, 'Faire dodo'), findsOneWidget);
+
+      // Clic sur Faire dodo
+      await tester.tap(find.widgetWithText(ChunkyButton, 'Faire dodo'));
       await tester.pumpAndSettle();
 
       expect(find.text('Pi dort paisiblement... Chut !'), findsOneWidget);

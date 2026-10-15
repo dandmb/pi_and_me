@@ -90,7 +90,7 @@ class SettingsSheet extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        strings.isFrench ? 'Français activé' : 'English active',
+                        strings.languageActiveDescription,
                         style: AppText.bodyS.copyWith(
                           color: isDark ? AppColors.darkInk500 : AppColors.ink600,
                         ),

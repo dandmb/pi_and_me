@@ -49,10 +49,10 @@ class HomeScreen extends ConsumerWidget {
             onRetry: () => ref.invalidate(activeProfileProvider),
           ),
           data: (profile) {
-            final childName = profile?.name ?? 'Ami';
+            final childName = profile?.name ?? strings.defaultFriendName;
             final gradeLabel = profile != null
                 ? strings.getGradeLabel(profile.grade)
-                : (strings.isFrench ? 'CM1' : 'Grade 4');
+                : strings.getGradeLabel(SchoolGrade.cm1);
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(

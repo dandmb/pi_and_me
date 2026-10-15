@@ -13,6 +13,7 @@ import '../../care/presentation/care_screen.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../home/presentation/settings_sheet.dart';
 import '../../profile/domain/child_profile.dart';
+import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
 import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
 import '../../shop/presentation/shop_screen.dart';
@@ -194,10 +195,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     ThemeMode themeMode,
   ) {
     final profile = profileAsync.valueOrNull;
-    final childName = profile?.name ?? (strings.isFrench ? 'Ami' : 'Friend');
+    final childName = profile?.name ?? strings.defaultFriendName;
     final gradeLabel = profile != null
         ? strings.getGradeLabel(profile.grade)
-        : (strings.isFrench ? 'CM1' : 'Grade 4');
+        : strings.getGradeLabel(SchoolGrade.cm1);
 
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkInk200 : AppColors.ink200;
@@ -348,8 +349,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
 
   // --- BOTTOM BAR UNIFIÉE (Dock Flottant Moderne : Salon, Soigner, Boutique) ---
   Widget _buildBottomNavigationBar(BuildContext context, dynamic strings, bool isDark) {
-    final dockBg = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final dockBorder = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    final dockBg = isDark ? AppColors.darkSurface : Colors.white;
+    final dockBorder = isDark ? AppColors.darkInk200 : const Color(0xFFE2E8F0);
 
     return SafeArea(
       top: false,

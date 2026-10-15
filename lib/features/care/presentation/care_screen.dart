@@ -129,12 +129,6 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     setState(() {
       _activeMode = newMode;
     });
-
-    // 3. Si passage au mode dodo et qu'il ne dort pas encore, installer Pi dans son lit
-    if (newMode == CareInteractionMode.sleep && !ref.read(careControllerProvider).isSleeping) {
-      final strings = ref.read(stringsProvider);
-      ref.read(careControllerProvider.notifier).sleepPi(strings.piRested);
-    }
   }
 
   /// Lance une balle de tennis sur le terrain à un endroit aléatoire parmi 6 zones distinctes
@@ -144,11 +138,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final notifier = ref.read(careControllerProvider.notifier);
 
     if (companion.isSleeping) {
-      _showRewardPrompt(
-        strings.isFrench
-            ? 'Pi dort paisiblement ! Réveille-le d\'abord dans Dodo pour jouer.'
-            : 'Pi is sleeping! Wake him up first in Sleep mode to play.',
-      );
+      _showRewardPrompt(strings.sleepAlertPlay);
       return;
     }
 
@@ -197,7 +187,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
       notifier.moveTo(
         targetX,
         targetY,
-        message: strings.isFrench ? 'J\'attrape la balle !' : 'Catching the ball!',
+        message: strings.catchingBall,
       );
 
       _returnTimer = Timer(const Duration(milliseconds: 700), () {
@@ -214,11 +204,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final notifier = ref.read(careControllerProvider.notifier);
 
     if (companion.isSleeping) {
-      _showRewardPrompt(
-        strings.isFrench
-            ? 'Pi dort ! Réveille-le d\'abord dans Dodo pour le nourrir.'
-            : 'Pi is sleeping! Wake him up first in Sleep mode to feed him.',
-      );
+      _showRewardPrompt(strings.sleepAlertFeed);
       return;
     }
 
@@ -271,11 +257,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final notifier = ref.read(careControllerProvider.notifier);
 
     if (companion.isSleeping) {
-      _showRewardPrompt(
-        strings.isFrench
-            ? 'Pi dort ! Réveille-le d\'abord dans Dodo pour le laver.'
-            : 'Pi is sleeping! Wake him up first in Sleep mode to wash him.',
-      );
+      _showRewardPrompt(strings.sleepAlertWash);
       return;
     }
 
@@ -318,7 +300,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             notifier.moveTo(
               ballX,
               ballY,
-              message: strings.isFrench ? 'Balle trouvée !' : 'Ball found!',
+              message: strings.ballFound,
             );
 
             _returnTimer = Timer(const Duration(milliseconds: 600), () {
@@ -410,7 +392,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                           Icon(Icons.help_outline_rounded, size: 16, color: context.isDark ? AppColors.darkSky500 : AppColors.sky700),
                           const SizedBox(width: 4),
                           Text(
-                            strings.isFrench ? 'Aide' : 'Help',
+                            strings.guideHelp,
                             style: AppText.label.copyWith(fontSize: 12, color: context.isDark ? AppColors.darkSky500 : AppColors.sky800),
                           ),
                         ],
@@ -423,10 +405,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               // 2. Sélecteur de cadres / décors (Salon, Jardin, Plage, Forêt)
               Showcase(
                 key: _envShowcaseKey,
-                title: strings.isFrench ? 'Décors immersifs' : 'Play Environments',
-                description: strings.isFrench
-                    ? 'Choisis l\'endroit où Pi va s\'amuser : Salon, Jardin, Plage ou Forêt.'
-                    : 'Choose where Pi plays: Living Room, Garden, Beach or Forest.',
+                title: strings.guideEnvironmentsTitle,
+                description: strings.guideEnvironmentsDesc,
                 targetBorderRadius: BorderRadius.circular(20),
                 child: _buildEnvironmentSelector(companion, strings),
               ),
@@ -436,10 +416,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               // 3. Les Jauges vitales (Faim, Joie, Énergie, Propreté)
               Showcase(
                 key: _gaugesShowcaseKey,
-                title: strings.isFrench ? 'Besoins vitaux de Pi' : 'Pi\'s Vital Gauges',
-                description: strings.isFrench
-                    ? 'Surveille la faim, la joie, l\'énergie et la propreté de Pi !'
-                    : 'Monitor Pi\'s hunger, joy, energy, and cleanliness!',
+                title: strings.guideVitalsTitle,
+                description: strings.guideVitalsDesc,
                 targetBorderRadius: BorderRadius.circular(16),
                 child: _buildGaugesRow(companion, strings),
               ),
@@ -461,10 +439,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               // 5. Barre contextuelle selon le mode actif
               Showcase(
                 key: _actionControlShowcaseKey,
-                title: strings.isFrench ? 'Barre d\'interaction' : 'Interaction Bar',
-                description: strings.isFrench
-                    ? 'Lance la balle, sers les croquettes, lave Pi ou prépare sa sieste !'
-                    : 'Throw the ball, serve kibbles, wash Pi, or prepare for bedtime!',
+                title: strings.guideInteractionTitle,
+                description: strings.guideInteractionDesc,
                 targetBorderRadius: BorderRadius.circular(20),
                 child: _buildModeControlBar(companion, strings),
               ),
@@ -474,10 +450,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               // 6. Plateau tactile d'actions (Jouer, Nourrir, Laver, Guider, Dodo)
               Showcase(
                 key: _actionTrayShowcaseKey,
-                title: strings.isFrench ? 'Actions de soin' : 'Care & Play Tray',
-                description: strings.isFrench
-                    ? 'Prends soin de Pi : Jouer à la balle, Nourrir, Laver dans la douche, Guider ou Dodo !'
-                    : 'Take care of Pi: Play fetch, Feed, Wash in dog shower, Guide, or Sleep!',
+                title: strings.guideActionsTitle,
+                description: strings.guideActionsDesc,
                 targetBorderRadius: BorderRadius.circular(24),
                 child: _buildActionTray(companion, strings),
               ),
@@ -538,9 +512,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    isSleeping
-                        ? (strings.isFrench ? 'Pi dort paisiblement... Chut !' : 'Pi is sleeping peacefully... Shh!')
-                        : (strings.isFrench ? 'Pi a besoin d\'un bon dodo' : 'Pi needs a good nap'),
+                    isSleeping ? strings.piSleepingBanner : strings.piNeedsSleep,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
@@ -558,9 +530,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             height: 38,
             width: 130,
             child: ChunkyButton(
-              label: isSleeping
-                  ? (strings.isFrench ? 'Réveiller' : 'Wake up')
-                  : (strings.isFrench ? 'Faire dodo' : 'Go to sleep'),
+              label: isSleeping ? strings.wakeUpAction : strings.goToSleepAction,
               icon: Icon(
                 isSleeping ? Icons.wb_sunny_rounded : Icons.bedtime_rounded,
                 size: 15,
@@ -930,7 +900,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             width: 148,
             child: ChunkyButton(
               label: companion.isSleeping
-                  ? (strings.isFrench ? 'Pi dort...' : 'Pi asleep...')
+                  ? strings.piAsleep
                   : strings.throwBallAction,
               icon: Icon(
                 companion.isSleeping ? Icons.bedtime_rounded : Icons.sports_tennis_rounded,
@@ -1036,7 +1006,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    strings.isFrench ? 'Repas en cours...' : 'Eating...',
+                    strings.eatingInProgress,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w900,
                       color: AppColors.green700,
@@ -1053,8 +1023,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               width: companion.bowlFoodCount > 0 ? 86 : 110,
               child: ChunkyButton(
                 label: companion.isSleeping
-                    ? (strings.isFrench ? 'Dort' : 'Sleeping')
-                    : (isFull ? (strings.isFrench ? 'Rassasié' : 'Full') : strings.serveAction),
+                    ? strings.sleepingStatus
+                    : (isFull ? strings.fullStatus : strings.serveAction),
                 icon: Icon(
                   isFull ? Icons.check_circle_rounded : Icons.soup_kitchen_rounded,
                   size: 15,
@@ -1128,10 +1098,10 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 Expanded(
                   child: Text(
                     companion.isSleeping
-                        ? (strings.isFrench ? 'Pi dort paisiblement...' : 'Pi is sleeping...')
+                        ? strings.piSleepingBanner
                         : (companion.isDirty
-                            ? (strings.isFrench ? 'Pi a besoin d\'un bon bain !' : 'Pi needs a good bath!')
-                            : (strings.isFrench ? 'Pi est tout propre et brillant !' : 'Pi is all clean and fresh!')),
+                            ? strings.piNeedsBath
+                            : strings.piAllClean),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
@@ -1210,8 +1180,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.shower_rounded,
               label: strings.cleanAction,
               subtitle: companion.isDirty
-                  ? (strings.isFrench ? 'Sale' : 'Dirty')
-                  : (strings.isFrench ? 'Propre' : 'Clean'),
+                  ? strings.dirtyStatus
+                  : strings.cleanStatus,
               accentColor: const Color(0xFF6366F1),
             ),
           ),

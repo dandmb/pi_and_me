@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -13,7 +15,7 @@ import 'widgets/tennis_ball_widget.dart';
 /// Surface de jeu interactive plein écran / grand cadre.
 /// Supporte 4 environnements de plein air/salon, la douche pour chien dédiée au lavage,
 /// la chambre étoilée pour le dodo, l'assiette de nourriture et Pi avec ses postures.
-class InteractivePlayArea extends StatelessWidget {
+class InteractivePlayArea extends ConsumerWidget {
   final PiCompanion companion;
   final CareInteractionMode activeMode;
   final String? equippedAccessoryId;
@@ -28,9 +30,10 @@ class InteractivePlayArea extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(stringsProvider);
     final env = companion.environment;
-    final isSleeping = companion.isSleeping || activeMode == CareInteractionMode.sleep;
+    final isSleeping = companion.isSleeping;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -147,7 +150,7 @@ class InteractivePlayArea extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'Pi dort paisiblement',
+                              strings.piSleepingTitle,
                               style: AppText.h3.copyWith(
                                 color: context.appText,
                                 fontSize: 16,
@@ -155,7 +158,7 @@ class InteractivePlayArea extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Il se repose bien au chaud dans sa chambre étoilée. Réveille-le d\'abord dans l\'onglet Dodo pour pouvoir jouer ou prendre soin de lui !',
+                              strings.piSleepingDesc,
                               textAlign: TextAlign.center,
                               style: AppText.bodyS.copyWith(
                                 color: context.appSubText,
@@ -227,7 +230,7 @@ class InteractivePlayArea extends StatelessWidget {
 
                           // Sprite de Pi avec ombre et taches de saleté éventuelles
                           SizedBox(
-                            width: 110,
+                            width: isSleeping ? 140 : 110,
                             height: 104,
                             child: Stack(
                               alignment: Alignment.center,
@@ -236,12 +239,12 @@ class InteractivePlayArea extends StatelessWidget {
                                 Positioned(
                                   bottom: 0,
                                   child: Container(
-                                    width: isSleeping ? 86 : 76,
+                                    width: isSleeping ? 116 : 76,
                                     height: 12,
                                     decoration: BoxDecoration(
                                       color: Colors.black.withValues(alpha: 0.15),
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.elliptical(86, 12),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.elliptical(isSleeping ? 116 : 86, 12),
                                       ),
                                     ),
                                   ),
@@ -259,7 +262,8 @@ class InteractivePlayArea extends StatelessWidget {
                                           isSleeping
                                               ? 'assets/images/pi_sleeping.png'
                                               : 'assets/images/pi_transparent.png',
-                                          height: 96,
+                                          height: isSleeping ? 84 : 96,
+                                          width: isSleeping ? 132 : null,
                                           fit: BoxFit.contain,
                                           errorBuilder: (context, error, stackTrace) =>
                                               const Icon(
@@ -424,7 +428,7 @@ class InteractivePlayArea extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Color(0xFF0B1329), Color(0xFF1E293B)],
+                    colors: [Color(0xFF000000), Color(0xFF111111)],
                   ),
                 ),
                 child: Stack(
@@ -447,13 +451,13 @@ class InteractivePlayArea extends StatelessWidget {
             ),
 
             // Plinthe en bois sombre
-            Container(height: 6, color: const Color(0xFF334155)),
+            Container(height: 6, color: const Color(0xFF262626)),
 
             // Parquet sombre de chambre avec panier douillet au centre
             Expanded(
               flex: 5,
               child: Container(
-                color: const Color(0xFF1E293B),
+                color: const Color(0xFF141414),
                 child: Stack(
                   children: [
                     // Grand panier douillet pour chien au centre
