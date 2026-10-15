@@ -173,6 +173,34 @@ void main() {
       expect(recreated.piX, equals(pi.piX));
       expect(recreated.isFacingLeft, isTrue);
     });
+
+    test('serveBowl does not serve if hunger >= 1.0 or if sleeping', () {
+      final fullPi = const PiCompanion(hunger: 1.0, croquettes: 5, bowlFoodCount: 0);
+      final s1 = fullPi.serveBowl();
+      expect(s1.bowlFoodCount, equals(0));
+      expect(s1.croquettes, equals(5));
+
+      final sleepingPi = const PiCompanion(hunger: 0.5, croquettes: 5, bowlFoodCount: 0, isSleeping: true);
+      final s2 = sleepingPi.serveBowl();
+      expect(s2.bowlFoodCount, equals(0));
+      expect(s2.croquettes, equals(5));
+    });
+
+    test('throwBall and moveTo do not execute when isSleeping is true', () {
+      final sleepingPi = const PiCompanion(balls: 3, isSleeping: true, piX: 0.0, piY: 0.2);
+      final thrown = sleepingPi.throwBall(0.5, 0.5, 'Go');
+      expect(thrown.isBallActive, isFalse);
+
+      final moved = sleepingPi.moveTo(0.5, 0.5);
+      expect(moved.piX, equals(0.0));
+      expect(moved.piY, equals(0.2));
+    });
+
+    test('wakeUp restores isSleeping to false', () {
+      final sleepingPi = const PiCompanion(isSleeping: true);
+      final awake = sleepingPi.wakeUp();
+      expect(awake.isSleeping, isFalse);
+    });
   });
 
   group('PlayEnvironment Tests', () {

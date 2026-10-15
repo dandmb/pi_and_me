@@ -6,8 +6,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../care/presentation/care_controller.dart';
-import '../../care/presentation/care_screen.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
 import 'quiz_controller.dart';
 
@@ -15,6 +14,22 @@ import 'quiz_controller.dart';
 /// Attribue les récompenses en Os dorés 🦴, croquettes 🍖 et balles 🎾.
 class QuizResultsScreen extends ConsumerWidget {
   const QuizResultsScreen({super.key});
+
+  void _finishAndNavigate(BuildContext context, WidgetRef ref, int targetIndex) {
+    final quizState = ref.read(quizControllerProvider);
+    ref.read(careControllerProvider.notifier).addRewards(
+          bones: quizState.bonesEarned,
+          croquettes: quizState.croquettesEarned,
+          balls: quizState.ballsEarned,
+        );
+    ref.read(quizControllerProvider.notifier).resetQuiz();
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => MainShellScreen(initialIndex: targetIndex),
+      ),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,9 +41,16 @@ class QuizResultsScreen extends ConsumerWidget {
     final score = quizState.score;
     final total = quizState.totalQuestions > 0 ? quizState.totalQuestions : 6;
 
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: SafeArea(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _finishAndNavigate(context, ref, 0);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: context.appBg,
+        body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpace.s4,
@@ -37,7 +59,7 @@ class QuizResultsScreen extends ConsumerWidget {
           child: Column(
             children: [
               // 1. En-tête : Badge & Félicitations
-              _buildHeader(strings, childName, score, total),
+              _buildHeader(context, strings, childName, score, total),
 
               const SizedBox(height: AppSpace.s3),
 
@@ -52,7 +74,7 @@ class QuizResultsScreen extends ConsumerWidget {
                       const SizedBox(height: AppSpace.s4),
 
                       // 3. Carte des Récompenses gagnées (Os, Croquettes, Balles)
-                      _buildRewardsCard(quizState, strings),
+                      _buildRewardsCard(context, quizState, strings),
                     ],
                   ),
                 ),
@@ -66,10 +88,12 @@ class QuizResultsScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildHeader(
+    BuildContext context,
     dynamic strings,
     String childName,
     int score,
@@ -83,14 +107,17 @@ class QuizResultsScreen extends ConsumerWidget {
             vertical: 4,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F8F5),
+            color: context.isDark ? const Color(0xFF064E3B) : const Color(0xFFE8F8F5),
             borderRadius: BorderRadius.circular(AppRadius.pill),
-            border: Border.all(color: const Color(0xFFA7F3D0), width: 1),
+            border: Border.all(
+              color: context.isDark ? const Color(0xFF059669) : const Color(0xFFA7F3D0),
+              width: 1,
+            ),
           ),
           child: Text(
             strings.quizCompleted,
             style: AppText.bodyS.copyWith(
-              color: const Color(0xFF15803D),
+              color: context.isDark ? const Color(0xFF6EE7B7) : const Color(0xFF15803D),
               fontWeight: FontWeight.w900,
               letterSpacing: 0.5,
             ),
@@ -100,7 +127,7 @@ class QuizResultsScreen extends ConsumerWidget {
         Text(
           strings.quizBravo(childName),
           style: AppText.h2.copyWith(
-            color: AppColors.ink900,
+            color: context.appText,
             fontSize: 24,
           ),
           textAlign: TextAlign.center,
@@ -109,7 +136,7 @@ class QuizResultsScreen extends ConsumerWidget {
         Text(
           strings.quizEncouragement(score, total),
           style: AppText.body.copyWith(
-            color: AppColors.ink600,
+            color: context.appSubText,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -198,18 +225,18 @@ class QuizResultsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRewardsCard(QuizState quizState, dynamic strings) {
+  Widget _buildRewardsCard(BuildContext context, QuizState quizState, dynamic strings) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpace.s4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 2),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 2),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 4),
+            color: context.appShadow,
+            offset: const Offset(0, 4),
             blurRadius: 0,
           ),
         ],
@@ -219,7 +246,7 @@ class QuizResultsScreen extends ConsumerWidget {
           Text(
             strings.rewardsEarned,
             style: AppText.overline.copyWith(
-              color: AppColors.ink500,
+              color: context.appSubText,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.0,
             ),
@@ -233,34 +260,37 @@ class QuizResultsScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _buildRewardBadge(
+                  context,
                   icon: '🦴',
                   count: '+${quizState.bonesEarned}',
                   label: strings.goldenBones,
-                  bgColor: AppColors.amber50,
-                  borderColor: const Color(0xFFFDE68A),
-                  textColor: AppColors.amber900,
+                  bgColor: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
+                  borderColor: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+                  textColor: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
                 ),
               ),
               const SizedBox(width: AppSpace.s2),
               Expanded(
                 child: _buildRewardBadge(
+                  context,
                   icon: '🍖',
                   count: '+${quizState.croquettesEarned}',
                   label: strings.croquettes,
-                  bgColor: const Color(0xFFECFDF5),
-                  borderColor: const Color(0xFFA7F3D0),
-                  textColor: const Color(0xFF065F46),
+                  bgColor: context.isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5),
+                  borderColor: context.isDark ? const Color(0xFF059669) : const Color(0xFFA7F3D0),
+                  textColor: context.isDark ? const Color(0xFF6EE7B7) : const Color(0xFF065F46),
                 ),
               ),
               const SizedBox(width: AppSpace.s2),
               Expanded(
                 child: _buildRewardBadge(
+                  context,
                   icon: '🎾',
                   count: '+${quizState.ballsEarned}',
                   label: strings.balls,
-                  bgColor: const Color(0xFFF0F9FF),
-                  borderColor: const Color(0xFFBAE6FD),
-                  textColor: const Color(0xFF0369A1),
+                  bgColor: context.isDark ? const Color(0xFF0C4A6E) : const Color(0xFFF0F9FF),
+                  borderColor: context.isDark ? const Color(0xFF0284C7) : const Color(0xFFBAE6FD),
+                  textColor: context.isDark ? const Color(0xFF38BDF8) : const Color(0xFF0369A1),
                 ),
               ),
             ],
@@ -275,9 +305,9 @@ class QuizResultsScreen extends ConsumerWidget {
               vertical: AppSpace.s2,
             ),
             decoration: BoxDecoration(
-              color: AppColors.bg,
+              color: context.appBg,
               borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(color: AppColors.ink200, width: 1),
+              border: Border.all(color: context.appBorder, width: 1),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -285,7 +315,7 @@ class QuizResultsScreen extends ConsumerWidget {
                 Text(
                   strings.streakDays(quizState.streakDays),
                   style: AppText.bodyS.copyWith(
-                    color: AppColors.ink900,
+                    color: context.appText,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -304,7 +334,8 @@ class QuizResultsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRewardBadge({
+  Widget _buildRewardBadge(
+    BuildContext context, {
     required String icon,
     required String count,
     required String label,
@@ -337,7 +368,7 @@ class QuizResultsScreen extends ConsumerWidget {
             child: Text(
               label,
               style: AppText.bodyS.copyWith(
-                color: AppColors.ink600,
+                color: context.appSubText,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
               ),
@@ -353,43 +384,20 @@ class QuizResultsScreen extends ConsumerWidget {
     WidgetRef ref,
     dynamic strings,
   ) {
-    final quizState = ref.watch(quizControllerProvider);
-
     return Column(
       children: [
         ChunkyButton(
           label: strings.feedAndCare,
           variant: ChunkyButtonVariant.primary,
           height: 52,
-          onPressed: () {
-            ref.read(careControllerProvider.notifier).addRewards(
-                  bones: quizState.bonesEarned,
-                  croquettes: quizState.croquettesEarned,
-                  balls: quizState.ballsEarned,
-                );
-            ref.read(quizControllerProvider.notifier).resetQuiz();
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const CareScreen()),
-            );
-          },
+          onPressed: () => _finishAndNavigate(context, ref, 1),
         ),
         const SizedBox(height: AppSpace.s2),
         ChunkyButton(
           label: strings.backToHome,
           variant: ChunkyButtonVariant.secondary,
           height: 48,
-          onPressed: () {
-            ref.read(careControllerProvider.notifier).addRewards(
-                  bones: quizState.bonesEarned,
-                  croquettes: quizState.croquettesEarned,
-                  balls: quizState.ballsEarned,
-                );
-            ref.read(quizControllerProvider.notifier).resetQuiz();
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-              (route) => false,
-            );
-          },
+          onPressed: () => _finishAndNavigate(context, ref, 0),
         ),
       ],
     );

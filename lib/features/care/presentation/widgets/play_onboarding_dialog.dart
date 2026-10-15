@@ -38,7 +38,7 @@ class PlayOnboardingDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.appSurface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.xxl),
       ),
@@ -55,7 +55,7 @@ class PlayOnboardingDialog extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(AppSpace.s2),
                   decoration: BoxDecoration(
-                    color: AppColors.sky50,
+                    color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
                     borderRadius: BorderRadius.circular(AppRadius.md),
                   ),
                   child: const Icon(
@@ -71,7 +71,7 @@ class PlayOnboardingDialog extends StatelessWidget {
                         ? 'Comment jouer avec Pi ?'
                         : 'How to play with Pi?',
                     style: AppText.h3.copyWith(
-                      color: AppColors.ink900,
+                      color: context.appText,
                       fontSize: 18,
                     ),
                   ),
@@ -83,6 +83,7 @@ class PlayOnboardingDialog extends StatelessWidget {
 
             // Étape 1 : Lancer la balle
             _buildStep(
+              context,
               icon: Icons.send_rounded,
               title: isFrench ? '1. Lance la balle' : '1. Toss the ball',
               description: isFrench
@@ -94,6 +95,7 @@ class PlayOnboardingDialog extends StatelessWidget {
 
             // Étape 2 : Guider ou laisser courir
             _buildStep(
+              context,
               icon: Icons.touch_app_rounded,
               title: isFrench ? '2. Va la chercher' : '2. Fetch it',
               description: isFrench
@@ -105,6 +107,7 @@ class PlayOnboardingDialog extends StatelessWidget {
 
             // Étape 3 : Rapporter la balle
             _buildStep(
+              context,
               icon: Icons.sentiment_very_satisfied_rounded,
               title: isFrench ? '3. Rapporte la balle' : '3. Bring it back',
               description: isFrench
@@ -118,13 +121,13 @@ class PlayOnboardingDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpace.s3),
               decoration: BoxDecoration(
-                color: AppColors.bg,
+                color: context.appBg,
                 borderRadius: BorderRadius.circular(AppRadius.md),
-                border: Border.all(color: AppColors.ink200, width: 1),
+                border: Border.all(color: context.appBorder, width: 1),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.ink500),
+                  Icon(Icons.info_outline_rounded, size: 18, color: context.appSubText),
                   const SizedBox(width: AppSpace.s2),
                   Expanded(
                     child: Text(
@@ -133,7 +136,7 @@ class PlayOnboardingDialog extends StatelessWidget {
                           : 'You can review this guide anytime in Settings ⚙️.',
                       style: AppText.bodyS.copyWith(
                         fontSize: 11,
-                        color: AppColors.ink600,
+                        color: context.appSubText,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -157,7 +160,8 @@ class PlayOnboardingDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildStep({
+  Widget _buildStep(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String description,
@@ -169,7 +173,7 @@ class PlayOnboardingDialog extends StatelessWidget {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: AppColors.sky50,
+            color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
             borderRadius: BorderRadius.circular(AppRadius.sm),
             border: Border.all(color: AppColors.sky500.withValues(alpha: 0.3), width: 1),
           ),
@@ -183,7 +187,7 @@ class PlayOnboardingDialog extends StatelessWidget {
               Text(
                 title,
                 style: AppText.label.copyWith(
-                  color: AppColors.ink900,
+                  color: context.appText,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                 ),
@@ -192,7 +196,7 @@ class PlayOnboardingDialog extends StatelessWidget {
               Text(
                 description,
                 style: AppText.bodyS.copyWith(
-                  color: AppColors.ink600,
+                  color: context.appSubText,
                   fontSize: 12,
                 ),
               ),

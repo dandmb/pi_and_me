@@ -6,8 +6,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../care/presentation/care_controller.dart';
-import '../../care/presentation/care_screen.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
 import '../domain/accessory_category.dart';
@@ -16,17 +15,28 @@ import '../domain/shop_state.dart';
 import 'shop_controller.dart';
 import 'widgets/accessory_overlay_widget.dart';
 
-/// Écran 5 : La Boutique de Pi le chiot (Bilingue FR/EN).
-/// Permet à l'enfant de dépenser ses Os dorés gagnés lors des quiz
-/// pour débloquer, essayer et équiper des chapeaux, lunettes, colliers et capes.
+/// Onglets de navigation au sein de l'espace Boutique / Dressing
+enum ShopTabMode { shop, wardrobe }
+
+/// Écran 5 : La Boutique & Garde-robe de Pi le chiot (Bilingue FR/EN).
+/// Permet à l'enfant :
+/// 1. D'acheter de nouveaux accessoires avec ses Os dorés gagnés lors des quiz.
+/// 2. De gérer sa garde-robe personnelle pour faire porter ou enlever les accessoires à Pi.
 class ShopScreen extends ConsumerStatefulWidget {
-  const ShopScreen({super.key});
+  final bool isEmbedded;
+
+  const ShopScreen({
+    super.key,
+    this.isEmbedded = false,
+  });
 
   @override
   ConsumerState<ShopScreen> createState() => _ShopScreenState();
 }
 
 class _ShopScreenState extends ConsumerState<ShopScreen> {
+  ShopTabMode _tabMode = ShopTabMode.shop;
+
   @override
   Widget build(BuildContext context) {
     final strings = ref.watch(stringsProvider);
@@ -41,7 +51,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final previewItem = ShopCatalog.findById(previewId);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: context.appBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -50,20 +60,26 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           ),
           child: Column(
             children: [
-              // 1. Barre supérieure : Retour, Titre & Solde d'Os dorés
-              _buildHeader(context, companion.bones, strings),
+              // 1. Barre supérieure (si non embarqué)
+              if (!widget.isEmbedded) ...[
+                _buildHeader(context, companion.bones, strings),
+                const SizedBox(height: AppSpace.s2),
+              ],
+
+              // 2. Sélecteur d'onglets [ Boutique ] [ Garde-robe ]
+              _buildTabSelector(shopState, strings),
 
               const SizedBox(height: AppSpace.s2),
 
-              // 2. Sélecteur de catégories d'accessoires (Chapeaux, Lunettes, Colliers, Capes)
+              // 3. Sélecteur de catégories d'accessoires (Chapeaux, Lunettes, Colliers, Capes)
               _buildCategorySelector(shopState.selectedCategory, shopNotifier, strings),
 
               const SizedBox(height: AppSpace.s2),
 
-              // 3. Cabine d'essayage en direct avec Pi sur son socle
+              // 4. Cabine d'essayage en direct avec Pi sur son socle
               _buildFittingRoom(previewId, previewItem, shopState, shopNotifier, strings),
 
-              // 4. Message de retour / notification d'achat ou d'équipement
+              // 5. Message de retour / notification d'achat ou d'équipement
               if (shopState.feedbackMessage != null) ...[
                 const SizedBox(height: AppSpace.s2),
                 _buildFeedbackBanner(shopState.feedbackMessage!),
@@ -71,21 +87,28 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
               const SizedBox(height: AppSpace.s2),
 
-              // 5. Grille du catalogue d'articles
+              // 6. Contenu actif : Grille du catalogue (Boutique) OU Dressing (Garde-robe)
               Expanded(
-                child: _buildCatalogGrid(
-                  shopState,
-                  shopNotifier,
-                  companion.bones,
-                  currentGrade,
-                  strings,
-                ),
+                child: _tabMode == ShopTabMode.shop
+                    ? _buildCatalogGrid(
+                        shopState,
+                        shopNotifier,
+                        companion.bones,
+                        currentGrade,
+                        strings,
+                      )
+                    : _buildWardrobeContent(
+                        shopState,
+                        shopNotifier,
+                        strings,
+                      ),
               ),
 
-              const SizedBox(height: AppSpace.s2),
-
-              // 6. Barre de navigation inférieure (Soigner, Salon, Boutique)
-              _buildBottomDock(context, strings),
+              // 7. Barre de navigation inférieure (si non embarqué)
+              if (!widget.isEmbedded) ...[
+                const SizedBox(height: AppSpace.s2),
+                _buildBottomDock(context, strings),
+              ],
             ],
           ),
         ),
@@ -100,7 +123,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         GestureDetector(
           onTap: () {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
+              MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
               (route) => false,
             );
           },
@@ -108,34 +131,37 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.appSurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.ink200, width: 1.5),
+              border: Border.all(color: context.appBorder, width: 1.5),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_rounded,
               size: 20,
-              color: AppColors.ink600,
+              color: context.appSubText,
             ),
           ),
         ),
         const SizedBox(width: AppSpace.s2),
         Expanded(
           child: Text(
-            strings.shopTitle,
+            _tabMode == ShopTabMode.shop ? strings.shopTitle : strings.wardrobeTab,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppText.h3.copyWith(color: AppColors.ink900, fontSize: 18),
+            style: AppText.h3.copyWith(color: context.appText, fontSize: 18),
           ),
         ),
         const SizedBox(width: AppSpace.s2),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.amber50,
+            color: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
             borderRadius: BorderRadius.circular(AppRadius.pill),
-            border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
+            border: Border.all(
+              color: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+              width: 1.5,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -146,13 +172,110 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 '$bonesCount',
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: AppColors.amber900,
+                  color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
                 ),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  // --- SÉLECTEUR D'ONGLETS [ BOUTIQUE ] [ GARDE-ROBE ] ---
+  Widget _buildTabSelector(ShopState shopState, dynamic strings) {
+    final ownedCount = shopState.ownedAccessoryIds.length;
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: context.appSurface,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: Border.all(color: context.appBorder, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (_tabMode != ShopTabMode.shop) {
+                  setState(() {
+                    _tabMode = ShopTabMode.shop;
+                  });
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: _tabMode == ShopTabMode.shop
+                      ? AppColors.sky600
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.storefront_rounded,
+                      size: 16,
+                      color: _tabMode == ShopTabMode.shop ? Colors.white : context.appSubText,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      strings.shopTab,
+                      style: AppText.label.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: _tabMode == ShopTabMode.shop ? Colors.white : context.appSubText,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (_tabMode != ShopTabMode.wardrobe) {
+                  setState(() {
+                    _tabMode = ShopTabMode.wardrobe;
+                  });
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: _tabMode == ShopTabMode.wardrobe
+                      ? AppColors.coral500
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.checkroom_rounded,
+                      size: 16,
+                      color: _tabMode == ShopTabMode.wardrobe ? Colors.white : context.appSubText,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${strings.wardrobeTab}${ownedCount > 0 ? ' ($ownedCount)' : ''}',
+                      style: AppText.label.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: _tabMode == ShopTabMode.wardrobe ? Colors.white : context.appSubText,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -178,10 +301,12 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.sky50 : AppColors.surface,
+                  color: isSelected
+                      ? (context.isDark ? AppColors.darkSky50 : AppColors.sky50)
+                      : context.appSurface,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(
-                    color: isSelected ? AppColors.sky600 : AppColors.ink200,
+                    color: isSelected ? AppColors.sky600 : context.appBorder,
                     width: isSelected ? 2 : 1,
                   ),
                   boxShadow: isSelected
@@ -200,14 +325,18 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     Icon(
                       category.icon,
                       size: 15,
-                      color: isSelected ? AppColors.sky700 : AppColors.ink600,
+                      color: isSelected
+                          ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                          : context.appSubText,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       category.getLabel(strings.isFrench),
                       style: AppText.bodyS.copyWith(
                         fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-                        color: isSelected ? AppColors.sky700 : AppColors.ink600,
+                        color: isSelected
+                            ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                            : context.appSubText,
                         fontSize: 12,
                       ),
                     ),
@@ -235,13 +364,13 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: AppSpace.s3, horizontal: AppSpace.s4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xxl),
-        border: Border.all(color: AppColors.ink200, width: 2),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 2),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 3),
+            color: context.appShadow,
+            offset: const Offset(0, 3),
             blurRadius: 0,
           ),
         ],
@@ -255,38 +384,71 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.sky50,
+                  color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(color: AppColors.sky500, width: 1),
                 ),
                 child: Text(
-                  strings.fittingRoom.toUpperCase(),
+                  _tabMode == ShopTabMode.wardrobe
+                      ? strings.dressingTitle.toUpperCase()
+                      : strings.fittingRoom.toUpperCase(),
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: AppColors.sky700,
+                    color: context.isDark ? AppColors.darkSky500 : AppColors.sky700,
                     letterSpacing: 0.5,
                     fontSize: 9,
                   ),
                 ),
               ),
-              if (previewId != null)
-                GestureDetector(
-                  onTap: () {
-                    if (isPreviewEquipped) {
+              if (_tabMode == ShopTabMode.wardrobe) ...[
+                if (shopState.equippedAccessoryId != null)
+                  GestureDetector(
+                    onTap: () {
                       shopNotifier.unequipAccessory(isFrench: strings.isFrench);
-                    } else {
-                      shopNotifier.selectAccessory(''); // Déselectionne l'essai
-                    }
-                  },
-                  child: Text(
-                    isPreviewEquipped ? strings.unequipAction : 'Annuler l\'essai',
-                    style: AppText.bodyS.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.coral500,
-                      fontSize: 11,
+                    },
+                    child: Text(
+                      strings.unequipAll,
+                      style: AppText.bodyS.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.coral500,
+                        fontSize: 11,
+                      ),
+                    ),
+                  )
+                else if (previewId != null)
+                  GestureDetector(
+                    onTap: () {
+                      shopNotifier.selectAccessory('');
+                    },
+                    child: Text(
+                      strings.cancelPreview,
+                      style: AppText.bodyS.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.coral500,
+                        fontSize: 11,
+                      ),
                     ),
                   ),
-                ),
+              ] else ...[
+                if (previewId != null)
+                  GestureDetector(
+                    onTap: () {
+                      if (isPreviewEquipped) {
+                        shopNotifier.unequipAccessory(isFrench: strings.isFrench);
+                      } else {
+                        shopNotifier.selectAccessory(''); // Déselectionne l'essai
+                      }
+                    },
+                    child: Text(
+                      isPreviewEquipped ? strings.unequipAction : strings.cancelPreview,
+                      style: AppText.bodyS.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.coral500,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+              ],
             ],
           ),
 
@@ -307,12 +469,12 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     width: 130,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
+                      color: context.isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
                       borderRadius: const BorderRadius.all(Radius.elliptical(130, 24)),
-                      border: Border.all(color: const Color(0xFFCBD5E1), width: 2),
+                      border: Border.all(color: context.isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1), width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
+                          color: Colors.black.withValues(alpha: context.isDark ? 0.3 : 0.08),
                           offset: const Offset(0, 3),
                           blurRadius: 0,
                         ),
@@ -372,7 +534,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 : strings.piNatural,
             style: AppText.bodyS.copyWith(
               fontWeight: FontWeight.w800,
-              color: AppColors.ink900,
+              color: context.appText,
               fontSize: 12,
             ),
           ),
@@ -387,7 +549,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 7),
       decoration: BoxDecoration(
-        color: AppColors.sky50,
+        color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: AppColors.sky500, width: 1.5),
       ),
@@ -401,7 +563,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               message,
               style: AppText.bodyS.copyWith(
                 fontWeight: FontWeight.w800,
-                color: AppColors.sky800,
+                color: context.isDark ? AppColors.darkSky500 : AppColors.sky800,
                 fontSize: 12,
               ),
               maxLines: 1,
@@ -438,18 +600,21 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         final isEquipped = shopState.isEquipped(item.id);
         final isSelected = shopState.isSelected(item.id);
         final isUnlocked = item.isGradeUnlocked(currentGrade);
+        final previewColor = (context.isDark && item.primaryColor.computeLuminance() < 0.2)
+            ? item.accentColor
+            : item.primaryColor;
 
         return GestureDetector(
           onTap: () => shopNotifier.selectAccessory(item.id),
           child: Container(
             padding: const EdgeInsets.all(AppSpace.s3),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.appSurface,
               borderRadius: BorderRadius.circular(AppRadius.xl),
               border: Border.all(
                 color: isSelected
                     ? AppColors.sky600
-                    : (isEquipped ? AppColors.green500 : AppColors.ink200),
+                    : (isEquipped ? AppColors.green500 : context.appBorder),
                 width: isSelected || isEquipped ? 2 : 1.5,
               ),
               boxShadow: isSelected
@@ -460,10 +625,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         blurRadius: 0,
                       ),
                     ]
-                  : const [
+                  : [
                       BoxShadow(
-                        color: AppColors.ink100,
-                        offset: Offset(0, 2),
+                        color: context.appShadow,
+                        offset: const Offset(0, 2),
                         blurRadius: 0,
                       ),
                     ],
@@ -476,17 +641,17 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: item.primaryColor.withValues(alpha: 0.12),
+                    color: previewColor.withValues(alpha: context.isDark ? 0.25 : 0.12),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: item.primaryColor.withValues(alpha: 0.35),
+                      color: previewColor.withValues(alpha: context.isDark ? 0.5 : 0.35),
                       width: 1.5,
                     ),
                   ),
                   child: Icon(
                     item.previewIcon,
                     size: 26,
-                    color: item.primaryColor,
+                    color: previewColor,
                   ),
                 ),
 
@@ -498,7 +663,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: AppColors.ink900,
+                    color: context.appText,
                     fontSize: 13,
                   ),
                 ),
@@ -510,7 +675,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       strings.lockedGrade(item.requiredGrade!.label),
                       style: AppText.bodyS.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.ink500,
+                        color: context.appSubText,
                         fontSize: 11,
                       ),
                     )
@@ -524,7 +689,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                           '${item.price}',
                           style: AppText.bodyS.copyWith(
                             fontWeight: FontWeight.w900,
-                            color: AppColors.amber900,
+                            color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
                             fontSize: 12,
                           ),
                         ),
@@ -532,7 +697,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     ),
                 ] else ...[
                   Text(
-                    'Possédé',
+                    strings.ownedBadge,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppColors.green600,
@@ -559,7 +724,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     );
   }
 
-  // --- BOUTON D'ACTION SELON L'ÉTAT DU PRODUIT ---
+  // --- BOUTON D'ACTION SELON L'ÉTAT DU PRODUIT DANS LA BOUTIQUE ---
   Widget _buildItemActionButton({
     required AccessoryItem item,
     required bool isOwned,
@@ -569,13 +734,13 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     required ShopController shopNotifier,
     required dynamic strings,
   }) {
-    // 1. Déjà équipé
+    // 1. Déjà équipé sur Pi
     if (isEquipped) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.sky50,
+          color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(color: AppColors.sky600, width: 1.5),
         ),
@@ -584,20 +749,25 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           textAlign: TextAlign.center,
           style: AppText.bodyS.copyWith(
             fontWeight: FontWeight.w900,
-            color: AppColors.sky700,
+            color: context.isDark ? AppColors.darkSky500 : AppColors.sky700,
             fontSize: 11,
           ),
         ),
       );
     }
 
-    // 2. Déjà possédé dans l'inventaire -> Bouton Équiper
+    // 2. Déjà possédé dans l'inventaire -> Bouton « Dans la garde-robe » (redirige vers le dressing)
     if (isOwned) {
       return ChunkyButton(
-        label: strings.equipAction,
+        label: strings.inWardrobe,
         variant: ChunkyButtonVariant.secondary,
         height: 32,
-        onPressed: () => shopNotifier.equipAccessory(item.id, isFrench: strings.isFrench),
+        onPressed: () {
+          setState(() {
+            _tabMode = ShopTabMode.wardrobe;
+          });
+          shopNotifier.selectAccessory(item.id);
+        },
       );
     }
 
@@ -607,16 +777,19 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: context.isDark ? AppColors.darkSurfaceAlt : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
+          border: Border.all(
+            color: context.isDark ? AppColors.darkInk200 : const Color(0xFFCBD5E1),
+            width: 1,
+          ),
         ),
         child: Text(
-          'Verrouillé',
+          strings.lockedBadge,
           textAlign: TextAlign.center,
           style: AppText.bodyS.copyWith(
             fontWeight: FontWeight.w700,
-            color: AppColors.ink500,
+            color: context.appSubText,
             fontSize: 11,
           ),
         ),
@@ -639,18 +812,243 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     );
   }
 
+  // --- CONTENU DE LA GARDE-ROBE (DRESSING) ---
+  Widget _buildWardrobeContent(
+    ShopState shopState,
+    ShopController shopNotifier,
+    dynamic strings,
+  ) {
+    if (shopState.ownedAccessoryIds.isEmpty) {
+      return _buildEmptyWardrobe(strings);
+    }
+    return _buildWardrobeGrid(shopState, shopNotifier, strings);
+  }
+
+  // --- ÉTAT VIDE DE LA GARDE-ROBE ---
+  Widget _buildEmptyWardrobe(dynamic strings) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpace.s4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 68,
+              height: 68,
+              decoration: BoxDecoration(
+                color: context.isDark ? AppColors.darkSurfaceAlt : const Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+                border: Border.all(color: context.appBorder, width: 2),
+              ),
+              child: const Icon(
+                Icons.checkroom_rounded,
+                size: 34,
+                color: AppColors.coral500,
+              ),
+            ),
+            const SizedBox(height: AppSpace.s3),
+            Text(
+              strings.wardrobeEmptyTitle,
+              style: AppText.h3.copyWith(color: context.appText, fontSize: 18),
+            ),
+            const SizedBox(height: AppSpace.s1),
+            Text(
+              strings.wardrobeEmptySubtitle,
+              textAlign: TextAlign.center,
+              style: AppText.bodyS.copyWith(color: context.appSubText, fontSize: 13),
+            ),
+            const SizedBox(height: AppSpace.s4),
+            SizedBox(
+              width: 200,
+              child: ChunkyButton(
+                label: strings.goToShop,
+                icon: const Icon(Icons.shopping_bag_rounded, size: 16, color: Colors.white),
+                variant: ChunkyButtonVariant.primary,
+                height: 40,
+                onPressed: () {
+                  setState(() {
+                    _tabMode = ShopTabMode.shop;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- GRILLE DES ARTICLES DANS LA GARDE-ROBE ---
+  Widget _buildWardrobeGrid(
+    ShopState shopState,
+    ShopController shopNotifier,
+    dynamic strings,
+  ) {
+    final allCategoryItems = ShopCatalog.getByCategory(shopState.selectedCategory);
+    final ownedItems = allCategoryItems.where((item) => shopState.isOwned(item.id)).toList();
+
+    if (ownedItems.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                shopState.selectedCategory.icon,
+                size: 40,
+                color: context.appSubText.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: AppSpace.s2),
+              Text(
+                strings.noItemsInCategory,
+                textAlign: TextAlign.center,
+                style: AppText.bodyS.copyWith(
+                  color: context.appSubText,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: AppSpace.s3),
+              SizedBox(
+                width: 180,
+                child: ChunkyButton(
+                  label: strings.goToShop,
+                  icon: const Icon(Icons.shopping_bag_rounded, size: 16, color: Colors.white),
+                  variant: ChunkyButtonVariant.primary,
+                  height: 36,
+                  onPressed: () {
+                    setState(() {
+                      _tabMode = ShopTabMode.shop;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      physics: const BouncingScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: AppSpace.s3,
+        mainAxisSpacing: AppSpace.s3,
+        childAspectRatio: 0.82,
+      ),
+      itemCount: ownedItems.length,
+      itemBuilder: (context, index) {
+        final item = ownedItems[index];
+        final isEquipped = shopState.isEquipped(item.id);
+        final isSelected = shopState.isSelected(item.id);
+        final previewColor = (context.isDark && item.primaryColor.computeLuminance() < 0.2)
+            ? item.accentColor
+            : item.primaryColor;
+
+        return GestureDetector(
+          onTap: () => shopNotifier.selectAccessory(item.id),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpace.s3),
+            decoration: BoxDecoration(
+              color: context.appSurface,
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              border: Border.all(
+                color: isSelected
+                    ? AppColors.coral500
+                    : (isEquipped ? AppColors.green500 : context.appBorder),
+                width: isSelected || isEquipped ? 2 : 1.5,
+              ),
+              boxShadow: isSelected
+                  ? const [
+                      BoxShadow(
+                        color: AppColors.coral500,
+                        offset: Offset(0, 3),
+                        blurRadius: 0,
+                      ),
+                    ]
+                  : [
+                      BoxShadow(
+                        color: context.appShadow,
+                        offset: const Offset(0, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: previewColor.withValues(alpha: context.isDark ? 0.25 : 0.12),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: previewColor.withValues(alpha: context.isDark ? 0.5 : 0.35),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Icon(
+                    item.previewIcon,
+                    size: 26,
+                    color: previewColor,
+                  ),
+                ),
+                Text(
+                  item.getName(strings.isFrench),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.bodyS.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: context.appText,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  isEquipped ? strings.equippedBadge : strings.ownedBadge,
+                  style: AppText.bodyS.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: isEquipped ? AppColors.green600 : context.appSubText,
+                    fontSize: 11,
+                  ),
+                ),
+                if (isEquipped)
+                  ChunkyButton(
+                    label: strings.unequipAction,
+                    variant: ChunkyButtonVariant.secondary,
+                    height: 32,
+                    onPressed: () => shopNotifier.unequipAccessory(isFrench: strings.isFrench),
+                  )
+                else
+                  ChunkyButton(
+                    label: strings.wearAction,
+                    variant: ChunkyButtonVariant.primary,
+                    height: 32,
+                    onPressed: () => shopNotifier.equipAccessory(item.id, isFrench: strings.isFrench),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // --- BARRE DE NAVIGATION INFÉRIEURE (DOCK) ---
   Widget _buildBottomDock(BuildContext context, dynamic strings) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xxl),
-        border: Border.all(color: AppColors.ink200, width: 2),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 2),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -661,25 +1059,26 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           // 1. Soigner
           GestureDetector(
             onTap: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const CareScreen()),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 1)),
+                (route) => false,
               );
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.favorite_rounded,
                     size: 18,
-                    color: AppColors.ink500,
+                    color: context.appSubText,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     strings.careDockLabel,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: AppColors.ink500,
+                      color: context.appSubText,
                     ),
                   ),
                 ],
@@ -691,7 +1090,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
                 (route) => false,
               );
             },
@@ -699,17 +1098,17 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.home_rounded,
                     size: 18,
-                    color: AppColors.ink500,
+                    color: context.appSubText,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     strings.salonDockLabel,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: AppColors.ink500,
+                      color: context.appSubText,
                     ),
                   ),
                 ],
@@ -721,23 +1120,23 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.sky50,
+              color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
               borderRadius: BorderRadius.circular(AppRadius.pill),
               border: Border.all(color: AppColors.sky500, width: 1.5),
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.storefront_rounded,
                   size: 18,
-                  color: AppColors.sky600,
+                  color: context.isDark ? AppColors.darkSky500 : AppColors.sky600,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   strings.shopDockLabel,
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: AppColors.sky700,
+                    color: context.isDark ? AppColors.darkSky500 : AppColors.sky700,
                   ),
                 ),
               ],

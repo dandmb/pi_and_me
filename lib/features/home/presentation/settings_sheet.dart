@@ -4,10 +4,10 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
+import '../../../core/theme/theme_mode_controller.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../../core/widgets/language_switcher.dart';
-import '../../care/presentation/widgets/feed_walkthrough_dialog.dart';
-import '../../care/presentation/widgets/play_onboarding_dialog.dart';
+import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
 
 /// Feuille modale des Paramètres (accessible via l'icône engrenage).
 /// Contient le réglage de la langue (EN / FR) et les préférences.
@@ -26,12 +26,14 @@ class SettingsSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = ref.watch(stringsProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(AppSpace.s5),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
       ),
       child: SafeArea(
         top: false,
@@ -46,7 +48,7 @@ class SettingsSheet extends ConsumerWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: AppSpace.s4),
                 decoration: BoxDecoration(
-                  color: AppColors.ink200,
+                  color: isDark ? AppColors.darkInk200 : AppColors.ink200,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
               ),
@@ -55,7 +57,9 @@ class SettingsSheet extends ConsumerWidget {
             // Titre « Paramètres » / « Settings »
             Text(
               strings.settings,
-              style: AppText.h3,
+              style: AppText.h3.copyWith(
+                color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+              ),
               textAlign: TextAlign.center,
             ),
 
@@ -65,9 +69,12 @@ class SettingsSheet extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(AppSpace.s4),
               decoration: BoxDecoration(
-                color: AppColors.bg,
+                color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
                 borderRadius: BorderRadius.circular(AppRadius.lg),
-                border: Border.all(color: AppColors.ink200, width: 1.5),
+                border: Border.all(
+                  color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                  width: 1.5,
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,12 +84,16 @@ class SettingsSheet extends ConsumerWidget {
                     children: [
                       Text(
                         strings.languageTitle,
-                        style: AppText.label.copyWith(color: AppColors.ink900),
+                        style: AppText.label.copyWith(
+                          color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        strings.isFrench ? 'Français activé' : 'English active',
-                        style: AppText.bodyS.copyWith(color: AppColors.ink600),
+                        strings.languageActiveDescription,
+                        style: AppText.bodyS.copyWith(
+                          color: isDark ? AppColors.darkInk500 : AppColors.ink600,
+                        ),
                       ),
                     ],
                   ),
@@ -93,29 +104,32 @@ class SettingsSheet extends ConsumerWidget {
 
             const SizedBox(height: AppSpace.s3),
 
-            // Guide du jeu avec Pi (permet de revoir l'onboarding pour jouer à la balle)
+            // Profils des enfants (lister et switcher de profil)
             GestureDetector(
               onTap: () {
                 Navigator.of(context).pop();
-                PlayOnboardingDialog.show(context, isFrench: strings.isFrench);
+                ProfileSwitcherSheet.show(context);
               },
               child: Container(
                 padding: const EdgeInsets.all(AppSpace.s4),
                 decoration: BoxDecoration(
-                  color: AppColors.bg,
+                  color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
                   borderRadius: BorderRadius.circular(AppRadius.lg),
-                  border: Border.all(color: AppColors.ink200, width: 1.5),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                    width: 1.5,
+                  ),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(AppSpace.s2),
                       decoration: BoxDecoration(
-                        color: AppColors.sky50,
+                        color: isDark ? AppColors.darkSky50 : AppColors.sky50,
                         borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
                       child: const Icon(
-                        Icons.sports_tennis_rounded,
+                        Icons.supervised_user_circle_rounded,
                         color: AppColors.sky600,
                         size: 22,
                       ),
@@ -126,24 +140,24 @@ class SettingsSheet extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            strings.isFrench
-                                ? 'Guide du jeu avec Pi'
-                                : 'Pi Play Guide',
-                            style: AppText.label.copyWith(color: AppColors.ink900),
+                            strings.profilesTitle,
+                            style: AppText.label.copyWith(
+                              color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            strings.isFrench
-                                ? 'Revoir comment jouer à la balle'
-                                : 'Review how to play fetch',
-                            style: AppText.bodyS.copyWith(color: AppColors.ink600),
+                            strings.changeProfile,
+                            style: AppText.bodyS.copyWith(
+                              color: isDark ? AppColors.darkInk500 : AppColors.ink600,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
-                      color: AppColors.ink500,
+                      color: isDark ? AppColors.darkInk500 : AppColors.ink500,
                     ),
                   ],
                 ),
@@ -152,60 +166,77 @@ class SettingsSheet extends ConsumerWidget {
 
             const SizedBox(height: AppSpace.s3),
 
-            // Guide du repas de Pi (tutoriel pas-à-pas pour nourrir et remplir l'assiette)
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-                FeedWalkthroughDialog.show(context, isFrench: strings.isFrench);
-              },
-              child: Container(
-                padding: const EdgeInsets.all(AppSpace.s4),
-                decoration: BoxDecoration(
-                  color: AppColors.bg,
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  border: Border.all(color: AppColors.ink200, width: 1.5),
+            // Réglage du Mode Sombre / Thème
+            Container(
+              padding: const EdgeInsets.all(AppSpace.s4),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(
+                  color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                  width: 1.5,
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppSpace.s2),
-                      decoration: BoxDecoration(
-                        color: AppColors.green50,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                        size: 20,
+                        color: isDark ? const Color(0xFF818CF8) : AppColors.gold600,
                       ),
-                      child: const Icon(
-                        Icons.restaurant_rounded,
-                        color: AppColors.green600,
-                        size: 22,
+                      const SizedBox(width: AppSpace.s2),
+                      Text(
+                        strings.themeTitle,
+                        style: AppText.label.copyWith(
+                          color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpace.s3),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            strings.isFrench
-                                ? 'Guide du repas de Pi'
-                                : 'Pi Feeding Guide',
-                            style: AppText.label.copyWith(color: AppColors.ink900),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            strings.isFrench
-                                ? 'Revoir comment servir et faire manger Pi'
-                                : 'Review how to serve and feed Pi',
-                            style: AppText.bodyS.copyWith(color: AppColors.ink600),
-                          ),
-                        ],
+                    ],
+                  ),
+                  const SizedBox(height: AppSpace.s3),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildThemeOption(
+                          context,
+                          ref,
+                          mode: ThemeMode.light,
+                          label: strings.lightTheme,
+                          icon: Icons.wb_sunny_rounded,
+                          isSelected: themeMode == ThemeMode.light,
+                          isDark: isDark,
+                        ),
                       ),
-                    ),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColors.ink500,
-                    ),
-                  ],
-                ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildThemeOption(
+                          context,
+                          ref,
+                          mode: ThemeMode.dark,
+                          label: strings.darkTheme,
+                          icon: Icons.bedtime_rounded,
+                          isSelected: themeMode == ThemeMode.dark,
+                          isDark: isDark,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildThemeOption(
+                          context,
+                          ref,
+                          mode: ThemeMode.system,
+                          label: strings.systemTheme,
+                          icon: Icons.auto_mode_rounded,
+                          isSelected: themeMode == ThemeMode.system,
+                          isDark: isDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
 
@@ -220,6 +251,66 @@ class SettingsSheet extends ConsumerWidget {
             ),
 
             const SizedBox(height: AppSpace.s2),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context,
+    WidgetRef ref, {
+    required ThemeMode mode,
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required bool isDark,
+  }) {
+    final activeColor = AppColors.sky600;
+    final inactiveBg = isDark ? AppColors.darkSurface : AppColors.surface;
+    final activeBg = isDark ? AppColors.darkSky50 : AppColors.sky50;
+
+    return GestureDetector(
+      onTap: () {
+        ref.read(themeModeProvider.notifier).setTheme(mode);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? activeBg : inactiveBg,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          border: Border.all(
+            color: isSelected ? activeColor : (isDark ? AppColors.darkInk200 : AppColors.ink200),
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: activeColor.withValues(alpha: 0.25),
+                    offset: const Offset(0, 2),
+                    blurRadius: 0,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 15,
+              color: isSelected ? activeColor : (isDark ? AppColors.darkInk500 : AppColors.ink500),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: AppText.bodyS.copyWith(
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                fontSize: 11.5,
+                color: isSelected ? activeColor : (isDark ? AppColors.darkInk600 : AppColors.ink600),
+              ),
+            ),
           ],
         ),
       ),

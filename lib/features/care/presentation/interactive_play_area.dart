@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -13,7 +15,7 @@ import 'widgets/tennis_ball_widget.dart';
 /// Surface de jeu interactive plein écran / grand cadre.
 /// Supporte 4 environnements de plein air/salon, la douche pour chien dédiée au lavage,
 /// la chambre étoilée pour le dodo, l'assiette de nourriture et Pi avec ses postures.
-class InteractivePlayArea extends StatelessWidget {
+class InteractivePlayArea extends ConsumerWidget {
   final PiCompanion companion;
   final CareInteractionMode activeMode;
   final String? equippedAccessoryId;
@@ -28,9 +30,10 @@ class InteractivePlayArea extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(stringsProvider);
     final env = companion.environment;
-    final isSleeping = companion.isSleeping || activeMode == CareInteractionMode.sleep;
+    final isSleeping = companion.isSleeping;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -112,103 +115,155 @@ class InteractivePlayArea extends StatelessWidget {
                       child: const _ActiveBallTarget(),
                     ),
 
-                  // 4. Pi le chiot avec ses taches de boue (s'il s'est sali) et sa bulle
-                  AnimatedAlign(
-                    alignment: Alignment(companion.piX, companion.piY),
-                    duration: const Duration(milliseconds: 650),
-                    curve: Curves.easeOutBack,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Bulle de statut / parole flexible sans coupure
-                        if (companion.statusMessage != null) ...[
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxWidth: 240,
-                              minWidth: 80,
+                  // 4. Si Pi dort et qu'on n'est pas dans l'onglet Dodo : Pi n'apparaît pas
+                  if (companion.isSleeping && activeMode != CareInteractionMode.sleep)
+                    Center(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: (context.isDark ? AppColors.darkSurface : AppColors.surface).withValues(alpha: 0.95),
+                          borderRadius: BorderRadius.circular(AppRadius.xl),
+                          border: Border.all(color: const Color(0xFF818CF8), width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
                             ),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpace.s3,
-                                vertical: 6,
-                              ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(AppRadius.lg),
-                                border: Border.all(
-                                  color: AppColors.ink200,
-                                  width: 1.5,
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: AppColors.ink100,
-                                    offset: Offset(0, 3),
-                                    blurRadius: 0,
-                                  ),
-                                ],
+                                color: context.isDark ? const Color(0xFF312E81) : const Color(0xFFEEF2FF),
+                                shape: BoxShape.circle,
                               ),
-                              child: Text(
-                                companion.statusMessage!,
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                softWrap: true,
-                                style: AppText.bodyS.copyWith(
-                                  color: AppColors.ink900,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 12,
+                              child: const Icon(
+                                Icons.bedtime_rounded,
+                                size: 30,
+                                color: Color(0xFF818CF8),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              strings.piSleepingTitle,
+                              style: AppText.h3.copyWith(
+                                color: context.appText,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              strings.piSleepingDesc,
+                              textAlign: TextAlign.center,
+                              style: AppText.bodyS.copyWith(
+                                color: context.appSubText,
+                                fontSize: 12,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // 5. Pi le chiot (uniquement s'il est éveillé ou s'il est dans sa chambre Dodo)
+                  if (!companion.isSleeping || activeMode == CareInteractionMode.sleep)
+                    AnimatedAlign(
+                      alignment: Alignment(companion.piX, companion.piY),
+                      duration: const Duration(milliseconds: 650),
+                      curve: Curves.easeOutBack,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Bulle de statut / parole flexible sans coupure
+                          if (companion.statusMessage != null) ...[
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxWidth: 240,
+                                minWidth: 80,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpace.s3,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                                  border: Border.all(
+                                    color: AppColors.ink200,
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: AppColors.ink100,
+                                      offset: Offset(0, 3),
+                                      blurRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  companion.statusMessage!,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  softWrap: true,
+                                  style: AppText.bodyS.copyWith(
+                                    color: AppColors.ink900,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          CustomPaint(
-                            size: const Size(12, 6),
-                            painter: _BubbleTailPainter(),
-                          ),
-                          const SizedBox(height: 2),
-                        ],
+                            CustomPaint(
+                              size: const Size(12, 6),
+                              painter: _BubbleTailPainter(),
+                            ),
+                            const SizedBox(height: 2),
+                          ],
 
-                        // Sprite de Pi avec ombre et taches de saleté éventuelles
-                        SizedBox(
-                          width: 110,
-                          height: 104,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Ombre de contact au sol (ajustée selon la posture)
-                              Positioned(
-                                bottom: 0,
-                                child: Container(
-                                  width: isSleeping ? 86 : 76,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.15),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.elliptical(86, 12),
+                          // Sprite de Pi avec ombre et taches de saleté éventuelles
+                          SizedBox(
+                            width: isSleeping ? 140 : 110,
+                            height: 104,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Ombre de contact au sol
+                                Positioned(
+                                  bottom: 0,
+                                  child: Container(
+                                    width: isSleeping ? 116 : 76,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.elliptical(isSleeping ? 116 : 86, 12),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
 
-                              // Sprite de Pi (couché si dodo, sinon debout/assis avec miroir horizontal)
-                              Positioned(
-                                bottom: isSleeping ? 0 : 4,
-                                child: Transform(
-                                  alignment: Alignment.bottomCenter,
-                                  transform: isSleeping
-                                      ? (Matrix4.identity()
-                                          ..translateByDouble(0.0, 16.0, 0.0, 1.0)
-                                          ..rotateZ(-0.20)
-                                          ..scaleByDouble(1.0, 0.72, 1.0, 1.0))
-                                      : Matrix4.identity(),
+                                // Sprite de Pi (yeux fermés pi_sleeping.png si dodo, sinon pi_transparent.png)
+                                Positioned(
+                                  bottom: isSleeping ? 2 : 4,
                                   child: Stack(
                                     alignment: Alignment.center,
                                     children: [
                                       Transform.flip(
                                         flipX: companion.isFacingLeft,
                                         child: Image.asset(
-                                          'assets/images/pi_transparent.png',
-                                          height: 96,
+                                          isSleeping
+                                              ? 'assets/images/pi_sleeping.png'
+                                              : 'assets/images/pi_transparent.png',
+                                          height: isSleeping ? 84 : 96,
+                                          width: isSleeping ? 132 : null,
                                           fit: BoxFit.contain,
                                           errorBuilder: (context, error, stackTrace) =>
                                               const Icon(
@@ -229,44 +284,35 @@ class InteractivePlayArea extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                              ),
 
-                              // Yeux fermés endormis quand Pi est couché / dort
-                              if (isSleeping)
-                                const Positioned(
-                                  top: 34,
-                                  left: 32,
-                                  child: _SleepingEyesWidget(),
-                                ),
-
-                              // Particules "Zzz" flottantes au-dessus de la tête
-                              if (isSleeping)
-                                const Positioned(
-                                  top: -12,
-                                  right: 8,
-                                  child: _SleepingZzzWidget(),
-                                ),
-
-                              // Bulles de savon dans la baignoire de douche
-                              if (activeMode == CareInteractionMode.clean)
-                                const Positioned.fill(
-                                  child: _SoapBubblesWidget(),
-                                ),
-
-                              // Taches de saleté / boue visibles sur le pelage si Pi s'est sali en jouant
-                              if (companion.isDirty)
-                                Positioned(
-                                  bottom: isSleeping ? 18 : 6,
-                                  child: DirtSplattersWidget(
-                                    dirtCount: companion.dirtCount,
+                                // Particules "Zzz" flottantes au-dessus de la tête
+                                if (isSleeping)
+                                  const Positioned(
+                                    top: -12,
+                                    right: 8,
+                                    child: _SleepingZzzWidget(),
                                   ),
-                                ),
-                            ],
+
+                                // Bulles de savon dans la baignoire de douche
+                                if (activeMode == CareInteractionMode.clean)
+                                  const Positioned.fill(
+                                    child: _SoapBubblesWidget(),
+                                  ),
+
+                                // Taches de saleté / boue visibles sur le pelage si Pi s'est sali en jouant
+                                if (companion.isDirty)
+                                  Positioned(
+                                    bottom: isSleeping ? 18 : 6,
+                                    child: DirtSplattersWidget(
+                                      dirtCount: companion.dirtCount,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
 
                 ],
@@ -382,7 +428,7 @@ class InteractivePlayArea extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Color(0xFF0B1329), Color(0xFF1E293B)],
+                    colors: [Color(0xFF000000), Color(0xFF111111)],
                   ),
                 ),
                 child: Stack(
@@ -405,13 +451,13 @@ class InteractivePlayArea extends StatelessWidget {
             ),
 
             // Plinthe en bois sombre
-            Container(height: 6, color: const Color(0xFF334155)),
+            Container(height: 6, color: const Color(0xFF262626)),
 
             // Parquet sombre de chambre avec panier douillet au centre
             Expanded(
               flex: 5,
               child: Container(
-                color: const Color(0xFF1E293B),
+                color: const Color(0xFF141414),
                 child: Stack(
                   children: [
                     // Grand panier douillet pour chien au centre
@@ -1495,49 +1541,6 @@ class _VectorLeafDot extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Yeux fermés endormis de Pi quand il est dans son panier
-class _SleepingEyesWidget extends StatelessWidget {
-  const _SleepingEyesWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CustomPaint(
-          size: const Size(12, 6),
-          painter: _CurvedEyelidPainter(),
-        ),
-        const SizedBox(width: 14),
-        CustomPaint(
-          size: const Size(12, 6),
-          painter: _CurvedEyelidPainter(),
-        ),
-      ],
-    );
-  }
-}
-
-class _CurvedEyelidPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF1E293B)
-      ..strokeWidth = 2.2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path()
-      ..moveTo(0, 1)
-      ..quadraticBezierTo(size.width / 2, size.height + 2, size.width, 1);
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 /// Lettres "Zzz" flottantes en dégradé pastel apaisant

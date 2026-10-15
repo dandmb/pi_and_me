@@ -7,7 +7,9 @@ import 'package:pi_et_moi/features/onboarding/presentation/onboarding_screen.dar
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'has_completed_care_showcase_v1': true,
+    });
   });
 
   testWidgets('OnboardingScreen renders English strings when language is English', (WidgetTester tester) async {

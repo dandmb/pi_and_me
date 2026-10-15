@@ -98,6 +98,8 @@ class AppStrings {
       ? 'Wouf ! Prête pour le quiz, $childName ?'
       : 'Woof! Ready for the quiz, $childName?';
   String get hunger => isFrench ? 'Faim' : 'Hunger';
+  String get piNotHungry =>
+      isFrench ? 'Pi n\'a pas faim pour le moment ! 🐾' : 'Pi isn\'t hungry right now! 🐾';
   String get joy => isFrench ? 'Joie' : 'Joy';
   String get energy => isFrench ? 'Énergie' : 'Energy';
   String get playQuiz => isFrench ? 'Jouer au Quiz' : 'Play Quiz';
@@ -109,7 +111,39 @@ class AppStrings {
   // --- Paramètres / Settings ---
   String get settings => isFrench ? 'Paramètres' : 'Settings';
   String get languageTitle => isFrench ? 'Langue de l\'application' : 'App Language';
+  String get themeTitle => isFrench ? 'Mode Sombre / Apparence' : 'Dark Mode / Appearance';
+  String get lightTheme => isFrench ? 'Clair' : 'Light';
+  String get darkTheme => isFrench ? 'Sombre' : 'Dark';
+  String get systemTheme => isFrench ? 'Système' : 'System';
   String get close => isFrench ? 'Fermer' : 'Close';
+
+  // --- Profils & Sélecteur ---
+  String get profilesTitle => isFrench ? 'Profils des enfants' : 'Child Profiles';
+  String get activeProfileLabel => isFrench ? 'Actif' : 'Active';
+  String get addProfile => isFrench ? 'Ajouter un profil' : 'Add profile';
+  String get maxProfilesReached => isFrench ? 'Maximum 4 profils atteints' : 'Maximum 4 profiles reached';
+  String get deleteProfileConfirm => isFrench ? 'Supprimer ce profil ?' : 'Delete this profile?';
+  String deleteProfileWarning(String name) => isFrench
+      ? 'La progression et les données de $name seront définitivement effacées.'
+      : 'All progress and data for $name will be permanently deleted.';
+  String get cancel => isFrench ? 'Annuler' : 'Cancel';
+  String get delete => isFrench ? 'Supprimer' : 'Delete';
+  String get profileActivated => isFrench ? 'Profil activé !' : 'Profile activated!';
+
+  // --- Confirmation Quitter l'application ---
+  String get confirmExitTitle => isFrench ? 'Quitter Pi & Moi ?' : 'Exit Pi & Moi?';
+  String get confirmExitMessage => isFrench
+      ? 'À très vite pour jouer et apprendre avec Pi !'
+      : 'See you very soon to learn and play with Pi!';
+  String get continuePlaying => isFrench ? 'Continuer à jouer' : 'Keep playing';
+
+  // --- Gestion des erreurs ---
+  String get errorTitle => isFrench ? 'Oups ! Une petite bêtise...' : 'Oops! A little hiccup...';
+  String get errorMessage => isFrench
+      ? 'Pi s\'occupe de tout réparer !'
+      : 'Pi is taking care of everything!';
+  String get retry => isFrench ? 'Réessayer' : 'Retry';
+  String get returnToHome => isFrench ? 'Retour au salon' : 'Return to Home';
 
   // --- Quiz ---
   String get stressFree => isFrench ? '🌱 Sans stress' : '🌱 Stress-free';
@@ -272,4 +306,75 @@ class AppStrings {
   String buyAction(int price) => isFrench ? 'Acheter ($price)' : 'Buy ($price)';
   String lockedGrade(String grade) =>
       isFrench ? 'Niveau $grade' : 'Grade $grade';
+
+  // --- Garde-robe (Wardrobe) ---
+  String get wardrobeTab => isFrench ? 'Garde-robe' : 'Wardrobe';
+  String get shopTab => isFrench ? 'Boutique' : 'Shop';
+  String get wardrobeEmptyTitle => isFrench ? 'Garde-robe vide' : 'Empty Wardrobe';
+  String get wardrobeEmptySubtitle => isFrench
+      ? 'Tu n\'as pas encore d\'accessoires. Visite la boutique pour en acheter avec tes os dorés !'
+      : 'You don\'t have any accessories yet. Visit the shop to buy some with your golden bones!';
+  String get goToShop => isFrench ? 'Aller à la boutique' : 'Go to Shop';
+  String get unequipAll => isFrench ? 'Tout enlever' : 'Unequip all';
+  String get wearAction => isFrench ? 'Porter' : 'Wear';
+  String get ownedBadge => isFrench ? 'Possédé' : 'Owned';
+  String get cancelPreview => isFrench ? 'Annuler l\'essai' : 'Cancel preview';
+  String get lockedBadge => isFrench ? 'Verrouillé' : 'Locked';
+  String get inWardrobe => isFrench ? 'Dans la garde-robe' : 'In wardrobe';
+
+  // --- Alertes & Textes Soins/Dodo ---
+  String get piSleepingTitle => isFrench ? 'Pi dort paisiblement' : 'Pi is sleeping peacefully';
+  String get piSleepingDesc => isFrench
+      ? 'Il se repose bien au chaud dans sa chambre étoilée. Réveille-le d\'abord dans l\'onglet Dodo pour pouvoir jouer ou prendre soin de lui !'
+      : 'He is resting warmly in his starry bedroom. Wake him up first in the Sleep tab to play or care for him!';
+  String get piSleepingBanner => isFrench ? 'Pi dort paisiblement... Chut !' : 'Pi is sleeping peacefully... Shh!';
+  String get piNeedsSleep => isFrench ? 'Pi a besoin d\'un bon dodo' : 'Pi needs a good nap';
+  String get wakeUpAction => isFrench ? 'Réveiller' : 'Wake up';
+  String get goToSleepAction => isFrench ? 'Faire dodo' : 'Put to sleep';
+  String get piNeedsBath => isFrench ? 'Pi a besoin d\'un bon bain !' : 'Pi needs a good bath!';
+  String get piAllClean => isFrench ? 'Pi est tout propre et brillant !' : 'Pi is all clean and fresh!';
+  String get eatingInProgress => isFrench ? 'Repas en cours...' : 'Eating...';
+  String get fullStomach => isFrench ? 'Rassasié' : 'Full';
+  String get sleepAlertPlay => isFrench
+      ? 'Pi dort paisiblement ! Réveille-le d\'abord dans Dodo pour jouer.'
+      : 'Pi is sleeping peacefully! Wake him up first in Sleep mode to play.';
+  String get sleepAlertFeed => isFrench
+      ? 'Pi dort ! Réveille-le d\'abord dans Dodo pour le nourrir.'
+      : 'Pi is sleeping! Wake him up first in Sleep mode to feed him.';
+  String get sleepAlertWash => isFrench
+      ? 'Pi dort ! Réveille-le d\'abord dans Dodo pour le laver.'
+      : 'Pi is sleeping! Wake him up first in Sleep mode to wash him.';
+
+  String get catchingBall => isFrench ? 'J\'attrape la balle !' : 'Catching the ball!';
+  String get ballFound => isFrench ? 'Balle trouvée !' : 'Ball found!';
+  String get guideHelp => isFrench ? 'Aide' : 'Help';
+  String get guideEnvironmentsTitle => isFrench ? 'Décors immersifs' : 'Play Environments';
+  String get guideEnvironmentsDesc => isFrench
+      ? 'Choisis l\'endroit où Pi va s\'amuser : Salon, Jardin, Plage ou Forêt.'
+      : 'Choose where Pi plays: Living Room, Garden, Beach or Forest.';
+  String get guideVitalsTitle => isFrench ? 'Besoins vitaux de Pi' : 'Pi\'s Vital Gauges';
+  String get guideVitalsDesc => isFrench
+      ? 'Surveille la faim, la joie, l\'énergie et la propreté de Pi !'
+      : 'Monitor Pi\'s hunger, joy, energy, and cleanliness!';
+  String get guideInteractionTitle => isFrench ? 'Barre d\'interaction' : 'Interaction Bar';
+  String get guideInteractionDesc => isFrench
+      ? 'Lance la balle, sers les croquettes, lave Pi ou prépare sa sieste !'
+      : 'Throw the ball, serve kibbles, wash Pi, or prepare for bedtime!';
+  String get guideActionsTitle => isFrench ? 'Actions de soin' : 'Care & Play Tray';
+  String get guideActionsDesc => isFrench
+      ? 'Prends soin de Pi : Jouer à la balle, Nourrir, Laver dans la douche, Guider ou Dodo !'
+      : 'Take care of Pi: Play fetch, Feed, Wash in dog shower, Guide, or Sleep!';
+  String get piAsleep => isFrench ? 'Pi dort...' : 'Pi asleep...';
+  String get sleepingStatus => isFrench ? 'Dort' : 'Sleeping';
+  String get fullStatus => isFrench ? 'Rassasié' : 'Full';
+  String get dirtyStatus => isFrench ? 'Sale' : 'Dirty';
+  String get cleanStatus => isFrench ? 'Propre' : 'Clean';
+  String get defaultFriendName => isFrench ? 'Ami' : 'Friend';
+  String get languageActiveDescription => isFrench ? 'Français activé' : 'English active';
+  String get noItemsInCategory => isFrench
+      ? 'Aucun accessoire possédé dans cette catégorie.'
+      : 'No owned accessories in this category.';
+  String get dressingTitle => isFrench ? 'Dressing de Pi' : 'Pi\'s Dressing Room';
 }
+
+

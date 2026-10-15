@@ -43,7 +43,7 @@ class FeedWalkthroughDialog extends StatefulWidget {
 class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
   int _currentStep = 0; // 0, 1, 2, 3
 
-  List<_TutorialStep> _getSteps(bool isFr) {
+  List<_TutorialStep> _getSteps(bool isFr, BuildContext context) {
     return [
       _TutorialStep(
         badge: isFr ? 'Étape 1 sur 4' : 'Step 1 of 4',
@@ -76,7 +76,7 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
           width: 50,
           height: 30,
           decoration: BoxDecoration(
-            color: AppColors.sky50,
+            color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: AppColors.sky500, width: 2),
           ),
@@ -96,20 +96,24 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
         customGraphic: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.green50,
+            color: context.isDark ? const Color(0xFF064E3B) : AppColors.green50,
             borderRadius: BorderRadius.circular(AppRadius.pill),
             border: Border.all(color: AppColors.green600, width: 1.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.soup_kitchen_rounded, size: 16, color: AppColors.green700),
+              Icon(
+                Icons.soup_kitchen_rounded,
+                size: 16,
+                color: context.isDark ? const Color(0xFF6EE7B7) : AppColors.green700,
+              ),
               const SizedBox(width: 6),
               Text(
                 isFr ? 'Servir' : 'Serve',
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: AppColors.green700,
+                  color: context.isDark ? const Color(0xFF6EE7B7) : AppColors.green700,
                 ),
               ),
             ],
@@ -127,20 +131,24 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
         customGraphic: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.sky50,
+            color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
             borderRadius: BorderRadius.circular(AppRadius.pill),
             border: Border.all(color: AppColors.sky600, width: 1.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.restaurant_rounded, size: 16, color: AppColors.sky700),
+              Icon(
+                Icons.restaurant_rounded,
+                size: 16,
+                color: context.isDark ? AppColors.darkSky500 : AppColors.sky700,
+              ),
               const SizedBox(width: 6),
               Text(
                 isFr ? 'Viens manger !' : 'Come eat!',
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: AppColors.sky700,
+                  color: context.isDark ? AppColors.darkSky500 : AppColors.sky700,
                 ),
               ),
             ],
@@ -152,12 +160,12 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final steps = _getSteps(widget.isFrench);
+    final steps = _getSteps(widget.isFrench, context);
     final step = steps[_currentStep];
     final isLast = _currentStep == steps.length - 1;
 
     return Dialog(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.appSurface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.xxl),
       ),
@@ -192,7 +200,7 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
                   child: Text(
                     widget.isFrench ? 'Passer' : 'Skip',
                     style: AppText.bodyS.copyWith(
-                      color: AppColors.ink500,
+                      color: context.appSubText,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -208,9 +216,9 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
                 width: 90,
                 height: 70,
                 decoration: BoxDecoration(
-                  color: AppColors.bg,
+                  color: context.appBg,
                   borderRadius: BorderRadius.circular(AppRadius.xl),
-                  border: Border.all(color: AppColors.ink200, width: 2),
+                  border: Border.all(color: context.appBorder, width: 2),
                 ),
                 child: Center(child: step.customGraphic),
               ),
@@ -222,7 +230,7 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
             Text(
               step.title,
               style: AppText.h3.copyWith(
-                color: AppColors.ink900,
+                color: context.appText,
                 fontSize: 18,
               ),
               textAlign: TextAlign.center,
@@ -234,7 +242,7 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
             Text(
               step.description,
               style: AppText.bodyS.copyWith(
-                color: AppColors.ink600,
+                color: context.appSubText,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -253,7 +261,9 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
                   width: _currentStep == index ? 20 : 7,
                   height: 7,
                   decoration: BoxDecoration(
-                    color: _currentStep == index ? step.accentColor : AppColors.ink200,
+                    color: _currentStep == index
+                        ? step.accentColor
+                        : (context.isDark ? AppColors.darkInk200 : AppColors.ink200),
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
                 ),

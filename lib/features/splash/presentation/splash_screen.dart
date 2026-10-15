@@ -4,7 +4,7 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/presentation/main_shell_screen.dart';
 import '../../onboarding/presentation/onboarding_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
 
@@ -82,10 +82,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         ),
       );
     } else {
-      // Profil existant -> Salon de Pi
+      // Profil existant -> Coquille principale (Salon, Soigner, Boutique)
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => const MainShellScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

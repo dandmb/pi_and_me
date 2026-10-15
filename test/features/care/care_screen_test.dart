@@ -156,8 +156,15 @@ void main() {
       await tester.pumpWidget(buildTestableCareScreen(systemLocale: 'fr'));
       await tester.pumpAndSettle();
 
-      // Clic sur Dodo
+      // Clic sur Dodo : Pi ne dort pas directement, l'enfant appuie sur « Faire dodo »
       await tester.tap(find.text('Dodo'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pi a besoin d\'un bon dodo'), findsOneWidget);
+      expect(find.widgetWithText(ChunkyButton, 'Faire dodo'), findsOneWidget);
+
+      // Clic sur Faire dodo
+      await tester.tap(find.widgetWithText(ChunkyButton, 'Faire dodo'));
       await tester.pumpAndSettle();
 
       expect(find.text('Pi dort paisiblement... Chut !'), findsOneWidget);
@@ -232,6 +239,50 @@ void main() {
       expect(find.text('Play'), findsOneWidget);
       expect(find.text('Feed'), findsOneWidget);
       expect(find.text('Wash'), findsOneWidget);
+    });
+
+    testWidgets('serve button is disabled and shows Rassasié when hunger is 1.0', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildTestableCareScreen(
+        systemLocale: 'fr',
+        initialCompanion: const PiCompanion(
+          hunger: 1.0,
+          croquettes: 3,
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Nourrir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rassasié'), findsOneWidget);
+      final serveBtn = tester.widget<ChunkyButton>(find.widgetWithText(ChunkyButton, 'Rassasié'));
+      expect(serveBtn.onPressed, isNull);
+    });
+
+    testWidgets('when Pi is sleeping, play tab shows sleeping notice and throw button is disabled', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildTestableCareScreen(
+        systemLocale: 'fr',
+        initialCompanion: const PiCompanion(
+          isSleeping: true,
+          balls: 3,
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Dans l'onglet Jouer, la carte d'information sur le sommeil doit être affichée
+      expect(find.text('Pi dort paisiblement'), findsOneWidget);
+      expect(find.text('Pi dort...'), findsOneWidget);
+
+      final throwBtn = tester.widget<ChunkyButton>(find.widgetWithText(ChunkyButton, 'Pi dort...'));
+      expect(throwBtn.onPressed, isNull);
     });
   });
 }

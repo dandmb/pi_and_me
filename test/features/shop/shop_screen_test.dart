@@ -89,8 +89,9 @@ void main() {
       expect(find.text('Bonnet d\'hiver'), findsOneWidget);
       expect(find.text('Couronne Royale'), findsOneWidget);
 
-      // Bottom dock
-      expect(find.text('Boutique'), findsOneWidget);
+      // Onglets haut et Bottom dock
+      expect(find.text('Garde-robe'), findsOneWidget);
+      expect(find.text('Boutique'), findsNWidgets(2)); // Onglet haut + Dock
       expect(find.text('Soigner'), findsOneWidget);
       expect(find.text('Salon'), findsOneWidget);
     });
@@ -179,6 +180,22 @@ void main() {
       expect(find.text('Collars'), findsOneWidget);
       expect(find.text('Capes'), findsOneWidget);
       expect(find.text('Blue Cap'), findsOneWidget);
+    });
+
+    testWidgets('switching to wardrobe tab shows empty wardrobe state when no items owned', (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildTestableShopScreen());
+      await tester.pumpAndSettle();
+
+      // Clic sur l'onglet Garde-robe
+      await tester.tap(find.text('Garde-robe'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Garde-robe vide'), findsOneWidget);
+      expect(find.text('Aller à la boutique'), findsOneWidget);
     });
   });
 }

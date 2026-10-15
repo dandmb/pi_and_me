@@ -9,9 +9,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/presentation/main_shell_screen.dart';
 import '../../shop/presentation/shop_controller.dart';
-import '../../shop/presentation/shop_screen.dart';
 import '../domain/care_interaction_mode.dart';
 import '../domain/pi_companion.dart';
 import '../domain/play_environment.dart';
@@ -26,9 +25,14 @@ import 'widgets/tennis_ball_widget.dart';
 /// le lancer de balle et la gamelle de croquettes sans aucun emoji artificiel.
 class CareScreen extends ConsumerStatefulWidget {
   final CareInteractionMode initialMode;
+  final bool isEmbedded;
+  final bool isActive;
+
   const CareScreen({
     super.key,
     this.initialMode = CareInteractionMode.play,
+    this.isEmbedded = false,
+    this.isActive = true,
   });
 
   @override
@@ -58,12 +62,31 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!widget.isActive) return;
       final prefs = await SharedPreferences.getInstance();
       final seen = prefs.getBool('has_completed_care_showcase_v1') ?? false;
       if (!seen && mounted) {
         _startShowcase();
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant CareScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final prefs = await SharedPreferences.getInstance();
+        final seen = prefs.getBool('has_completed_care_showcase_v1') ?? false;
+        if (!seen && mounted) {
+          _startShowcase();
+        }
+      });
+    } else if (!widget.isActive && oldWidget.isActive) {
+      try {
+        ShowcaseView.get().dismiss();
+      } catch (_) {}
+    }
   }
 
   void _startShowcase() {
@@ -86,6 +109,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     super.dispose();
   }
 
+  int _lastBallZone = -1;
+
   /// Change de mode d'interaction et efface immédiatement le message du mode précédent
   void _switchMode(CareInteractionMode newMode) async {
     if (_activeMode == newMode) return;
@@ -98,27 +123,24 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     // 2. Efface le message de Pi pour éviter toute rémanence entre les actions
     ref.read(careControllerProvider.notifier).clearMessage();
 
-    // 3. Gestion du réveil si on quitte le mode dodo
-    if (_activeMode == CareInteractionMode.sleep && newMode != CareInteractionMode.sleep) {
-      ref.read(careControllerProvider.notifier).wakeUpPi();
-    }
+    // Note : Pi ne se réveille PAS automatiquement en changeant d'onglet.
+    // S'il dort, il reste endormi jusqu'à ce que l'enfant appuie sur « Réveiller ».
 
     setState(() {
       _activeMode = newMode;
     });
-
-    // 4. Si passage au mode dodo, installer Pi dans son panier avec le cadre de nuit
-    if (newMode == CareInteractionMode.sleep) {
-      final strings = ref.read(stringsProvider);
-      ref.read(careControllerProvider.notifier).sleepPi(strings.piRested);
-    }
   }
 
-  /// Lance une balle de tennis sur le terrain à un endroit aléatoire (distant de Pi)
+  /// Lance une balle de tennis sur le terrain à un endroit aléatoire parmi 6 zones distinctes
   void _throwBall() {
     final companion = ref.read(careControllerProvider);
     final strings = ref.read(stringsProvider);
     final notifier = ref.read(careControllerProvider.notifier);
+
+    if (companion.isSleeping) {
+      _showRewardPrompt(strings.sleepAlertPlay);
+      return;
+    }
 
     if (companion.balls <= 0) {
       _showRewardPrompt(strings.noBallsLeft);
@@ -133,21 +155,26 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     _fetchTimer?.cancel();
     _returnTimer?.cancel();
 
-    // Génère des coordonnées aléatoires distantes d'au moins 0.45 de Pi
+    // 6 zones d'atterrissage réparties sur toute la surface de jeu
+    final zones = [
+      const [-0.65, -0.30, -0.38, -0.15], // 0: Haut gauche
+      const [0.30, 0.65, -0.38, -0.15],  // 1: Haut droite
+      const [-0.75, -0.40, 0.05, 0.28],  // 2: Milieu gauche
+      const [0.40, 0.75, 0.05, 0.28],   // 3: Milieu droite
+      const [-0.55, -0.15, 0.35, 0.58],  // 4: Bas gauche
+      const [0.15, 0.55, 0.35, 0.58],   // 5: Bas droite
+    ];
+
     final random = math.Random();
-    double targetX;
-    double targetY;
-    int attempts = 0;
+    int zoneIdx;
     do {
-      targetX = (random.nextDouble() * 1.5) - 0.75;
-      targetY = (random.nextDouble() * 0.90) - 0.35;
-      final dist = math.sqrt(
-        math.pow(targetX - companion.piX, 2) +
-            math.pow(targetY - companion.piY, 2),
-      );
-      if (dist >= 0.45 || attempts > 25) break;
-      attempts++;
-    } while (true);
+      zoneIdx = random.nextInt(zones.length);
+    } while (zoneIdx == _lastBallZone && zones.length > 1);
+    _lastBallZone = zoneIdx;
+
+    final z = zones[zoneIdx];
+    final targetX = z[0] + random.nextDouble() * (z[1] - z[0]);
+    final targetY = z[2] + random.nextDouble() * (z[3] - z[2]);
 
     notifier.throwBall(targetX, targetY, strings.piChasingBall);
 
@@ -160,7 +187,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
       notifier.moveTo(
         targetX,
         targetY,
-        message: strings.isFrench ? 'J\'attrape la balle !' : 'Catching the ball!',
+        message: strings.catchingBall,
       );
 
       _returnTimer = Timer(const Duration(milliseconds: 700), () {
@@ -175,6 +202,16 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final companion = ref.read(careControllerProvider);
     final strings = ref.read(stringsProvider);
     final notifier = ref.read(careControllerProvider.notifier);
+
+    if (companion.isSleeping) {
+      _showRewardPrompt(strings.sleepAlertFeed);
+      return;
+    }
+
+    if (companion.hunger >= 1.0) {
+      _showRewardPrompt(strings.piNotHungry);
+      return;
+    }
 
     if (companion.croquettes <= 0) {
       _showRewardPrompt(strings.noFoodLeft);
@@ -195,6 +232,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final strings = ref.read(stringsProvider);
     final notifier = ref.read(careControllerProvider.notifier);
 
+    if (companion.isSleeping) return;
     if (companion.bowlFoodCount <= 0 || companion.isEating) return;
 
     // Pi se dirige vers l'assiette située en (-0.68, 0.48)
@@ -214,8 +252,14 @@ class _CareScreenState extends ConsumerState<CareScreen> {
 
   /// Lave Pi des taches de saleté accumulées en jouant
   void _cleanPi() {
+    final companion = ref.read(careControllerProvider);
     final strings = ref.read(stringsProvider);
     final notifier = ref.read(careControllerProvider.notifier);
+
+    if (companion.isSleeping) {
+      _showRewardPrompt(strings.sleepAlertWash);
+      return;
+    }
 
     notifier.cleanPi(strings.piCleaned);
   }
@@ -225,6 +269,14 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final strings = ref.read(stringsProvider);
     final companion = ref.read(careControllerProvider);
     final notifier = ref.read(careControllerProvider.notifier);
+
+    // Si Pi dort, il ne bouge pas
+    if (companion.isSleeping) {
+      if (_activeMode == CareInteractionMode.sleep) {
+        notifier.rest(normX, normY, strings.piRested);
+      }
+      return;
+    }
 
     // Si Pi est en train de manger, ne pas interrompre le repas de 5s
     if (companion.isEating) return;
@@ -248,7 +300,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             notifier.moveTo(
               ballX,
               ballY,
-              message: strings.isFrench ? 'Balle trouvée !' : 'Ball found!',
+              message: strings.ballFound,
             );
 
             _returnTimer = Timer(const Duration(milliseconds: 600), () {
@@ -308,7 +360,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final shopState = ref.watch(shopControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: context.appBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -317,18 +369,44 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           ),
           child: Column(
             children: [
-              // 1. Barre supérieure : Retour, Titre, Aide Showcase & Solde d'Os dorés
-              _buildHeader(context, companion, strings),
-
-              const SizedBox(height: AppSpace.s2),
+              // 1. Barre supérieure : Retour, Titre, Aide Showcase & Solde d'Os dorés (si non embarqué)
+              if (!widget.isEmbedded) ...[
+                _buildHeader(context, companion, strings),
+                const SizedBox(height: AppSpace.s2),
+              ] else ...[
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: _startShowcase,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: AppSpace.s1),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: context.appSurface,
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                        border: Border.all(color: context.appBorder, width: 1.5),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.help_outline_rounded, size: 16, color: context.isDark ? AppColors.darkSky500 : AppColors.sky700),
+                          const SizedBox(width: 4),
+                          Text(
+                            strings.guideHelp,
+                            style: AppText.label.copyWith(fontSize: 12, color: context.isDark ? AppColors.darkSky500 : AppColors.sky800),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
 
               // 2. Sélecteur de cadres / décors (Salon, Jardin, Plage, Forêt)
               Showcase(
                 key: _envShowcaseKey,
-                title: strings.isFrench ? 'Décors immersifs' : 'Play Environments',
-                description: strings.isFrench
-                    ? 'Choisis l\'endroit où Pi va s\'amuser : Salon, Jardin, Plage ou Forêt.'
-                    : 'Choose where Pi plays: Living Room, Garden, Beach or Forest.',
+                title: strings.guideEnvironmentsTitle,
+                description: strings.guideEnvironmentsDesc,
                 targetBorderRadius: BorderRadius.circular(20),
                 child: _buildEnvironmentSelector(companion, strings),
               ),
@@ -338,10 +416,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               // 3. Les Jauges vitales (Faim, Joie, Énergie, Propreté)
               Showcase(
                 key: _gaugesShowcaseKey,
-                title: strings.isFrench ? 'Besoins vitaux de Pi' : 'Pi\'s Vital Gauges',
-                description: strings.isFrench
-                    ? 'Surveille la faim, la joie, l\'énergie et la propreté de Pi !'
-                    : 'Monitor Pi\'s hunger, joy, energy, and cleanliness!',
+                title: strings.guideVitalsTitle,
+                description: strings.guideVitalsDesc,
                 targetBorderRadius: BorderRadius.circular(16),
                 child: _buildGaugesRow(companion, strings),
               ),
@@ -363,10 +439,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               // 5. Barre contextuelle selon le mode actif
               Showcase(
                 key: _actionControlShowcaseKey,
-                title: strings.isFrench ? 'Barre d\'interaction' : 'Interaction Bar',
-                description: strings.isFrench
-                    ? 'Lance la balle, sers les croquettes, lave Pi ou prépare sa sieste !'
-                    : 'Throw the ball, serve kibbles, wash Pi, or prepare for bedtime!',
+                title: strings.guideInteractionTitle,
+                description: strings.guideInteractionDesc,
                 targetBorderRadius: BorderRadius.circular(20),
                 child: _buildModeControlBar(companion, strings),
               ),
@@ -376,18 +450,17 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               // 6. Plateau tactile d'actions (Jouer, Nourrir, Laver, Guider, Dodo)
               Showcase(
                 key: _actionTrayShowcaseKey,
-                title: strings.isFrench ? 'Actions de soin' : 'Care & Play Tray',
-                description: strings.isFrench
-                    ? 'Prends soin de Pi : Jouer à la balle, Nourrir, Laver dans la douche, Guider ou Dodo !'
-                    : 'Take care of Pi: Play fetch, Feed, Wash in dog shower, Guide, or Sleep!',
+                title: strings.guideActionsTitle,
+                description: strings.guideActionsDesc,
                 targetBorderRadius: BorderRadius.circular(24),
                 child: _buildActionTray(companion, strings),
               ),
 
-              const SizedBox(height: AppSpace.s2),
-
-              // 7. Barre de navigation inférieure (Salon / Soigner)
-              _buildBottomDock(context, strings),
+              // 7. Barre de navigation inférieure (si non embarqué)
+              if (!widget.isEmbedded) ...[
+                const SizedBox(height: AppSpace.s2),
+                _buildBottomDock(context, strings),
+              ],
             ],
           ),
         ),
@@ -414,13 +487,13 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -439,14 +512,12 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    isSleeping
-                        ? (strings.isFrench ? 'Pi dort paisiblement... Chut !' : 'Pi is sleeping peacefully... Shh!')
-                        : (strings.isFrench ? 'Pi a besoin d\'un bon dodo' : 'Pi needs a good nap'),
+                    isSleeping ? strings.piSleepingBanner : strings.piNeedsSleep,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: AppColors.ink900,
+                      color: context.appText,
                       fontSize: 12,
                     ),
                   ),
@@ -459,9 +530,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             height: 38,
             width: 130,
             child: ChunkyButton(
-              label: isSleeping
-                  ? (strings.isFrench ? 'Réveiller' : 'Wake up')
-                  : (strings.isFrench ? 'Faire dodo' : 'Go to sleep'),
+              label: isSleeping ? strings.wakeUpAction : strings.goToSleepAction,
               icon: Icon(
                 isSleeping ? Icons.wb_sunny_rounded : Icons.bedtime_rounded,
                 size: 15,
@@ -496,7 +565,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         GestureDetector(
           onTap: () {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
+              MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
               (route) => false,
             );
           },
@@ -504,14 +573,14 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.appSurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.ink200, width: 1.5),
+              border: Border.all(color: context.appBorder, width: 1.5),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_rounded,
               size: 20,
-              color: AppColors.ink600,
+              color: context.appSubText,
             ),
           ),
         ),
@@ -522,7 +591,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppText.h3.copyWith(color: AppColors.ink900, fontSize: 17),
+            style: AppText.h3.copyWith(color: context.appText, fontSize: 17),
           ),
         ),
         const SizedBox(width: AppSpace.s2),
@@ -535,14 +604,14 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.appSurface,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.ink200, width: 1.5),
+                  border: Border.all(color: context.appBorder, width: 1.5),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.help_outline_rounded,
                   size: 18,
-                  color: AppColors.ink600,
+                  color: context.appSubText,
                 ),
               ),
             ),
@@ -550,9 +619,12 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.amber50,
+                color: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
-                border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
+                border: Border.all(
+                  color: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+                  width: 1.5,
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -563,7 +635,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     '${companion.bones}',
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w900,
-                      color: AppColors.amber900,
+                      color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
                     ),
                   ),
                 ],
@@ -596,10 +668,12 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.sky50 : AppColors.surface,
+                  color: isSelected
+                      ? (context.isDark ? AppColors.darkSky50 : AppColors.sky50)
+                      : context.appSurface,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(
-                    color: isSelected ? AppColors.sky600 : AppColors.ink200,
+                    color: isSelected ? AppColors.sky600 : context.appBorder,
                     width: isSelected ? 2 : 1,
                   ),
                   boxShadow: isSelected
@@ -617,7 +691,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     Icon(
                       env.icon,
                       size: 16,
-                      color: isSelected ? AppColors.sky700 : AppColors.ink600,
+                      color: isSelected
+                          ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                          : context.appSubText,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -625,7 +701,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                       style: AppText.bodyS.copyWith(
                         fontWeight:
                             isSelected ? FontWeight.w900 : FontWeight.w700,
-                        color: isSelected ? AppColors.sky700 : AppColors.ink600,
+                        color: isSelected
+                            ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                            : context.appSubText,
                         fontSize: 12,
                       ),
                     ),
@@ -646,9 +724,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
+        border: Border.all(color: context.appBorder, width: 1.5),
       ),
       child: Row(
         children: [
@@ -748,7 +826,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           child: LinearProgressIndicator(
             value: val,
             minHeight: 5,
-            backgroundColor: AppColors.ink100,
+            backgroundColor: context.appSurfaceAlt,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -760,17 +838,18 @@ class _CareScreenState extends ConsumerState<CareScreen> {
   Widget _buildPlayControlBar(PiCompanion companion, dynamic strings) {
     final hasBalls = companion.balls > 0;
     final isBallActive = companion.isBallActive;
+    final canThrow = hasBalls && !isBallActive && !companion.isSleeping;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -784,7 +863,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   strings.balls,
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: AppColors.ink900,
+                    color: context.appText,
                     fontSize: 12,
                   ),
                 ),
@@ -820,9 +899,11 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             height: 38,
             width: 148,
             child: ChunkyButton(
-              label: strings.throwBallAction,
-              icon: const Icon(
-                Icons.sports_tennis_rounded,
+              label: companion.isSleeping
+                  ? strings.piAsleep
+                  : strings.throwBallAction,
+              icon: Icon(
+                companion.isSleeping ? Icons.bedtime_rounded : Icons.sports_tennis_rounded,
                 size: 16,
                 color: Colors.white,
               ),
@@ -830,7 +911,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               height: 38,
               width: 148,
               isFullWidth: false,
-              onPressed: (hasBalls && !isBallActive) ? _throwBall : null,
+              onPressed: canThrow ? _throwBall : null,
             ),
           ),
         ],
@@ -842,19 +923,20 @@ class _CareScreenState extends ConsumerState<CareScreen> {
   /// Row des croquettes disponibles + Bouton « Servir » + Bouton « Viens manger ! »
   Widget _buildFeedControlBar(PiCompanion companion, dynamic strings) {
     final hasCroquettes = companion.croquettes > 0;
-    final canServe = hasCroquettes && companion.bowlFoodCount < 3 && !companion.isEating;
-    final canComeEat = companion.bowlFoodCount > 0 && !companion.isEating;
+    final isFull = companion.hunger >= 1.0;
+    final canServe = hasCroquettes && companion.bowlFoodCount < 3 && !companion.isEating && !isFull && !companion.isSleeping;
+    final canComeEat = companion.bowlFoodCount > 0 && !companion.isEating && !companion.isSleeping;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -869,7 +951,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   strings.croquettes,
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: AppColors.ink900,
+                    color: context.appText,
                     fontSize: 12,
                   ),
                 ),
@@ -924,7 +1006,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    strings.isFrench ? 'Repas en cours...' : 'Eating...',
+                    strings.eatingInProgress,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w900,
                       color: AppColors.green700,
@@ -935,20 +1017,22 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               ),
             )
           else ...[
-            // Bouton Servir
+            // Bouton Servir (désactivé si Pi n'a plus faim ou dort)
             SizedBox(
               height: 38,
-              width: companion.bowlFoodCount > 0 ? 82 : 105,
+              width: companion.bowlFoodCount > 0 ? 86 : 110,
               child: ChunkyButton(
-                label: strings.serveAction,
-                icon: const Icon(
-                  Icons.soup_kitchen_rounded,
+                label: companion.isSleeping
+                    ? strings.sleepingStatus
+                    : (isFull ? strings.fullStatus : strings.serveAction),
+                icon: Icon(
+                  isFull ? Icons.check_circle_rounded : Icons.soup_kitchen_rounded,
                   size: 15,
                   color: Colors.white,
                 ),
-                variant: ChunkyButtonVariant.success,
+                variant: isFull ? ChunkyButtonVariant.secondary : ChunkyButtonVariant.success,
                 height: 38,
-                width: companion.bowlFoodCount > 0 ? 82 : 105,
+                width: companion.bowlFoodCount > 0 ? 86 : 110,
                 isFullWidth: false,
                 onPressed: canServe ? _serveFood : null,
               ),
@@ -983,16 +1067,18 @@ class _CareScreenState extends ConsumerState<CareScreen> {
 
   /// Barre de contrôle pour Nettoyer / Laver Pi
   Widget _buildCleanControlBar(PiCompanion companion, dynamic strings) {
+    final canClean = companion.isDirty && !companion.isSleeping;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 2),
+            color: context.appShadow,
+            offset: const Offset(0, 2),
             blurRadius: 0,
           ),
         ],
@@ -1011,14 +1097,16 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    companion.isDirty
-                        ? (strings.isFrench ? 'Pi a besoin d\'un bon bain !' : 'Pi needs a good bath!')
-                        : (strings.isFrench ? 'Pi est tout propre et brillant !' : 'Pi is all clean and fresh!'),
+                    companion.isSleeping
+                        ? strings.piSleepingBanner
+                        : (companion.isDirty
+                            ? strings.piNeedsBath
+                            : strings.piAllClean),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: AppColors.ink900,
+                      color: context.appText,
                       fontSize: 12,
                     ),
                   ),
@@ -1041,7 +1129,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               height: 38,
               width: 120,
               isFullWidth: false,
-              onPressed: companion.isDirty ? _cleanPi : null,
+              onPressed: canClean ? _cleanPi : null,
             ),
           ),
         ],
@@ -1053,13 +1141,13 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpace.s2),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.ink200, width: 2),
-        boxShadow: const [
+        border: Border.all(color: context.appBorder, width: 2),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.ink100,
-            offset: Offset(0, 3),
+            color: context.appShadow,
+            offset: const Offset(0, 3),
             blurRadius: 0,
           ),
         ],
@@ -1092,8 +1180,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.shower_rounded,
               label: strings.cleanAction,
               subtitle: companion.isDirty
-                  ? (strings.isFrench ? 'Sale' : 'Dirty')
-                  : (strings.isFrench ? 'Propre' : 'Clean'),
+                  ? strings.dirtyStatus
+                  : strings.cleanStatus,
               accentColor: const Color(0xFF6366F1),
             ),
           ),
@@ -1137,10 +1225,12 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
         decoration: BoxDecoration(
-          color: isSelected ? accentColor.withValues(alpha: 0.12) : AppColors.bg,
+          color: isSelected
+              ? accentColor.withValues(alpha: context.isDark ? 0.25 : 0.12)
+              : context.appSurfaceAlt,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
-            color: isSelected ? accentColor : AppColors.ink200,
+            color: isSelected ? accentColor : context.appBorder,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -1158,7 +1248,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             Icon(
               icon,
               size: 20,
-              color: isSelected ? accentColor : AppColors.ink600,
+              color: isSelected
+                  ? accentColor
+                  : context.appSubText,
             ),
             const SizedBox(height: 2),
             FittedBox(
@@ -1168,7 +1260,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
                   fontSize: 11,
-                  color: isSelected ? accentColor : AppColors.ink900,
+                  color: isSelected ? accentColor : context.appText,
                 ),
               ),
             ),
@@ -1180,7 +1272,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 style: AppText.bodyS.copyWith(
                   fontSize: 8.5,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? accentColor : AppColors.ink500,
+                  color: isSelected ? accentColor : (context.isDark ? AppColors.darkInk500 : AppColors.ink500),
                 ),
               ),
             ),
@@ -1194,9 +1286,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.ink200, width: 1.5),
+        border: Border.all(color: context.appBorder, width: 1.5),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1205,7 +1297,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.sky50,
+              color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
               borderRadius: BorderRadius.circular(AppRadius.md),
               border: Border.all(color: AppColors.sky500, width: 1),
             ),
@@ -1232,7 +1324,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
                 (route) => false,
               );
             },
@@ -1261,8 +1353,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           // 3. Boutique
           GestureDetector(
             onTap: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const ShopScreen()),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 2)),
+                (route) => false,
               );
             },
             child: Container(
