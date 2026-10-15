@@ -109,6 +109,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     super.dispose();
   }
 
+  int _lastBallZone = -1;
+
   /// Change de mode d'interaction et efface immédiatement le message du mode précédent
   void _switchMode(CareInteractionMode newMode) async {
     if (_activeMode == newMode) return;
@@ -121,27 +123,34 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     // 2. Efface le message de Pi pour éviter toute rémanence entre les actions
     ref.read(careControllerProvider.notifier).clearMessage();
 
-    // 3. Gestion du réveil si on quitte le mode dodo
-    if (_activeMode == CareInteractionMode.sleep && newMode != CareInteractionMode.sleep) {
-      ref.read(careControllerProvider.notifier).wakeUpPi();
-    }
+    // Note : Pi ne se réveille PAS automatiquement en changeant d'onglet.
+    // S'il dort, il reste endormi jusqu'à ce que l'enfant appuie sur « Réveiller ».
 
     setState(() {
       _activeMode = newMode;
     });
 
-    // 4. Si passage au mode dodo, installer Pi dans son panier avec le cadre de nuit
-    if (newMode == CareInteractionMode.sleep) {
+    // 3. Si passage au mode dodo et qu'il ne dort pas encore, installer Pi dans son lit
+    if (newMode == CareInteractionMode.sleep && !ref.read(careControllerProvider).isSleeping) {
       final strings = ref.read(stringsProvider);
       ref.read(careControllerProvider.notifier).sleepPi(strings.piRested);
     }
   }
 
-  /// Lance une balle de tennis sur le terrain à un endroit aléatoire (distant de Pi)
+  /// Lance une balle de tennis sur le terrain à un endroit aléatoire parmi 6 zones distinctes
   void _throwBall() {
     final companion = ref.read(careControllerProvider);
     final strings = ref.read(stringsProvider);
     final notifier = ref.read(careControllerProvider.notifier);
+
+    if (companion.isSleeping) {
+      _showRewardPrompt(
+        strings.isFrench
+            ? 'Pi dort paisiblement ! Réveille-le d\'abord dans Dodo pour jouer.'
+            : 'Pi is sleeping! Wake him up first in Sleep mode to play.',
+      );
+      return;
+    }
 
     if (companion.balls <= 0) {
       _showRewardPrompt(strings.noBallsLeft);
@@ -156,21 +165,26 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     _fetchTimer?.cancel();
     _returnTimer?.cancel();
 
-    // Génère des coordonnées aléatoires distantes d'au moins 0.45 de Pi
+    // 6 zones d'atterrissage réparties sur toute la surface de jeu
+    final zones = [
+      const [-0.65, -0.30, -0.38, -0.15], // 0: Haut gauche
+      const [0.30, 0.65, -0.38, -0.15],  // 1: Haut droite
+      const [-0.75, -0.40, 0.05, 0.28],  // 2: Milieu gauche
+      const [0.40, 0.75, 0.05, 0.28],   // 3: Milieu droite
+      const [-0.55, -0.15, 0.35, 0.58],  // 4: Bas gauche
+      const [0.15, 0.55, 0.35, 0.58],   // 5: Bas droite
+    ];
+
     final random = math.Random();
-    double targetX;
-    double targetY;
-    int attempts = 0;
+    int zoneIdx;
     do {
-      targetX = (random.nextDouble() * 1.5) - 0.75;
-      targetY = (random.nextDouble() * 0.90) - 0.35;
-      final dist = math.sqrt(
-        math.pow(targetX - companion.piX, 2) +
-            math.pow(targetY - companion.piY, 2),
-      );
-      if (dist >= 0.45 || attempts > 25) break;
-      attempts++;
-    } while (true);
+      zoneIdx = random.nextInt(zones.length);
+    } while (zoneIdx == _lastBallZone && zones.length > 1);
+    _lastBallZone = zoneIdx;
+
+    final z = zones[zoneIdx];
+    final targetX = z[0] + random.nextDouble() * (z[1] - z[0]);
+    final targetY = z[2] + random.nextDouble() * (z[3] - z[2]);
 
     notifier.throwBall(targetX, targetY, strings.piChasingBall);
 
@@ -199,6 +213,20 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final strings = ref.read(stringsProvider);
     final notifier = ref.read(careControllerProvider.notifier);
 
+    if (companion.isSleeping) {
+      _showRewardPrompt(
+        strings.isFrench
+            ? 'Pi dort ! Réveille-le d\'abord dans Dodo pour le nourrir.'
+            : 'Pi is sleeping! Wake him up first in Sleep mode to feed him.',
+      );
+      return;
+    }
+
+    if (companion.hunger >= 1.0) {
+      _showRewardPrompt(strings.piNotHungry);
+      return;
+    }
+
     if (companion.croquettes <= 0) {
       _showRewardPrompt(strings.noFoodLeft);
       return;
@@ -218,6 +246,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final strings = ref.read(stringsProvider);
     final notifier = ref.read(careControllerProvider.notifier);
 
+    if (companion.isSleeping) return;
     if (companion.bowlFoodCount <= 0 || companion.isEating) return;
 
     // Pi se dirige vers l'assiette située en (-0.68, 0.48)
@@ -237,8 +266,18 @@ class _CareScreenState extends ConsumerState<CareScreen> {
 
   /// Lave Pi des taches de saleté accumulées en jouant
   void _cleanPi() {
+    final companion = ref.read(careControllerProvider);
     final strings = ref.read(stringsProvider);
     final notifier = ref.read(careControllerProvider.notifier);
+
+    if (companion.isSleeping) {
+      _showRewardPrompt(
+        strings.isFrench
+            ? 'Pi dort ! Réveille-le d\'abord dans Dodo pour le laver.'
+            : 'Pi is sleeping! Wake him up first in Sleep mode to wash him.',
+      );
+      return;
+    }
 
     notifier.cleanPi(strings.piCleaned);
   }
@@ -248,6 +287,14 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final strings = ref.read(stringsProvider);
     final companion = ref.read(careControllerProvider);
     final notifier = ref.read(careControllerProvider.notifier);
+
+    // Si Pi dort, il ne bouge pas
+    if (companion.isSleeping) {
+      if (_activeMode == CareInteractionMode.sleep) {
+        notifier.rest(normX, normY, strings.piRested);
+      }
+      return;
+    }
 
     // Si Pi est en train de manger, ne pas interrompre le repas de 5s
     if (companion.isEating) return;
@@ -812,6 +859,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
   Widget _buildPlayControlBar(PiCompanion companion, dynamic strings) {
     final hasBalls = companion.balls > 0;
     final isBallActive = companion.isBallActive;
+    final canThrow = hasBalls && !isBallActive && !companion.isSleeping;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
@@ -872,9 +920,11 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             height: 38,
             width: 148,
             child: ChunkyButton(
-              label: strings.throwBallAction,
-              icon: const Icon(
-                Icons.sports_tennis_rounded,
+              label: companion.isSleeping
+                  ? (strings.isFrench ? 'Pi dort...' : 'Pi asleep...')
+                  : strings.throwBallAction,
+              icon: Icon(
+                companion.isSleeping ? Icons.bedtime_rounded : Icons.sports_tennis_rounded,
                 size: 16,
                 color: Colors.white,
               ),
@@ -882,7 +932,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               height: 38,
               width: 148,
               isFullWidth: false,
-              onPressed: (hasBalls && !isBallActive) ? _throwBall : null,
+              onPressed: canThrow ? _throwBall : null,
             ),
           ),
         ],
@@ -894,8 +944,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
   /// Row des croquettes disponibles + Bouton « Servir » + Bouton « Viens manger ! »
   Widget _buildFeedControlBar(PiCompanion companion, dynamic strings) {
     final hasCroquettes = companion.croquettes > 0;
-    final canServe = hasCroquettes && companion.bowlFoodCount < 3 && !companion.isEating;
-    final canComeEat = companion.bowlFoodCount > 0 && !companion.isEating;
+    final isFull = companion.hunger >= 1.0;
+    final canServe = hasCroquettes && companion.bowlFoodCount < 3 && !companion.isEating && !isFull && !companion.isSleeping;
+    final canComeEat = companion.bowlFoodCount > 0 && !companion.isEating && !companion.isSleeping;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
@@ -987,20 +1038,22 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               ),
             )
           else ...[
-            // Bouton Servir
+            // Bouton Servir (désactivé si Pi n'a plus faim ou dort)
             SizedBox(
               height: 38,
-              width: companion.bowlFoodCount > 0 ? 82 : 105,
+              width: companion.bowlFoodCount > 0 ? 86 : 110,
               child: ChunkyButton(
-                label: strings.serveAction,
-                icon: const Icon(
-                  Icons.soup_kitchen_rounded,
+                label: companion.isSleeping
+                    ? (strings.isFrench ? 'Dort' : 'Sleeping')
+                    : (isFull ? (strings.isFrench ? 'Rassasié' : 'Full') : strings.serveAction),
+                icon: Icon(
+                  isFull ? Icons.check_circle_rounded : Icons.soup_kitchen_rounded,
                   size: 15,
                   color: Colors.white,
                 ),
-                variant: ChunkyButtonVariant.success,
+                variant: isFull ? ChunkyButtonVariant.secondary : ChunkyButtonVariant.success,
                 height: 38,
-                width: companion.bowlFoodCount > 0 ? 82 : 105,
+                width: companion.bowlFoodCount > 0 ? 86 : 110,
                 isFullWidth: false,
                 onPressed: canServe ? _serveFood : null,
               ),
@@ -1035,6 +1088,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
 
   /// Barre de contrôle pour Nettoyer / Laver Pi
   Widget _buildCleanControlBar(PiCompanion companion, dynamic strings) {
+    final canClean = companion.isDirty && !companion.isSleeping;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
       decoration: BoxDecoration(
@@ -1063,9 +1118,11 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    companion.isDirty
-                        ? (strings.isFrench ? 'Pi a besoin d\'un bon bain !' : 'Pi needs a good bath!')
-                        : (strings.isFrench ? 'Pi est tout propre et brillant !' : 'Pi is all clean and fresh!'),
+                    companion.isSleeping
+                        ? (strings.isFrench ? 'Pi dort paisiblement...' : 'Pi is sleeping...')
+                        : (companion.isDirty
+                            ? (strings.isFrench ? 'Pi a besoin d\'un bon bain !' : 'Pi needs a good bath!')
+                            : (strings.isFrench ? 'Pi est tout propre et brillant !' : 'Pi is all clean and fresh!')),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
@@ -1093,7 +1150,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               height: 38,
               width: 120,
               isFullWidth: false,
-              onPressed: companion.isDirty ? _cleanPi : null,
+              onPressed: canClean ? _cleanPi : null,
             ),
           ),
         ],

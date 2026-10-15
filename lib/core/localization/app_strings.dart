@@ -98,6 +98,8 @@ class AppStrings {
       ? 'Wouf ! Prête pour le quiz, $childName ?'
       : 'Woof! Ready for the quiz, $childName?';
   String get hunger => isFrench ? 'Faim' : 'Hunger';
+  String get piNotHungry =>
+      isFrench ? 'Pi n\'a pas faim pour le moment ! 🐾' : 'Pi isn\'t hungry right now! 🐾';
   String get joy => isFrench ? 'Joie' : 'Joy';
   String get energy => isFrench ? 'Énergie' : 'Energy';
   String get playQuiz => isFrench ? 'Jouer au Quiz' : 'Play Quiz';
@@ -109,6 +111,10 @@ class AppStrings {
   // --- Paramètres / Settings ---
   String get settings => isFrench ? 'Paramètres' : 'Settings';
   String get languageTitle => isFrench ? 'Langue de l\'application' : 'App Language';
+  String get themeTitle => isFrench ? 'Mode Sombre / Apparence' : 'Dark Mode / Appearance';
+  String get lightTheme => isFrench ? 'Clair' : 'Light';
+  String get darkTheme => isFrench ? 'Sombre' : 'Dark';
+  String get systemTheme => isFrench ? 'Système' : 'System';
   String get close => isFrench ? 'Fermer' : 'Close';
 
   // --- Profils & Sélecteur ---

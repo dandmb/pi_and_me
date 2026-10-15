@@ -8,6 +8,8 @@ import 'features/splash/presentation/splash_screen.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/theme/theme_mode_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -58,15 +60,19 @@ void main() async {
   runApp(const ProviderScope(child: PiEtMoiApp()));
 }
 
-class PiEtMoiApp extends StatelessWidget {
+class PiEtMoiApp extends ConsumerWidget {
   const PiEtMoiApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp(
       title: 'Pi & Moi',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
+      darkTheme: buildAppDarkTheme(),
+      themeMode: themeMode,
       home: const SplashScreen(),
     );
   }

@@ -5,6 +5,7 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
+import '../../../core/theme/theme_mode_controller.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../care/domain/pi_companion.dart';
 import '../../care/presentation/care_controller.dart';
@@ -17,9 +18,9 @@ import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
 import '../../shop/presentation/shop_screen.dart';
 
 /// Écran Coquille Principale (MainShellScreen) unifiant :
-/// - Une AppBar persistante (Nom du profil avec switch, Solde de pièces/os dorés, Paramètres).
+/// - Une AppBar persistante et stylée (Profil avec switch, Solde d'os dorés, Switch Dark Mode, Paramètres).
 /// - Un corps avec navigation par onglets (IndexedStack) préservant l'état des écrans.
-/// - Une BottomBar avec exactement 3 onglets : [Salon, Soigner, Boutique] avec le Salon au début.
+/// - Une BottomBar stylée (Dock flottant) avec 3 onglets : [Salon, Soigner, Boutique] avec le Salon au début.
 /// - Règle stricte de navigation : On ne peut quitter l'application que si l'on est sur le Salon.
 ///   Si l'on est sur Soigner ou Boutique, le bouton Retour ramène automatiquement au Salon.
 class MainShellScreen extends ConsumerStatefulWidget {
@@ -100,13 +101,15 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final strings = ref.watch(stringsProvider);
     final profileAsync = ref.watch(activeProfileProvider);
     final companion = ref.watch(careControllerProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
+      value: SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
       ),
       child: PopScope(
         canPop: false,
@@ -127,13 +130,13 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
           }
         },
         child: Scaffold(
-          backgroundColor: AppColors.bg,
+          backgroundColor: isDark ? AppColors.darkBg : AppColors.bg,
           body: SafeArea(
             bottom: false,
             child: Column(
               children: [
-                // 1. Barre supérieure persistante
-                _buildTopAppBar(context, profileAsync, companion, strings),
+                // 1. Barre supérieure persistante et stylée
+                _buildTopAppBar(context, profileAsync, companion, strings, isDark, themeMode),
 
                 // 2. Contenu principal selon l'onglet actif
                 Expanded(
@@ -167,19 +170,21 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               ],
             ),
           ),
-          // 3. Barre de navigation inférieure persistante (protégée contre la barre système Android)
-          bottomNavigationBar: _buildBottomNavigationBar(context, strings),
+          // 3. Barre de navigation inférieure persistante (Dock flottant moderne)
+          bottomNavigationBar: _buildBottomNavigationBar(context, strings, isDark),
         ),
       ),
     );
   }
 
-  // --- APP BAR UNIFIÉE ---
+  // --- APP BAR UNIFIÉE & STYLÉE ---
   Widget _buildTopAppBar(
     BuildContext context,
     AsyncValue<ChildProfile?> profileAsync,
     PiCompanion companion,
     dynamic strings,
+    bool isDark,
+    ThemeMode themeMode,
   ) {
     final profile = profileAsync.valueOrNull;
     final childName = profile?.name ?? (strings.isFrench ? 'Ami' : 'Friend');
@@ -187,12 +192,17 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         ? strings.getGradeLabel(profile.grade)
         : (strings.isFrench ? 'CM1' : 'Grade 4');
 
+    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
+    final borderColor = isDark ? AppColors.darkInk200 : AppColors.ink200;
+    final textColor = isDark ? AppColors.darkInk900 : AppColors.ink900;
+    final shadowColor = isDark ? Colors.black.withValues(alpha: 0.3) : AppColors.ink100;
+
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpace.s5,
-        vertical: AppSpace.s3,
+        horizontal: AppSpace.s4,
+        vertical: AppSpace.s2,
       ),
-      color: AppColors.bg,
+      color: Colors.transparent,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -202,44 +212,55 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpace.s3,
-                vertical: AppSpace.s1,
+                vertical: 6,
               ),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: surfaceColor,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
-                border: Border.all(color: AppColors.ink200, width: 1.5),
-                boxShadow: const [
+                border: Border.all(color: borderColor, width: 1.5),
+                boxShadow: [
                   BoxShadow(
-                    color: AppColors.ink100,
-                    offset: Offset(0, 2),
-                    blurRadius: 0,
+                    color: shadowColor,
+                    offset: const Offset(0, 2),
+                    blurRadius: 4,
                   ),
                 ],
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.face_rounded,
-                    size: 18,
-                    color: AppColors.sky700,
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkSky50 : AppColors.sky50,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.face_rounded,
+                      size: 16,
+                      color: AppColors.sky600,
+                    ),
                   ),
                   const SizedBox(width: AppSpace.s2),
                   Text(
                     '$childName ($gradeLabel)',
-                    style: AppText.label.copyWith(color: AppColors.ink900),
+                    style: AppText.label.copyWith(
+                      color: textColor,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(
+                  Icon(
                     Icons.arrow_drop_down_rounded,
                     size: 18,
-                    color: AppColors.ink500,
+                    color: isDark ? AppColors.darkInk500 : AppColors.ink500,
                   ),
                 ],
               ),
             ),
           ),
 
-          // Droite : Solde d'Os dorés & Bouton Paramètres
+          // Droite : Solde d'Os dorés + Toggle Thème Sombre + Bouton Paramètres
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -247,15 +268,22 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpace.s3,
-                  vertical: AppSpace.s1,
+                  vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.amber50,
+                  color: isDark ? const Color(0xFF451A03) : AppColors.amber50,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(
-                    color: const Color(0xFFFDE68A),
+                    color: isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
                     width: 1.5,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark ? Colors.black.withValues(alpha: 0.25) : const Color(0xFFFEF3C7),
+                      offset: const Offset(0, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -268,37 +296,67 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                     Text(
                       '${companion.bones}',
                       style: AppText.mathS.copyWith(
-                        color: AppColors.amber900,
+                        color: isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(width: AppSpace.s2),
+              const SizedBox(width: 8),
+
+              // Bouton Toggle Mode Sombre / Clair rapide
+              GestureDetector(
+                onTap: () => ref.read(themeModeProvider.notifier).toggleTheme(),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: surfaceColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: borderColor, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: shadowColor,
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                    size: 18,
+                    color: isDark ? const Color(0xFFFBBF24) : const Color(0xFF6366F1),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 8),
 
               // Bouton Paramètres (Settings)
               GestureDetector(
                 onTap: () => SettingsSheet.show(context),
                 child: Container(
-                  width: 40,
-                  height: 40,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: surfaceColor,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.ink200, width: 1.5),
-                    boxShadow: const [
+                    border: Border.all(color: borderColor, width: 1.5),
+                    boxShadow: [
                       BoxShadow(
-                        color: AppColors.ink100,
-                        offset: Offset(0, 2),
-                        blurRadius: 0,
+                        color: shadowColor,
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.settings_rounded,
-                    size: 22,
-                    color: AppColors.ink600,
+                    size: 19,
+                    color: isDark ? AppColors.darkInk600 : AppColors.ink600,
                   ),
                 ),
               ),
@@ -309,57 +367,63 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     );
   }
 
-  // --- BOTTOM BAR UNIFIÉE (Salon au début, Soigner, Boutique) ---
-  Widget _buildBottomNavigationBar(BuildContext context, dynamic strings) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, -3),
-            blurRadius: 6,
-          ),
-        ],
-        border: const Border(
-          top: BorderSide(color: AppColors.ink100, width: 1.5),
+  // --- BOTTOM BAR UNIFIÉE (Dock Flottant Moderne : Salon, Soigner, Boutique) ---
+  Widget _buildBottomNavigationBar(BuildContext context, dynamic strings, bool isDark) {
+    final dockBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final dockBorder = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+
+    return SafeArea(
+      top: false,
+      left: false,
+      right: false,
+      bottom: true,
+      child: Container(
+        margin: const EdgeInsets.only(left: 18, right: 18, bottom: 8, top: 4),
+        height: 64,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        decoration: BoxDecoration(
+          color: dockBg,
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: dockBorder, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
+              offset: const Offset(0, 4),
+              blurRadius: 18,
+              spreadRadius: 1,
+            ),
+          ],
         ),
-      ),
-      child: SafeArea(
-        top: false,
-        left: true,
-        right: true,
-        bottom: true,
-        child: SizedBox(
-          height: 64,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // 1. Salon (au début, index 0)
-              _buildNavItem(
-                index: 0,
-                icon: Icons.home_rounded,
-                label: strings.salonDockLabel,
-                isActive: _currentIndex == 0,
-              ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // 1. Salon (au début, index 0)
+            _buildNavItem(
+              index: 0,
+              icon: Icons.home_rounded,
+              label: strings.salonDockLabel,
+              isActive: _currentIndex == 0,
+              isDark: isDark,
+            ),
 
-              // 2. Soigner (index 1)
-              _buildNavItem(
-                index: 1,
-                icon: Icons.favorite_rounded,
-                label: strings.careDockLabel,
-                isActive: _currentIndex == 1,
-              ),
+            // 2. Soigner (index 1)
+            _buildNavItem(
+              index: 1,
+              icon: Icons.favorite_rounded,
+              label: strings.careDockLabel,
+              isActive: _currentIndex == 1,
+              isDark: isDark,
+            ),
 
-              // 3. Boutique (index 2)
-              _buildNavItem(
-                index: 2,
-                icon: Icons.storefront_rounded,
-                label: strings.shopDockLabel,
-                isActive: _currentIndex == 2,
-              ),
-            ],
-          ),
+            // 3. Boutique (index 2)
+            _buildNavItem(
+              index: 2,
+              icon: Icons.storefront_rounded,
+              label: strings.shopDockLabel,
+              isActive: _currentIndex == 2,
+              isDark: isDark,
+            ),
+          ],
         ),
       ),
     );
@@ -370,6 +434,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     required IconData icon,
     required String label,
     required bool isActive,
+    required bool isDark,
   }) {
     return Expanded(
       child: GestureDetector(
@@ -377,15 +442,30 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         behavior: HitTestBehavior.opaque,
         child: Center(
           child: AnimatedContainer(
-            duration: AppMotion.fast,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            padding: EdgeInsets.symmetric(
+              horizontal: isActive ? 16 : 8,
+              vertical: 8,
+            ),
             decoration: BoxDecoration(
-              color: isActive ? AppColors.sky50 : Colors.transparent,
+              gradient: isActive
+                  ? const LinearGradient(
+                      colors: [Color(0xFF0284C7), Color(0xFF38BDF8)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
               borderRadius: BorderRadius.circular(AppRadius.pill),
-              border: Border.all(
-                color: isActive ? AppColors.sky500 : Colors.transparent,
-                width: 1.5,
-              ),
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                        offset: const Offset(0, 3),
+                        blurRadius: 8,
+                      ),
+                    ]
+                  : null,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -393,9 +473,11 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                 Icon(
                   icon,
                   size: 20,
-                  color: isActive ? AppColors.sky600 : AppColors.ink500,
+                  color: isActive
+                      ? Colors.white
+                      : (isDark ? AppColors.darkInk500 : AppColors.ink500),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 5),
                 Flexible(
                   child: Text(
                     label,
@@ -403,7 +485,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
                       fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
-                      color: isActive ? AppColors.sky700 : AppColors.ink500,
+                      fontSize: 12.5,
+                      color: isActive
+                          ? Colors.white
+                          : (isDark ? AppColors.darkInk600 : AppColors.ink600),
                     ),
                   ),
                 ),
@@ -415,3 +500,4 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     );
   }
 }
+

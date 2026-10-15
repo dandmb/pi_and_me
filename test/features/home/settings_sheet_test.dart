@@ -44,4 +44,32 @@ void main() {
     expect(find.text('Langue de l\'application'), findsOneWidget);
     expect(find.text('Français activé'), findsOneWidget);
   });
+
+  testWidgets('SettingsSheet allows selecting dark mode theme', (WidgetTester tester) async {
+    final container = ProviderContainer(
+      overrides: [
+        languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SettingsSheet(),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Mode Sombre / Apparence'), findsOneWidget);
+    expect(find.text('Sombre'), findsOneWidget);
+
+    await tester.tap(find.text('Sombre'));
+    await tester.pumpAndSettle();
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('pi_theme_mode_key'), equals('dark'));
+  });
 }

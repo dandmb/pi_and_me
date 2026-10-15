@@ -60,7 +60,7 @@ class PiCompanion {
   /// Lance une balle de tennis sur le terrain à un endroit aléatoire.
   /// La balle reste sur le terrain SANS être décomptée tant que Pi ne l'a pas atteinte.
   PiCompanion throwBall(double targetX, double targetY, String message) {
-    if (balls <= 0 || isBallActive) return this;
+    if (balls <= 0 || isBallActive || isSleeping) return this;
     return copyWith(
       activeBallX: targetX,
       activeBallY: targetY,
@@ -73,6 +73,7 @@ class PiCompanion {
 
   /// Déplace Pi vers une coordonnée (directive tactile de l'enfant ou course automatique).
   PiCompanion moveTo(double targetX, double targetY, {String? message}) {
+    if (isSleeping) return this;
     return copyWith(
       piX: targetX,
       piY: targetY,
@@ -124,9 +125,9 @@ class PiCompanion {
     return copyWith(isSleeping: false);
   }
 
-  /// Sert des croquettes dans l'assiette une à une (jusqu'à 3)
+  /// Sert des croquettes dans l'assiette une à une (jusqu'à 3, seulement si Pi a faim et ne dort pas)
   PiCompanion serveBowl({String? message}) {
-    if (croquettes <= 0 || bowlFoodCount >= 3) return this;
+    if (hunger >= 1.0 || croquettes <= 0 || bowlFoodCount >= 3 || isSleeping) return this;
     return copyWith(
       croquettes: croquettes - 1,
       bowlFoodCount: bowlFoodCount + 1,
@@ -136,7 +137,7 @@ class PiCompanion {
 
   /// Fait démarrer le repas : Pi se dirige vers l'assiette
   PiCompanion startEating(double targetX, double targetY, String message) {
-    if (bowlFoodCount <= 0) return this;
+    if (bowlFoodCount <= 0 || isSleeping) return this;
     return copyWith(
       isEating: true,
       piX: targetX,
@@ -166,6 +167,7 @@ class PiCompanion {
 
   /// Nettoie Pi des taches accumulées pendant le jeu (bain/savon)
   PiCompanion clean(String successMessage) {
+    if (isSleeping) return this;
     final newJoy = (joy + 0.15).clamp(0.0, 1.0);
     return copyWith(
       cleanliness: 1.0,
@@ -177,7 +179,7 @@ class PiCompanion {
 
   /// Nourrit Pi ponctuellement (mode direct)
   PiCompanion feed(double targetX, double targetY, String successMessage) {
-    if (croquettes <= 0) return this;
+    if (croquettes <= 0 || hunger >= 1.0 || isSleeping) return this;
     final newHunger = (hunger + 0.25).clamp(0.0, 1.0);
     final newJoy = (joy + 0.10).clamp(0.0, 1.0);
     return copyWith(
