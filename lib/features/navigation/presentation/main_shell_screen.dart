@@ -101,67 +101,74 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final profileAsync = ref.watch(activeProfileProvider);
     final companion = ref.watch(careControllerProvider);
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
 
-        // Règle 3 : Si on n'est pas sur le Salon, le retour ramène toujours au Salon
-        if (_currentIndex != 0) {
-          setState(() {
-            _currentIndex = 0;
-          });
-        } else {
-          // Si on est sur le Salon, demander confirmation pour quitter
-          final shouldQuit = await _showExitDialog(context, strings);
-          if (shouldQuit && mounted) {
-            SystemNavigator.pop();
+          // Règle 3 : Si on n'est pas sur le Salon, le retour ramène toujours au Salon
+          if (_currentIndex != 0) {
+            setState(() {
+              _currentIndex = 0;
+            });
+          } else {
+            // Si on est sur le Salon, demander confirmation pour quitter
+            final shouldQuit = await _showExitDialog(context, strings);
+            if (shouldQuit && mounted) {
+              SystemNavigator.pop();
+            }
           }
-        }
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.bg,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              // 1. Barre supérieure persistante
-              _buildTopAppBar(context, profileAsync, companion, strings),
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.bg,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                // 1. Barre supérieure persistante
+                _buildTopAppBar(context, profileAsync, companion, strings),
 
-              // 2. Contenu principal selon l'onglet actif
-              Expanded(
-                child: profileAsync.when(
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppColors.sky600),
-                  ),
-                  error: (err, _) => AppErrorView(
-                    isFrench: strings.isFrench,
-                    onRetry: () => ref.invalidate(activeProfileProvider),
-                  ),
-                  data: (profile) => IndexedStack(
-                    index: _currentIndex,
-                    children: [
-                      // Onglet 0 : Salon (au début)
-                      HomeScreen(
-                        isEmbedded: true,
-                        onSwitchTab: _onTabSelected,
-                      ),
-                      // Onglet 1 : Soigner
-                      CareScreen(
-                        isEmbedded: true,
-                        isActive: _currentIndex == 1,
-                      ),
-                      // Onglet 2 : Boutique
-                      const ShopScreen(isEmbedded: true),
-                    ],
+                // 2. Contenu principal selon l'onglet actif
+                Expanded(
+                  child: profileAsync.when(
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(color: AppColors.sky600),
+                    ),
+                    error: (err, _) => AppErrorView(
+                      isFrench: strings.isFrench,
+                      onRetry: () => ref.invalidate(activeProfileProvider),
+                    ),
+                    data: (profile) => IndexedStack(
+                      index: _currentIndex,
+                      children: [
+                        // Onglet 0 : Salon (au début)
+                        HomeScreen(
+                          isEmbedded: true,
+                          onSwitchTab: _onTabSelected,
+                        ),
+                        // Onglet 1 : Soigner
+                        CareScreen(
+                          isEmbedded: true,
+                          isActive: _currentIndex == 1,
+                        ),
+                        // Onglet 2 : Boutique
+                        const ShopScreen(isEmbedded: true),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-
-              // 3. Barre de navigation inférieure persistante
-              _buildBottomNavigationBar(context, strings),
-            ],
+              ],
+            ),
           ),
+          // 3. Barre de navigation inférieure persistante (protégée contre la barre système Android)
+          bottomNavigationBar: _buildBottomNavigationBar(context, strings),
         ),
       ),
     );
@@ -305,12 +312,6 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   // --- BOTTOM BAR UNIFIÉE (Salon au début, Soigner, Boutique) ---
   Widget _buildBottomNavigationBar(BuildContext context, dynamic strings) {
     return Container(
-      padding: const EdgeInsets.only(
-        left: AppSpace.s5,
-        right: AppSpace.s5,
-        top: 8,
-        bottom: 14,
-      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
         boxShadow: [
@@ -324,33 +325,42 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
           top: BorderSide(color: AppColors.ink100, width: 1.5),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          // 1. Salon (au début, index 0)
-          _buildNavItem(
-            index: 0,
-            icon: Icons.home_rounded,
-            label: strings.salonDockLabel,
-            isActive: _currentIndex == 0,
-          ),
+      child: SafeArea(
+        top: false,
+        left: true,
+        right: true,
+        bottom: true,
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // 1. Salon (au début, index 0)
+              _buildNavItem(
+                index: 0,
+                icon: Icons.home_rounded,
+                label: strings.salonDockLabel,
+                isActive: _currentIndex == 0,
+              ),
 
-          // 2. Soigner (index 1)
-          _buildNavItem(
-            index: 1,
-            icon: Icons.favorite_rounded,
-            label: strings.careDockLabel,
-            isActive: _currentIndex == 1,
-          ),
+              // 2. Soigner (index 1)
+              _buildNavItem(
+                index: 1,
+                icon: Icons.favorite_rounded,
+                label: strings.careDockLabel,
+                isActive: _currentIndex == 1,
+              ),
 
-          // 3. Boutique (index 2)
-          _buildNavItem(
-            index: 2,
-            icon: Icons.storefront_rounded,
-            label: strings.shopDockLabel,
-            isActive: _currentIndex == 2,
+              // 3. Boutique (index 2)
+              _buildNavItem(
+                index: 2,
+                icon: Icons.storefront_rounded,
+                label: strings.shopDockLabel,
+                isActive: _currentIndex == 2,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -361,37 +371,45 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     required String label,
     required bool isActive,
   }) {
-    return GestureDetector(
-      onTap: () => _onTabSelected(index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: AppMotion.fast,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.sky50 : Colors.transparent,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(
-            color: isActive ? AppColors.sky500 : Colors.transparent,
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isActive ? AppColors.sky600 : AppColors.ink500,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: AppText.bodyS.copyWith(
-                fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
-                color: isActive ? AppColors.sky700 : AppColors.ink500,
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onTabSelected(index),
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: AnimatedContainer(
+            duration: AppMotion.fast,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
+            decoration: BoxDecoration(
+              color: isActive ? AppColors.sky50 : Colors.transparent,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              border: Border.all(
+                color: isActive ? AppColors.sky500 : Colors.transparent,
+                width: 1.5,
               ),
             ),
-          ],
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 20,
+                  color: isActive ? AppColors.sky600 : AppColors.ink500,
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.bodyS.copyWith(
+                      fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
+                      color: isActive ? AppColors.sky700 : AppColors.ink500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

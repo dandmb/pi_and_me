@@ -84,4 +84,61 @@ void main() {
     // Now active index should be 0 (Salon)
     expect(find.text('Jouer au Quiz'), findsOneWidget);
   });
+
+  testWidgets('MainShellScreen bottom bar respects Android system navigation bar insets', (tester) async {
+    final repo = ProfileRepository(prefs: prefs);
+    final profile = ChildProfile(
+      id: 'p1',
+      name: 'Léa',
+      avatar: 'avatar_dog',
+      grade: SchoolGrade.cm1,
+      createdAt: DateTime.now(),
+    );
+    await repo.saveProfile(profile);
+
+    final container = ProviderContainer(
+      overrides: [
+        languageProvider.overrideWith(
+          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+        ),
+        profileRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+
+    // Simulate an Android device with a 48dp system navigation bar at the bottom
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(
+              size: Size(400, 800),
+              padding: EdgeInsets.only(bottom: 48.0),
+              viewPadding: EdgeInsets.only(bottom: 48.0),
+            ),
+            child: MainShellScreen(),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Verify all 3 navigation items are rendered and tappable
+    expect(find.text('Salon'), findsWidgets);
+    expect(find.text('Soigner'), findsWidgets);
+    expect(find.text('Boutique'), findsWidgets);
+
+    // Tap on Soigner tab - must register cleanly above the 48dp system navigation bar
+    final soignerTarget = find.text('Soigner').first;
+    final center = tester.getCenter(soignerTarget);
+    // Center of Soigner must be strictly above (800 - 48 = 752)
+    expect(center.dy < 752.0, isTrue);
+
+    await tester.tap(soignerTarget);
+    await tester.pumpAndSettle();
+
+    // Verify Tab 1 is now active
+    expect(find.text('Faim'), findsWidgets);
+  });
 }
