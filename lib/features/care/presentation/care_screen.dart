@@ -10,6 +10,8 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../home/presentation/home_screen.dart';
+import '../../shop/presentation/shop_controller.dart';
+import '../../shop/presentation/shop_screen.dart';
 import '../domain/care_interaction_mode.dart';
 import '../domain/pi_companion.dart';
 import '../domain/play_environment.dart';
@@ -303,6 +305,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
   Widget build(BuildContext context) {
     final companion = ref.watch(careControllerProvider);
     final strings = ref.watch(stringsProvider);
+    final shopState = ref.watch(shopControllerProvider);
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -350,6 +353,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 child: InteractivePlayArea(
                   companion: companion,
                   activeMode: _activeMode,
+                  equippedAccessoryId: shopState.equippedAccessoryId,
                   onSurfaceTapped: _onSurfaceTapped,
                 ),
               ),
@@ -1224,7 +1228,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             ),
           ),
 
-          // Salon
+          // 2. Salon
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
@@ -1233,7 +1237,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
               child: Row(
                 children: [
                   const Icon(
@@ -1244,6 +1248,35 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   const SizedBox(width: 6),
                   Text(
                     strings.salonDockLabel,
+                    style: AppText.bodyS.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // 3. Boutique
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const ShopScreen()),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.storefront_rounded,
+                    size: 18,
+                    color: AppColors.ink500,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    strings.shopDockLabel,
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppColors.ink500,

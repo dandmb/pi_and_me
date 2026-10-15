@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
+import '../../shop/presentation/widgets/accessory_overlay_widget.dart';
 import '../domain/care_interaction_mode.dart';
 import '../domain/pi_companion.dart';
 import '../domain/play_environment.dart';
@@ -15,12 +16,14 @@ import 'widgets/tennis_ball_widget.dart';
 class InteractivePlayArea extends StatelessWidget {
   final PiCompanion companion;
   final CareInteractionMode activeMode;
+  final String? equippedAccessoryId;
   final Function(double normX, double normY) onSurfaceTapped;
 
   const InteractivePlayArea({
     super.key,
     required this.companion,
     this.activeMode = CareInteractionMode.play,
+    this.equippedAccessoryId,
     required this.onSurfaceTapped,
   });
 
@@ -198,19 +201,32 @@ class InteractivePlayArea extends StatelessWidget {
                                           ..rotateZ(-0.20)
                                           ..scaleByDouble(1.0, 0.72, 1.0, 1.0))
                                       : Matrix4.identity(),
-                                  child: Transform.flip(
-                                    flipX: companion.isFacingLeft,
-                                    child: Image.asset(
-                                      'assets/images/pi_transparent.png',
-                                      height: 96,
-                                      fit: BoxFit.contain,
-                                      errorBuilder: (context, error, stackTrace) =>
-                                          const Icon(
-                                        Icons.pets,
-                                        size: 72,
-                                        color: AppColors.sky600,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Transform.flip(
+                                        flipX: companion.isFacingLeft,
+                                        child: Image.asset(
+                                          'assets/images/pi_transparent.png',
+                                          height: 96,
+                                          fit: BoxFit.contain,
+                                          errorBuilder: (context, error, stackTrace) =>
+                                              const Icon(
+                                            Icons.pets,
+                                            size: 72,
+                                            color: AppColors.sky600,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      if (equippedAccessoryId != null && !isSleeping)
+                                        Transform.flip(
+                                          flipX: companion.isFacingLeft,
+                                          child: AccessoryOverlayWidget(
+                                            accessoryId: equippedAccessoryId,
+                                            piSize: 96,
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               ),

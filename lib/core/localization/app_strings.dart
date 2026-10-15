@@ -250,4 +250,26 @@ class AppStrings {
       isFrench ? 'Soigner' : 'Care';
   String get salonDockLabel =>
       isFrench ? 'Salon' : 'Home';
+  String get shopDockLabel =>
+      isFrench ? 'Boutique' : 'Shop';
+
+  // --- Boutique de Pi (Shop) ---
+  String get shopTitle => isFrench ? 'Boutique de Pi' : 'Pi\'s Shop';
+  String get shopSubtitle => isFrench
+      ? 'Habille et personnalise ton compagnon !'
+      : 'Dress and customize your puppy!';
+  String get fittingRoom => isFrench ? 'Cabine d\'essayage' : 'Fitting Room';
+  String piTries(String name) =>
+      isFrench ? 'Pi essaie : $name' : 'Pi is trying on: $name';
+  String piWears(String name) =>
+      isFrench ? 'Pi porte : $name' : 'Pi is wearing: $name';
+  String get piNatural => isFrench
+      ? 'Pi au naturel ! Choisis un accessoire.'
+      : 'Natural Pi! Choose an accessory.';
+  String get equipAction => isFrench ? 'Équiper' : 'Equip';
+  String get equippedBadge => isFrench ? 'Équipé' : 'Equipped';
+  String get unequipAction => isFrench ? 'Retirer' : 'Unequip';
+  String buyAction(int price) => isFrench ? 'Acheter ($price)' : 'Buy ($price)';
+  String lockedGrade(String grade) =>
+      isFrench ? 'Niveau $grade' : 'Grade $grade';
 }
