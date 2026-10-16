@@ -34,7 +34,8 @@ void main() {
     expect(find.text('Grade 4'), findsOneWidget);
     expect(find.text('Grade 9'), findsOneWidget);
 
-    // Tap CTA to validate profile
+    // Enter name and tap CTA to validate profile
+    await tester.enterText(find.byType(TextField), 'Emma');
     final ctaFinder = find.text('Let\'s go!');
     expect(ctaFinder, findsOneWidget);
     await tester.ensureVisible(ctaFinder);
@@ -62,6 +63,7 @@ void main() {
     expect(find.text('CM1'), findsOneWidget);
     expect(find.text('3e'), findsOneWidget);
 
+    await tester.enterText(find.byType(TextField), 'Lucas');
     final ctaFinder = find.text('C\'est parti !');
     expect(ctaFinder, findsOneWidget);
     await tester.ensureVisible(ctaFinder);

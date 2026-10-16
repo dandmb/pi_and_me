@@ -60,7 +60,38 @@ class ShopController extends StateNotifier<ShopState> {
   }
 
   void selectAccessory(String id) {
-    state = state.copyWith(selectedAccessoryId: id, clearFeedback: true);
+    if (id.isEmpty) {
+      // Annule les essais non équipés et conserve uniquement les accessoires portés
+      state = state.copyWith(
+        previewByCategory: Map<AccessoryCategory, String>.from(state.equippedByCategory),
+        clearFeedback: true,
+      );
+      return;
+    }
+
+    final item = ShopCatalog.findById(id);
+    final category = item?.category ?? state.selectedCategory;
+    final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory);
+    nextPreview[category] = id;
+
+    state = state.copyWith(
+      previewByCategory: nextPreview,
+      clearFeedback: true,
+    );
+  }
+
+  void cancelCategoryPreview(AccessoryCategory category) {
+    final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory);
+    final equippedInCat = state.equippedByCategory[category];
+    if (equippedInCat != null) {
+      nextPreview[category] = equippedInCat;
+    } else {
+      nextPreview.remove(category);
+    }
+    state = state.copyWith(
+      previewByCategory: nextPreview,
+      clearFeedback: true,
+    );
   }
 
   bool buyAccessory({
@@ -82,12 +113,17 @@ class ShopController extends StateNotifier<ShopState> {
     // Débit des Os dorés
     careNotifier.deductBones(item.price);
 
-    // Ajout à l'inventaire & équipement automatique
+    // Ajout à l'inventaire & équipement automatique dans sa catégorie (sans retirer les autres catégories)
     final newOwned = Set<String>.from(state.ownedAccessoryIds)..add(item.id);
+    final nextEquipped = Map<AccessoryCategory, String>.from(state.equippedByCategory)
+      ..[item.category] = item.id;
+    final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory)
+      ..[item.category] = item.id;
+
     state = state.copyWith(
       ownedAccessoryIds: newOwned,
-      equippedAccessoryId: item.id,
-      selectedAccessoryId: item.id,
+      equippedByCategory: nextEquipped,
+      previewByCategory: nextPreview,
       feedbackMessage: isFrench
           ? '${item.nameFr} acheté et équipé !'
           : '${item.nameEn} purchased & equipped!',
@@ -100,9 +136,15 @@ class ShopController extends StateNotifier<ShopState> {
   void equipAccessory(String id, {required bool isFrench}) {
     if (!state.isOwned(id)) return;
     final item = ShopCatalog.findById(id);
+    final category = item?.category ?? state.selectedCategory;
+    final nextEquipped = Map<AccessoryCategory, String>.from(state.equippedByCategory)
+      ..[category] = id;
+    final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory)
+      ..[category] = id;
+
     state = state.copyWith(
-      equippedAccessoryId: id,
-      selectedAccessoryId: id,
+      equippedByCategory: nextEquipped,
+      previewByCategory: nextPreview,
       feedbackMessage: isFrench
           ? '${item?.nameFr ?? 'Accessoire'} équipé !'
           : '${item?.nameEn ?? 'Accessory'} equipped!',
@@ -111,12 +153,30 @@ class ShopController extends StateNotifier<ShopState> {
     _startFeedbackTimer();
   }
 
-  void unequipAccessory({required bool isFrench}) {
-    state = state.copyWith(
-      clearEquipped: true,
-      clearSelected: true,
-      feedbackMessage: isFrench ? 'Accessoire retiré' : 'Accessory removed',
-    );
+  void unequipAccessory({String? id, required bool isFrench}) {
+    if (id != null && id.isNotEmpty) {
+      final item = ShopCatalog.findById(id);
+      final category = item?.category ?? state.selectedCategory;
+      final nextEquipped = Map<AccessoryCategory, String>.from(state.equippedByCategory);
+      final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory);
+      if (nextEquipped[category] == id) {
+        nextEquipped.remove(category);
+      }
+      if (nextPreview[category] == id) {
+        nextPreview.remove(category);
+      }
+      state = state.copyWith(
+        equippedByCategory: nextEquipped,
+        previewByCategory: nextPreview,
+        feedbackMessage: isFrench ? 'Accessoire retiré' : 'Accessory removed',
+      );
+    } else {
+      state = state.copyWith(
+        clearEquipped: true,
+        clearSelected: true,
+        feedbackMessage: isFrench ? 'Accessoire retiré' : 'Accessory removed',
+      );
+    }
     _saveToStorage();
     _startFeedbackTimer();
   }

@@ -15,7 +15,7 @@ import '../../quiz/presentation/quiz_controller.dart';
 import '../../quiz/presentation/quiz_screen.dart';
 import '../../shop/presentation/shop_controller.dart';
 import '../../shop/presentation/shop_screen.dart';
-import '../../shop/presentation/widgets/accessory_overlay_widget.dart';
+import '../../care/presentation/widgets/animated_pi_mascot.dart';
 import 'settings_sheet.dart';
 
 /// Écran 1 bis : Le Salon de Pi (Hub Principal bilingue EN/FR).
@@ -183,7 +183,7 @@ class HomeScreen extends ConsumerWidget {
 
                   const SizedBox(height: AppSpace.s4),
 
-                  // Mascotte Pi avec ombre au sol (Cliquer ouvre l'aire de jeu / soins)
+                  // Mascotte Pi animée avec ombre au sol (Cliquer ouvre l'aire de jeu / soins)
                   GestureDetector(
                     onTap: () {
                       if (onSwitchTab != null) {
@@ -197,37 +197,12 @@ class HomeScreen extends ConsumerWidget {
                     child: SizedBox(
                       height: 160,
                       width: 160,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            bottom: 8,
-                            child: Container(
-                              width: 90,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.12),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.elliptical(90, 16),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Image.asset(
-                            'assets/images/pi_transparent.png',
-                            height: 130,
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) => const Icon(
-                              Icons.pets,
-                              size: 90,
-                              color: AppColors.sky600,
-                            ),
-                          ),
-                          AccessoryOverlayWidget(
-                            accessoryId: shopState.equippedAccessoryId,
-                            piSize: 130,
-                          ),
-                        ],
+                      child: Center(
+                        child: AnimatedPiMascot(
+                          piSize: 130,
+                          equippedAccessoryId: shopState.equippedAccessoryId,
+                          equippedAccessoryIds: shopState.equippedAccessoryIds,
+                        ),
                       ),
                     ),
                   ),
@@ -479,7 +454,7 @@ class _GaugeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percent = (value * 100).toInt();
+    final percent = (value * 100).round();
 
     return Row(
       children: [

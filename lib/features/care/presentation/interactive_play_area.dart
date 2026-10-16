@@ -4,11 +4,10 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
-import '../../shop/presentation/widgets/accessory_overlay_widget.dart';
 import '../domain/care_interaction_mode.dart';
 import '../domain/pi_companion.dart';
 import '../domain/play_environment.dart';
-import 'widgets/dirt_splatters_widget.dart';
+import 'widgets/animated_pi_mascot.dart';
 import 'widgets/food_bowl_widget.dart';
 import 'widgets/tennis_ball_widget.dart';
 
@@ -19,6 +18,7 @@ class InteractivePlayArea extends ConsumerWidget {
   final PiCompanion companion;
   final CareInteractionMode activeMode;
   final String? equippedAccessoryId;
+  final List<String>? equippedAccessoryIds;
   final Function(double normX, double normY) onSurfaceTapped;
 
   const InteractivePlayArea({
@@ -26,6 +26,7 @@ class InteractivePlayArea extends ConsumerWidget {
     required this.companion,
     this.activeMode = CareInteractionMode.play,
     this.equippedAccessoryId,
+    this.equippedAccessoryIds,
     required this.onSurfaceTapped,
   });
 
@@ -176,7 +177,7 @@ class InteractivePlayArea extends ConsumerWidget {
                     AnimatedAlign(
                       alignment: Alignment(companion.piX, companion.piY),
                       duration: const Duration(milliseconds: 650),
-                      curve: Curves.easeOutBack,
+                      curve: Curves.easeInOutQuad,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -228,61 +229,34 @@ class InteractivePlayArea extends ConsumerWidget {
                             const SizedBox(height: 2),
                           ],
 
-                          // Sprite de Pi avec ombre et taches de saleté éventuelles
+                          // Mascotte Pi animée avec ombre réactive, accessoires et effets
                           SizedBox(
                             width: isSleeping ? 140 : 110,
                             height: 104,
                             child: Stack(
                               alignment: Alignment.center,
+                              clipBehavior: Clip.none,
                               children: [
-                                // Ombre de contact au sol
-                                Positioned(
-                                  bottom: 0,
-                                  child: Container(
-                                    width: isSleeping ? 116 : 76,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.elliptical(isSleeping ? 116 : 86, 12),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                // Sprite de Pi (yeux fermés pi_sleeping.png si dodo, sinon pi_transparent.png)
-                                Positioned(
-                                  bottom: isSleeping ? 2 : 4,
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Transform.flip(
-                                        flipX: companion.isFacingLeft,
-                                        child: Image.asset(
-                                          isSleeping
-                                              ? 'assets/images/pi_sleeping.png'
-                                              : 'assets/images/pi_transparent.png',
-                                          height: isSleeping ? 84 : 96,
-                                          width: isSleeping ? 132 : null,
-                                          fit: BoxFit.contain,
-                                          errorBuilder: (context, error, stackTrace) =>
-                                              const Icon(
-                                            Icons.pets,
-                                            size: 72,
-                                            color: AppColors.sky600,
-                                          ),
-                                        ),
-                                      ),
-                                      if (equippedAccessoryId != null && !isSleeping)
-                                        Transform.flip(
-                                          flipX: companion.isFacingLeft,
-                                          child: AccessoryOverlayWidget(
-                                            accessoryId: equippedAccessoryId,
-                                            piSize: 96,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
+                                AnimatedPiMascot(
+                                  piX: companion.piX,
+                                  piY: companion.piY,
+                                  isSleeping: isSleeping,
+                                  isEating: companion.isEating,
+                                  isBallActive: companion.isBallActive,
+                                  isFacingLeft: companion.isFacingLeft,
+                                  isDirty: companion.isDirty,
+                                  dirtCount: companion.dirtCount,
+                                  equippedAccessoryId:
+                                      activeMode == CareInteractionMode.clean
+                                          ? null
+                                          : equippedAccessoryId,
+                                  equippedAccessoryIds:
+                                      activeMode == CareInteractionMode.clean
+                                          ? const []
+                                          : equippedAccessoryIds,
+                                  enableTapInteraction:
+                                      activeMode != CareInteractionMode.clean,
+                                  piSize: 96,
                                 ),
 
                                 // Particules "Zzz" flottantes au-dessus de la tête
@@ -297,15 +271,6 @@ class InteractivePlayArea extends ConsumerWidget {
                                 if (activeMode == CareInteractionMode.clean)
                                   const Positioned.fill(
                                     child: _SoapBubblesWidget(),
-                                  ),
-
-                                // Taches de saleté / boue visibles sur le pelage si Pi s'est sali en jouant
-                                if (companion.isDirty)
-                                  Positioned(
-                                    bottom: isSleeping ? 18 : 6,
-                                    child: DirtSplattersWidget(
-                                      dirtCount: companion.dirtCount,
-                                    ),
                                   ),
                               ],
                             ),
