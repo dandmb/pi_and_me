@@ -10,6 +10,9 @@ import '../../care/presentation/widgets/animated_pi_mascot.dart';
 import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
 import '../../shop/presentation/shop_controller.dart';
+import '../../parent/domain/daily_limit_state.dart';
+import '../../parent/presentation/daily_limit_controller.dart';
+import '../../parent/presentation/widgets/daily_quota_indicator.dart';
 import 'quiz_controller.dart';
 
 /// Écran 3 : Résultats du Quiz & Célébration bienveillante avec Pi.
@@ -24,6 +27,7 @@ class QuizResultsScreen extends ConsumerWidget {
           croquettes: quizState.croquettesEarned,
           balls: quizState.ballsEarned,
         );
+    ref.read(dailyLimitControllerProvider.notifier).recordCompletedQuiz();
     ref.read(quizControllerProvider.notifier).resetQuiz();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
@@ -39,6 +43,7 @@ class QuizResultsScreen extends ConsumerWidget {
     final profile = ref.watch(activeProfileProvider).value;
     final strings = ref.watch(stringsProvider);
     final shopState = ref.watch(shopControllerProvider);
+    final limitState = ref.watch(dailyLimitControllerProvider);
 
     final childName = profile?.name ?? 'Ami';
     final score = quizState.score;
@@ -62,7 +67,7 @@ class QuizResultsScreen extends ConsumerWidget {
           child: Column(
             children: [
               // 1. En-tête : Badge & Félicitations
-              _buildHeader(context, strings, childName, score, total),
+              _buildHeader(context, strings, childName, score, total, limitState),
 
               const SizedBox(height: AppSpace.s3),
 
@@ -106,30 +111,45 @@ class QuizResultsScreen extends ConsumerWidget {
     String childName,
     int score,
     int total,
+    DailyLimitState limitState,
   ) {
+    final projectedSessions =
+        (limitState.usedSessionsToday + 1).clamp(0, limitState.maxDailySessions);
+    final isLimitNowReached = projectedSessions >= limitState.maxDailySessions;
+
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpace.s3,
-            vertical: 4,
-          ),
-          decoration: BoxDecoration(
-            color: context.isDark ? const Color(0xFF064E3B) : const Color(0xFFE8F8F5),
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-            border: Border.all(
-              color: context.isDark ? const Color(0xFF059669) : const Color(0xFFA7F3D0),
-              width: 1,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s3,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: context.isDark ? const Color(0xFF064E3B) : const Color(0xFFE8F8F5),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                border: Border.all(
+                  color: context.isDark ? const Color(0xFF059669) : const Color(0xFFA7F3D0),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                strings.quizCompleted,
+                style: AppText.bodyS.copyWith(
+                  color: context.isDark ? const Color(0xFF6EE7B7) : const Color(0xFF15803D),
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
-          ),
-          child: Text(
-            strings.quizCompleted,
-            style: AppText.bodyS.copyWith(
-              color: context.isDark ? const Color(0xFF6EE7B7) : const Color(0xFF15803D),
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.5,
+            DailyQuotaIndicator(
+              usedSessions: projectedSessions,
+              maxSessions: limitState.maxDailySessions,
+              isLimitReached: isLimitNowReached,
             ),
-          ),
+          ],
         ),
         const SizedBox(height: AppSpace.s2),
         Text(

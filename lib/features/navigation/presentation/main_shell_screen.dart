@@ -17,6 +17,8 @@ import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
 import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
 import '../../shop/presentation/shop_screen.dart';
+import '../../parent/presentation/daily_limit_controller.dart';
+import '../../parent/presentation/daily_limit_screen.dart';
 
 /// Écran Coquille Principale (MainShellScreen) unifiant :
 /// - Une AppBar persistante et stylée (Profil avec switch, Solde d'os dorés, Switch Dark Mode, Paramètres).
@@ -47,6 +49,15 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
 
   void _onTabSelected(int index) {
     if (_currentIndex == index) return;
+    final limitState = ref.read(dailyLimitControllerProvider);
+    if (limitState.isLimitReached && (index == 1 || index == 2)) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const DailyLimitScreen(),
+        ),
+      );
+      return;
+    }
     setState(() {
       _currentIndex = index;
     });
@@ -111,6 +122,19 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final companion = ref.watch(careControllerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final limitState = ref.watch(dailyLimitControllerProvider);
+
+    // Si la limite quotidienne est atteinte et qu'on était sur Soigner ou Boutique,
+    // on repositionne automatiquement sur le Salon pour respecter le repos de Pi.
+    if (limitState.isLimitReached && _currentIndex != 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _currentIndex != 0) {
+          setState(() {
+            _currentIndex = 0;
+          });
+        }
+      });
+    }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -179,7 +203,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
             ),
           ),
           // 3. Barre de navigation inférieure persistante (Dock flottant moderne)
-          bottomNavigationBar: _buildBottomNavigationBar(context, strings, isDark),
+          bottomNavigationBar: _buildBottomNavigationBar(context, strings, isDark, limitState.isLimitReached),
         ),
       ),
     );
@@ -348,7 +372,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   }
 
   // --- BOTTOM BAR UNIFIÉE (Dock Flottant Moderne : Salon, Soigner, Boutique) ---
-  Widget _buildBottomNavigationBar(BuildContext context, dynamic strings, bool isDark) {
+  Widget _buildBottomNavigationBar(BuildContext context, dynamic strings, bool isDark, bool isLimitReached) {
     final dockBg = isDark ? AppColors.darkSurface : Colors.white;
     final dockBorder = isDark ? AppColors.darkInk200 : const Color(0xFFE2E8F0);
 
@@ -386,22 +410,24 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               isDark: isDark,
             ),
 
-            // 2. Soigner (index 1)
+            // 2. Soigner (index 1, verrouillé si limite atteinte)
             _buildNavItem(
               index: 1,
               icon: Icons.favorite_rounded,
               label: strings.careDockLabel,
               isActive: _currentIndex == 1,
               isDark: isDark,
+              isLocked: isLimitReached,
             ),
 
-            // 3. Boutique (index 2)
+            // 3. Boutique (index 2, verrouillée si limite atteinte)
             _buildNavItem(
               index: 2,
               icon: Icons.storefront_rounded,
               label: strings.shopDockLabel,
               isActive: _currentIndex == 2,
               isDark: isDark,
+              isLocked: isLimitReached,
             ),
           ],
         ),
@@ -415,64 +441,71 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     required String label,
     required bool isActive,
     required bool isDark,
+    bool isLocked = false,
   }) {
+    final effectiveIcon = isLocked ? Icons.lock_outline_rounded : icon;
+    final itemOpacity = isLocked ? 0.45 : 1.0;
+
     return Expanded(
-      child: GestureDetector(
-        onTap: () => _onTabSelected(index),
-        behavior: HitTestBehavior.opaque,
-        child: Center(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            padding: EdgeInsets.symmetric(
-              horizontal: isActive ? 16 : 8,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              gradient: isActive
-                  ? const LinearGradient(
-                      colors: [Color(0xFF0284C7), Color(0xFF38BDF8)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : null,
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFF0284C7).withValues(alpha: 0.35),
-                        offset: const Offset(0, 3),
-                        blurRadius: 8,
+      child: Opacity(
+        opacity: itemOpacity,
+        child: GestureDetector(
+          onTap: () => _onTabSelected(index),
+          behavior: HitTestBehavior.opaque,
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.symmetric(
+                horizontal: isActive ? 16 : 8,
+                vertical: 8,
+              ),
+              decoration: BoxDecoration(
+                gradient: isActive
+                    ? const LinearGradient(
+                        colors: [Color(0xFF0284C7), Color(0xFF38BDF8)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                boxShadow: isActive
+                    ? [
+                        BoxShadow(
+                          color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                          offset: const Offset(0, 3),
+                          blurRadius: 8,
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    effectiveIcon,
+                    size: 20,
+                    color: isActive
+                        ? Colors.white
+                        : (isDark ? AppColors.darkInk500 : AppColors.ink500),
+                  ),
+                  const SizedBox(width: 5),
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.bodyS.copyWith(
+                        fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
+                        fontSize: 12.5,
+                        color: isActive
+                            ? Colors.white
+                            : (isDark ? AppColors.darkInk600 : AppColors.ink600),
                       ),
-                    ]
-                  : null,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  size: 20,
-                  color: isActive
-                      ? Colors.white
-                      : (isDark ? AppColors.darkInk500 : AppColors.ink500),
-                ),
-                const SizedBox(width: 5),
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppText.bodyS.copyWith(
-                      fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
-                      fontSize: 12.5,
-                      color: isActive
-                          ? Colors.white
-                          : (isDark ? AppColors.darkInk600 : AppColors.ink600),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
