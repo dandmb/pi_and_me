@@ -227,7 +227,7 @@ class ProfileSwitcherSheet extends ConsumerWidget {
               Navigator.of(dialogCtx).pop();
               await ref.read(activeProfileProvider.notifier).deleteProfile(profile.id);
             },
-            child: Text(strings.delete),
+            child: Text(strings.delete, style: AppText.buttonM),
           ),
         ],
       ),

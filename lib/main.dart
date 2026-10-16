@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'core/theme/util.dart';
 import 'core/widgets/app_error_view.dart';
 import 'features/navigation/presentation/main_shell_screen.dart';
 import 'features/splash/presentation/splash_screen.dart';
@@ -115,14 +116,15 @@ class _PiEtMoiAppState extends ConsumerState<PiEtMoiApp>
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
+    final textTheme = createTextTheme(context, "ABeeZee", "Abril Fatface");
 
     return MaterialApp(
       navigatorKey: _navigatorKey,
       navigatorObservers: [_routeObserver],
       title: 'Pi & Moi',
       debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(),
-      darkTheme: buildAppDarkTheme(),
+      theme: buildAppTheme(textTheme),
+      darkTheme: buildAppDarkTheme(textTheme),
       themeMode: themeMode,
       home: const SplashScreen(),
     );

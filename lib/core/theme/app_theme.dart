@@ -1,45 +1,124 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+import 'app_dimens.dart';
+import 'theme.dart';
 
-/// Configuration ThemeData officielle de Pi & Moi (DESIGN_SYSTEM.md §8.4).
-ThemeData buildAppTheme() => ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: AppColors.bg,
-      fontFamily: 'Quicksand',
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.sky600,
-        onPrimary: Colors.white,
-        secondary: AppColors.green600,
-        onSecondary: Colors.white,
-        tertiary: AppColors.gold400,
-        onTertiary: AppColors.ink900,
-        error: AppColors.coral500,
-        surface: AppColors.surface,
-        onSurface: AppColors.ink900,
-        outline: AppColors.ink200,
-      ),
-      splashFactory: NoSplash.splashFactory, // Rétroaction physique via ChunkyButton
-    );
+/// Configuration ThemeData officielle de Pi & Moi basée sur MaterialTheme (M3).
+ThemeData buildAppTheme([TextTheme? textTheme]) {
+  final tt = textTheme ?? Typography.material2021().black;
+  final base = MaterialTheme(tt).light();
+  final cs = base.colorScheme;
 
-/// Configuration ThemeData Sombre officielle de Pi & Moi.
-ThemeData buildAppDarkTheme() => ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.darkBg,
-      fontFamily: 'Quicksand',
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.darkSky500,
-        onPrimary: AppColors.darkBg,
-        secondary: AppColors.green500,
-        onSecondary: Colors.white,
-        tertiary: AppColors.gold400,
-        onTertiary: AppColors.darkBg,
-        error: AppColors.coral500,
-        surface: AppColors.darkSurface,
-        onSurface: AppColors.darkInk900,
-        outline: AppColors.darkInk200,
+  return base.copyWith(
+    splashFactory: NoSplash.splashFactory, // Rétroaction physique via ChunkyButton
+    appBarTheme: AppBarTheme(
+      backgroundColor: cs.surface,
+      foregroundColor: cs.onSurface,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: tt.titleLarge?.copyWith(
+        color: cs.onSurface,
+        fontWeight: FontWeight.bold,
       ),
-      splashFactory: NoSplash.splashFactory,
-    );
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: cs.surface,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+      ),
+      titleTextStyle: tt.titleLarge?.copyWith(
+        color: cs.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+      contentTextStyle: tt.bodyMedium?.copyWith(
+        color: cs.onSurfaceVariant,
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: cs.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+      ),
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelColor: cs.primary,
+      unselectedLabelColor: cs.onSurfaceVariant,
+      indicatorColor: cs.primary,
+      labelStyle: tt.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+      unselectedLabelStyle: tt.labelLarge,
+    ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: cs.primary,
+      contentTextStyle: tt.bodyMedium?.copyWith(
+        color: cs.onPrimary,
+        fontWeight: FontWeight.bold,
+      ),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+    ),
+  );
+}
+
+/// Configuration ThemeData Sombre officielle de Pi & Moi basée sur MaterialTheme (M3).
+ThemeData buildAppDarkTheme([TextTheme? textTheme]) {
+  final tt = textTheme ?? Typography.material2021().white;
+  final base = MaterialTheme(tt).dark();
+  final cs = base.colorScheme;
+
+  return base.copyWith(
+    splashFactory: NoSplash.splashFactory,
+    appBarTheme: AppBarTheme(
+      backgroundColor: cs.surface,
+      foregroundColor: cs.onSurface,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: tt.titleLarge?.copyWith(
+        color: cs.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: cs.surface,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+      ),
+      titleTextStyle: tt.titleLarge?.copyWith(
+        color: cs.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+      contentTextStyle: tt.bodyMedium?.copyWith(
+        color: cs.onSurfaceVariant,
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: cs.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+      ),
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelColor: cs.primary,
+      unselectedLabelColor: cs.onSurfaceVariant,
+      indicatorColor: cs.primary,
+      labelStyle: tt.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+      unselectedLabelStyle: tt.labelLarge,
+    ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: cs.surfaceContainerHigh,
+      contentTextStyle: tt.bodyMedium?.copyWith(
+        color: cs.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+    ),
+  );
+}
 

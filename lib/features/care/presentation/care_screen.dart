@@ -345,7 +345,10 @@ class _CareScreenState extends ConsumerState<CareScreen> {
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: AppText.body.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: AppColors.sky600,
         behavior: SnackBarBehavior.floating,
@@ -413,6 +416,15 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 key: _envShowcaseKey,
                 title: strings.guideEnvironmentsTitle,
                 description: strings.guideEnvironmentsDesc,
+                titleTextStyle: AppText.h3.copyWith(
+                  fontSize: 16,
+                  color: context.isDark ? AppColors.darkInk900 : AppColors.ink900,
+                ),
+                descTextStyle: AppText.guideSubtitle.copyWith(
+                  color: context.isDark ? AppColors.darkInk600 : AppColors.ink600,
+                ),
+                tooltipBackgroundColor: context.isDark ? AppColors.darkSurface : Colors.white,
+                tooltipBorderRadius: BorderRadius.circular(16),
                 targetBorderRadius: BorderRadius.circular(20),
                 child: _buildEnvironmentSelector(companion, strings),
               ),
@@ -424,6 +436,15 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 key: _gaugesShowcaseKey,
                 title: strings.guideVitalsTitle,
                 description: strings.guideVitalsDesc,
+                titleTextStyle: AppText.h3.copyWith(
+                  fontSize: 16,
+                  color: context.isDark ? AppColors.darkInk900 : AppColors.ink900,
+                ),
+                descTextStyle: AppText.guideSubtitle.copyWith(
+                  color: context.isDark ? AppColors.darkInk600 : AppColors.ink600,
+                ),
+                tooltipBackgroundColor: context.isDark ? AppColors.darkSurface : Colors.white,
+                tooltipBorderRadius: BorderRadius.circular(16),
                 targetBorderRadius: BorderRadius.circular(16),
                 child: _buildGaugesRow(companion, strings),
               ),
@@ -452,6 +473,15 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 key: _actionControlShowcaseKey,
                 title: strings.guideInteractionTitle,
                 description: strings.guideInteractionDesc,
+                titleTextStyle: AppText.h3.copyWith(
+                  fontSize: 16,
+                  color: context.isDark ? AppColors.darkInk900 : AppColors.ink900,
+                ),
+                descTextStyle: AppText.guideSubtitle.copyWith(
+                  color: context.isDark ? AppColors.darkInk600 : AppColors.ink600,
+                ),
+                tooltipBackgroundColor: context.isDark ? AppColors.darkSurface : Colors.white,
+                tooltipBorderRadius: BorderRadius.circular(16),
                 targetBorderRadius: BorderRadius.circular(20),
                 child: _buildModeControlBar(companion, strings),
               ),
@@ -463,6 +493,15 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 key: _actionTrayShowcaseKey,
                 title: strings.guideActionsTitle,
                 description: strings.guideActionsDesc,
+                titleTextStyle: AppText.h3.copyWith(
+                  fontSize: 16,
+                  color: context.isDark ? AppColors.darkInk900 : AppColors.ink900,
+                ),
+                descTextStyle: AppText.guideSubtitle.copyWith(
+                  color: context.isDark ? AppColors.darkInk600 : AppColors.ink600,
+                ),
+                tooltipBackgroundColor: context.isDark ? AppColors.darkSurface : Colors.white,
+                tooltipBorderRadius: BorderRadius.circular(16),
                 targetBorderRadius: BorderRadius.circular(24),
                 child: _buildActionTray(companion, strings),
               ),
@@ -746,7 +785,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.restaurant_rounded,
               label: strings.hunger,
               val: companion.hunger,
-              color: AppColors.green500,
+              color: context.isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
             ),
           ),
           const SizedBox(width: 6),
@@ -755,7 +794,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.sports_tennis_rounded,
               label: strings.joy,
               val: companion.joy,
-              color: AppColors.sky500,
+              color: context.isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
             ),
           ),
           const SizedBox(width: 6),
@@ -764,7 +803,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.bedtime_rounded,
               label: strings.energy,
               val: companion.energy,
-              color: AppColors.teal400,
+              color: context.isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A),
             ),
           ),
           const SizedBox(width: 6),
@@ -773,7 +812,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.auto_awesome_rounded,
               label: strings.cleanliness,
               val: companion.cleanliness,
-              color: const Color(0xFF6366F1),
+              color: context.isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
             ),
           ),
         ],
@@ -822,7 +861,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               fit: BoxFit.scaleDown,
               child: Text(
                 '$percent%',
-                style: AppText.bodyS.copyWith(
+                style: AppText.mathXS.copyWith(
                   fontSize: 9.5,
                   fontWeight: FontWeight.w900,
                   color: color,
@@ -1171,7 +1210,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.sports_tennis_rounded,
               label: strings.playAction,
               subtitle: strings.available(companion.balls),
-              accentColor: AppColors.sky600,
+              accentColor: context.isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
             ),
           ),
           const SizedBox(width: 6),
@@ -1181,7 +1220,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.restaurant_rounded,
               label: strings.feedAction,
               subtitle: strings.available(companion.croquettes),
-              accentColor: AppColors.green600,
+              accentColor: context.isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
             ),
           ),
           const SizedBox(width: 6),
@@ -1193,7 +1232,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               subtitle: companion.isDirty
                   ? strings.dirtyStatus
                   : strings.cleanStatus,
-              accentColor: const Color(0xFF6366F1),
+              accentColor: context.isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
             ),
           ),
           const SizedBox(width: 6),
@@ -1203,7 +1242,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.navigation_rounded,
               label: strings.walkAction,
               subtitle: strings.unlimited,
-              accentColor: const Color(0xFFF59E0B),
+              accentColor: context.isDark ? AppColors.darkSky500 : AppColors.sky500,
             ),
           ),
           const SizedBox(width: 6),
@@ -1213,7 +1252,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.bed_rounded,
               label: strings.sleepAction,
               subtitle: strings.unlimited,
-              accentColor: AppColors.teal400,
+              accentColor: context.isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A),
             ),
           ),
         ],
@@ -1280,7 +1319,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               fit: BoxFit.scaleDown,
               child: Text(
                 subtitle,
-                style: AppText.bodyS.copyWith(
+                style: AppText.guideSubtitleM.copyWith(
                   fontSize: 8.5,
                   fontWeight: FontWeight.w700,
                   color: isSelected ? accentColor : (context.isDark ? AppColors.darkInk500 : AppColors.ink500),

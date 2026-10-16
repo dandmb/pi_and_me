@@ -107,7 +107,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
-            child: Text(strings.quit),
+            child: Text(strings.quit, style: AppText.buttonM),
           ),
         ],
       ),
@@ -461,18 +461,14 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                 vertical: 8,
               ),
               decoration: BoxDecoration(
-                gradient: isActive
-                    ? const LinearGradient(
-                        colors: [Color(0xFF0284C7), Color(0xFF38BDF8)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
+                color: isActive
+                    ? (isDark ? AppColors.darkSky500 : AppColors.sky500)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                          color: (isDark ? AppColors.darkSky500 : AppColors.sky500).withValues(alpha: 0.30),
                           offset: const Offset(0, 3),
                           blurRadius: 8,
                         ),
@@ -486,7 +482,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                     effectiveIcon,
                     size: 20,
                     color: isActive
-                        ? Colors.white
+                        ? (isDark ? const Color(0xFF003640) : Colors.white)
                         : (isDark ? AppColors.darkInk500 : AppColors.ink500),
                   ),
                   const SizedBox(width: 5),
@@ -499,7 +495,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                         fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
                         fontSize: 12.5,
                         color: isActive
-                            ? Colors.white
+                            ? (isDark ? const Color(0xFF003640) : Colors.white)
                             : (isDark ? AppColors.darkInk600 : AppColors.ink600),
                       ),
                     ),

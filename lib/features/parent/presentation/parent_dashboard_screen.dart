@@ -159,7 +159,10 @@ class _ChildrenTab extends ConsumerWidget {
                     items: SchoolGrade.values.map((grade) {
                       return DropdownMenuItem(
                         value: grade,
-                        child: Text('${grade.label} (${grade.fullName})'),
+                        child: Text(
+                          '${grade.label} (${grade.fullName})',
+                          style: AppText.body.copyWith(color: context.appText),
+                        ),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -199,7 +202,7 @@ class _ChildrenTab extends ConsumerWidget {
                     if (ctx.mounted) Navigator.of(ctx).pop();
                   }
                 },
-                child: Text(strings.save),
+                child: Text(strings.save, style: AppText.buttonM),
               ),
             ],
           );
@@ -225,7 +228,10 @@ class _ChildrenTab extends ConsumerWidget {
               items: SchoolGrade.values.map((g) {
                 return DropdownMenuItem(
                   value: g,
-                  child: Text('${g.label} - ${g.fullName}'),
+                  child: Text(
+                    '${g.label} - ${g.fullName}',
+                    style: AppText.body.copyWith(color: context.appText),
+                  ),
                 );
               }).toList(),
               onChanged: (val) {
@@ -253,7 +259,7 @@ class _ChildrenTab extends ConsumerWidget {
                   await ref.read(activeProfileProvider.notifier).saveProfile(updated);
                   if (ctx.mounted) Navigator.of(ctx).pop();
                 },
-                child: Text(strings.save),
+                child: Text(strings.save, style: AppText.buttonM),
               ),
             ],
           );
@@ -934,7 +940,7 @@ class _PrivacyTab extends ConsumerWidget {
                 );
               }
             },
-            child: Text(strings.parentDeleteDialogConfirm),
+            child: Text(strings.parentDeleteDialogConfirm, style: AppText.buttonM),
           ),
         ],
       ),
@@ -1083,7 +1089,13 @@ class _PrivacyTab extends ConsumerWidget {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(strings.parentExportCopied),
+                          content: Text(
+                            strings.parentExportCopied,
+                            style: AppText.body.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           behavior: SnackBarBehavior.floating,
                           backgroundColor: AppColors.sky600,
                         ),

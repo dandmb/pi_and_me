@@ -6,14 +6,16 @@ import 'package:pi_et_moi/core/theme/app_text.dart';
 import 'package:pi_et_moi/core/theme/app_theme.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   group('Design System - AppColors', () {
     test('Official brand and CTA colors are correctly defined', () {
-      expect(AppColors.sky500, const Color(0xFF1CB0F6));
-      expect(AppColors.sky600, const Color(0xFF1899D6)); // CTA face (WCAG AA compliant)
-      expect(AppColors.sky700, const Color(0xFF0D8ABC)); // Chunky edge
-      expect(AppColors.green600, const Color(0xFF178A3E));
-      expect(AppColors.gold400, const Color(0xFFFFBF69));
-      expect(AppColors.ink900, const Color(0xFF011627));
+      expect(AppColors.sky500, const Color(0xFF006879));
+      expect(AppColors.sky600, const Color(0xFF006879)); // CTA face
+      expect(AppColors.sky700, const Color(0xFF004E5B)); // Chunky edge
+      expect(AppColors.green600, const Color(0xFF0D6B58));
+      expect(AppColors.gold400, const Color(0xFFFAE287));
+      expect(AppColors.ink900, const Color(0xFF171C1E));
     });
 
     test('Zero action orange is enforced in primary tokens', () {
@@ -34,15 +36,16 @@ void main() {
   });
 
   group('Design System - AppText', () {
-    test('Typography scales are defined with Quicksand and Lexend', () {
+    test('Typography scales are defined with Abril Fatface, ABeeZee and Lexend', () {
       expect(AppText.display.fontSize, 44);
       expect(AppText.h1.fontSize, 30);
       expect(AppText.mathXL.fontSize, 44);
       expect(AppText.mathL.fontSize, 28);
       expect(AppText.display.fontWeight, FontWeight.w700);
       expect(AppText.h1.fontWeight, FontWeight.w700);
-      expect(AppText.display.fontFamily, 'Quicksand');
-      expect(AppText.mathXL.fontFamily, 'Lexend');
+      expect(AppText.display.fontFamily, contains('AbrilFatface'));
+      expect(AppText.body.fontFamily, contains('ABeeZee'));
+      expect(AppText.mathXL.fontFamily, contains('Lexend'));
     });
   });
 
@@ -52,8 +55,6 @@ void main() {
       expect(theme.useMaterial3, isTrue);
       expect(theme.scaffoldBackgroundColor, AppColors.bg);
       expect(theme.colorScheme.primary, AppColors.sky600);
-      expect(theme.colorScheme.secondary, AppColors.green600);
-      expect(theme.textTheme.bodyMedium?.fontFamily, 'Quicksand');
     });
   });
 }
