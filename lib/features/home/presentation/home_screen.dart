@@ -16,6 +16,9 @@ import '../../quiz/presentation/quiz_screen.dart';
 import '../../shop/presentation/shop_controller.dart';
 import '../../shop/presentation/shop_screen.dart';
 import '../../care/presentation/widgets/animated_pi_mascot.dart';
+import '../../parent/presentation/daily_limit_controller.dart';
+import '../../parent/presentation/daily_limit_screen.dart';
+import '../../parent/presentation/widgets/daily_quota_indicator.dart';
 import 'settings_sheet.dart';
 
 /// Écran 1 bis : Le Salon de Pi (Hub Principal bilingue EN/FR).
@@ -36,6 +39,7 @@ class HomeScreen extends ConsumerWidget {
     final strings = ref.watch(stringsProvider);
     final companion = ref.watch(careControllerProvider);
     final shopState = ref.watch(shopControllerProvider);
+    final limitState = ref.watch(dailyLimitControllerProvider);
 
     return Scaffold(
       backgroundColor: context.appBg,
@@ -155,6 +159,22 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpace.s4),
                 ],
 
+                  // Indicateur de Quota Quotidien (6 balles de tennis + X/6)
+                  DailyQuotaIndicator(
+                    usedSessions: limitState.usedSessionsToday,
+                    maxSessions: limitState.maxDailySessions,
+                    isLimitReached: limitState.isLimitReached,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const DailyLimitScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: AppSpace.s3),
+
                   // Bulle de dialogue de Pi
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
@@ -175,7 +195,9 @@ class HomeScreen extends ConsumerWidget {
                       ],
                     ),
                     child: Text(
-                      strings.readyForQuiz(childName),
+                      limitState.isLimitReached
+                          ? strings.dailyLimitHomeNotice
+                          : strings.readyForQuiz(childName),
                       style: AppText.bodyL.copyWith(color: context.appText),
                       textAlign: TextAlign.center,
                     ),
@@ -200,6 +222,7 @@ class HomeScreen extends ConsumerWidget {
                       child: Center(
                         child: AnimatedPiMascot(
                           piSize: 130,
+                          isSleeping: limitState.isLimitReached,
                           equippedAccessoryId: shopState.equippedAccessoryId,
                           equippedAccessoryIds: shopState.equippedAccessoryIds,
                         ),
@@ -270,12 +293,24 @@ class HomeScreen extends ConsumerWidget {
 
                   const SizedBox(height: AppSpace.s4),
 
-                  // Bouton principal pour lancer le quiz
+                  // Bouton principal pour lancer le quiz (ou voir Pi se reposer si limite 6/6 atteinte)
                   ChunkyButton(
-                    label: strings.playQuiz,
-                    variant: ChunkyButtonVariant.primary,
+                    label: limitState.isLimitReached
+                        ? strings.seePiRestAction
+                        : strings.playQuiz,
+                    variant: limitState.isLimitReached
+                        ? ChunkyButtonVariant.secondary
+                        : ChunkyButtonVariant.primary,
                     height: 56,
                     onPressed: () {
+                      if (limitState.isLimitReached) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const DailyLimitScreen(),
+                          ),
+                        );
+                        return;
+                      }
                       final grade = profile?.grade ?? SchoolGrade.cm1;
                       ref.read(quizControllerProvider.notifier).startQuiz(grade);
                       Navigator.of(context).push(

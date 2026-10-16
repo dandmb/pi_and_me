@@ -375,6 +375,47 @@ class AppStrings {
       ? 'Aucun accessoire possédé dans cette catégorie.'
       : 'No owned accessories in this category.';
   String get dressingTitle => isFrench ? 'Dressing de Pi' : 'Pi\'s Dressing Room';
+
+  // --- Limite quotidienne 6/6 & Écran de repos bienveillant ---
+  String get dailyQuotaTitle => isFrench ? 'Parties du jour' : 'Daily Quizzes';
+  String get dailyLimitReachedTitle =>
+      isFrench ? 'Limite quotidienne atteinte !' : 'Daily limit reached!';
+  String get quotaCompletedBadge =>
+      isFrench ? '6/6 complété' : '6/6 completed';
+  String piRestingTitle(String childName) => isFrench
+      ? 'Bravo $childName ! Tu as bien travaillé !'
+      : 'Bravo $childName! You worked great today!';
+  String get piRestingSubtitle => isFrench
+      ? 'Pi fait la sieste après toutes ces aventures.\nReviens demain pour 6 nouvelles parties !'
+      : 'Pi is taking a nap after all those adventures.\nCome back tomorrow for 6 new quizzes!';
+  String get nextResetIn =>
+      isFrench ? 'Prochaine réinitialisation dans :' : 'Next reset in:';
+  String resetCountdownFormatted(int hours, int minutes) =>
+      '${hours.toString().padLeft(2, '0')}h : ${minutes.toString().padLeft(2, '0')}m';
+  String get offlineActivityHeader =>
+      isFrench ? 'L\'activité hors-écran du jour :' : 'Today\'s off-screen activity:';
+  String get seePiRestAction =>
+      isFrench ? 'Voir Pi se reposer (6/6)' : 'See Pi resting (6/6)';
+  String get takeCareOfPiAction =>
+      isFrench ? 'Prendre soin de Pi' : 'Take care of Pi';
+  String get dailyLimitHomeNotice => isFrench
+      ? 'Zzz... Pi fait sa sieste ! Tu as complété tes 6 parties du jour. Reviens demain !'
+      : 'Zzz... Pi is napping! You completed your 6 quizzes for today. Come back tomorrow!';
+  String get offlineActivityWindowCount => isFrench
+      ? 'Compte combien de fenêtres et de portes il y a dans ta maison !'
+      : 'Count how many windows and doors there are in your home!';
+  String get offlineActivityPlayOutside => isFrench
+      ? 'Va jouer dehors, respirer le grand air ou faire un tour de vélo !'
+      : 'Go play outside, get some fresh air or ride a bicycle!';
+  String get offlineActivityDrawPi => isFrench
+      ? 'Prends des feutres et dessine Pi avec son plus bel accessoire !'
+      : 'Grab markers and draw a portrait of Pi with their favorite accessory!';
+  String get offlineActivityReadBook => isFrench
+      ? 'Installe-toi confortablement pour lire un chapitre d\'une belle histoire !'
+      : 'Get comfy and read a chapter from a great storybook or comic!';
+  String get offlineActivityFindShapes => isFrench
+      ? 'Chasse aux trésors : trouve 5 cercles ou rectangles cachés dans ta chambre !'
+      : 'Treasure hunt: find 5 circles or rectangles hidden in your room!';
 }
 
 
