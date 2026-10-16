@@ -425,6 +425,95 @@ class AppStrings {
   String get allActivitiesSleeping => isFrench
       ? 'Pi fait un gros dodo ! Les soins et la boutique rouvriront demain.'
       : 'Pi is having a good sleep! Care and shop will reopen tomorrow.';
+
+  // --- Espace Parent & Parental Gate ---
+  String get parentGateTitle => isFrench ? 'Accès réservé aux parents' : 'Adult access only';
+  String get parentGateSubtitle => isFrench
+      ? 'Résous ce calcul écrit en toutes lettres pour déverrouiller :'
+      : 'Solve this written calculation to unlock:';
+  String get parentGateInstruction => isFrench ? 'Écris la réponse en chiffres :' : 'Write the answer in digits:';
+  String get parentGatePlaceholder => isFrench ? 'Ex. 8' : 'E.g. 8';
+  String get parentGateValidate => isFrench ? 'Valider' : 'Verify';
+  String get parentGateWrongAnswer => isFrench
+      ? 'Réponse incorrecte. Essaie à nouveau.'
+      : 'Incorrect answer. Try again.';
+  String parentGateAttemptsLeft(int remaining) => isFrench
+      ? 'Réponse incorrecte ($remaining essai${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''})'
+      : 'Incorrect answer ($remaining attempt${remaining > 1 ? 's' : ''} left)';
+  String parentGateLockout(int seconds) => isFrench
+      ? 'Trop d\'essais. Réessaie dans $seconds s.'
+      : 'Too many attempts. Try again in ${seconds}s.';
+  String get parentDashboardTitle => isFrench ? 'Espace Parents' : 'Parent Dashboard';
+  String get parentDashboardBadge => isFrench ? 'Supervision Bienveillante' : 'Mindful Supervision';
+  String get parentTabChildren => isFrench ? 'Enfants & Quotas' : 'Children & Quotas';
+  String get parentTabStats => isFrench ? 'Statistiques' : 'Math Analytics';
+  String get parentTabPrivacy => isFrench ? 'Données & RGPD' : 'Data & Privacy';
+  String get parentSupervisionHeader => isFrench
+      ? 'Recommandation Santé Publique : 6 sessions par jour sans addiction ni récompense manipulatoire.'
+      : 'Public health recommendation: 6 daily quizzes maximum, free of manipulative retention loops.';
+  String get parentTimerFreeMode => isFrench ? 'Mode sans chrono' : 'Timer-free mode';
+  String get parentTimerFreeDesc => isFrench
+      ? 'Supprime le compte à rebours pour encourager la réflexion sereine et inclusive.'
+      : 'Disables countdown timers during quizzes for stress-free, inclusive problem solving.';
+  String get parentBonusSession => isFrench ? '+1 session bonus' : '+1 bonus session';
+  String get parentBonusSessionSuccess => isFrench
+      ? '1 session supplémentaire a été débloquée pour aujourd\'hui !'
+      : '1 bonus quiz session unlocked for today!';
+  String get parentAddChild => isFrench ? 'Ajouter un profil enfant' : 'Add child profile';
+  String get parentEditGrade => isFrench ? 'Modifier' : 'Edit';
+  String get parentEditGradeTitle => isFrench ? 'Modifier la classe' : 'Change grade';
+  String get parentDailyQuotaLabel => isFrench ? 'Quota du jour' : 'Today\'s quota';
+  String get parentDailyLimitSetting => isFrench ? 'Limite quotidienne de quiz' : 'Daily quiz limit';
+  String get parentDailyLimitDesc => isFrench
+      ? 'Ajuste le nombre maximal de quiz par jour selon vos règles familiales.'
+      : 'Adjust the maximum daily quiz count according to family rules.';
+  String parentSessionsPerDay(int count) => isFrench
+      ? '$count / jour'
+      : '$count / day';
+  String get parentTodayProgress => isFrench ? 'Progression aujourd\'hui' : 'Today\'s progress';
+  String get parentResetQuotaToday => isFrench ? 'Remettre à zéro' : 'Reset today';
+  String get parentQuotaResetSuccess => isFrench
+      ? 'Le quota d\'aujourd\'hui a été remis à zéro !'
+      : 'Today\'s quota has been reset!';
+  String get parentMathDomainNumbers => isFrench ? 'Nombres & Calculs' : 'Numbers & Operations';
+  String get parentMathDomainGeometry => isFrench ? 'Géométrie & Espace' : 'Geometry & Shapes';
+  String get parentMathDomainMeasures => isFrench ? 'Grandeurs & Mesures' : 'Quantities & Measures';
+  String get parentMathDomainProblems => isFrench ? 'Résolution de Problèmes' : 'Problem Solving';
+  String get parentMasteryRate => isFrench ? 'Maîtrise estimée' : 'Estimated mastery';
+  String get parentQuizzesCompletedTotal => isFrench ? 'Quiz complétés au total' : 'Total quizzes completed';
+  String get parentAverageSuccessRate => isFrench ? 'Taux moyen de réussite' : 'Average accuracy rate';
+  String get parentCurriculumNotice => isFrench
+      ? 'Exercices conformes aux programmes officiels de l\'Éducation Nationale (Cycles 2, 3 et 4).'
+      : 'Exercises fully compliant with official national elementary and middle school curricula.';
+  String get parentPrivacyPledgeTitle => isFrench
+      ? '100% Hors-ligne, Sans Pub & Respectueux'
+      : '100% Offline, Zero Ads & Privacy-First';
+  String get parentPrivacyPledgePoints => isFrench
+      ? '• Zéro publicité & zéro tracking tiers\n• Données éducatives stockées exclusivement sur cet appareil\n• Conforme aux standards Google Play Familles & RGPD'
+      : '• Zero ads & zero third-party trackers\n• Educational progress stored exclusively on this device\n• Fully compliant with Google Play Families & GDPR policies';
+  String get parentExportTitle => isFrench ? 'Portabilité des données (Art. 20 RGPD)' : 'Data Portability (GDPR Art. 20)';
+  String get parentExportDesc => isFrench
+      ? 'Consultez et sauvegardez l\'ensemble des profils, scores et inventaires du foyer au format standard JSON.'
+      : 'View and export all household child profiles, quiz scores, and wardrobes in standard JSON format.';
+  String get parentExportButton => isFrench ? 'Télécharger mes données (JSON)' : 'Export household data (JSON)';
+  String get parentExportCopied => isFrench ? 'Données JSON copiées dans le presse-papier !' : 'JSON data copied to clipboard!';
+  String get parentDangerZoneTitle => isFrench ? 'Droit à l\'oubli (Art. 17 RGPD)' : 'Right to Erasure (GDPR Art. 17)';
+  String get parentDangerZoneDesc => isFrench
+      ? 'Suppression immédiate et définitive de tous les profils d\'enfants, os dorés, inventaires et historiques du foyer.'
+      : 'Immediate and permanent deletion of all child profiles, golden bones, outfits, and stats from this device.';
+  String get parentDeleteHouseholdButton => isFrench ? 'Supprimer tout le foyer et mes données' : 'Delete all household data';
+  String get parentDeleteDialogTitle => isFrench ? 'Confirmer la suppression définitive ?' : 'Confirm permanent deletion?';
+  String get parentDeleteDialogMessage => isFrench
+      ? 'Cette opération effacera irrévocablement toutes les données du foyer sur cet appareil. Voulez-vous continuer ?'
+      : 'This action will permanently wipe all household data on this device. Do you want to proceed?';
+  String get parentDeleteDialogConfirm => isFrench ? 'Oui, tout supprimer' : 'Yes, delete everything';
+  String get parentDeleteDialogCancel => isFrench ? 'Annuler' : 'Cancel';
+  String get parentSettingsEntryTitle => isFrench ? 'Espace Parents' : 'Parent Dashboard';
+  String get parentSettingsEntrySubtitle => isFrench ? 'Supervision, quotas & vie privée' : 'Supervision, quotas & privacy';
+  String get nameLabel => isFrench ? 'Prénom de l\'enfant' : 'Child\'s first name';
+  String get selectGrade => isFrench ? 'Sélectionner la classe' : 'Select grade';
+  String get save => isFrench ? 'Enregistrer' : 'Save';
+  String get noProfiles => isFrench ? 'Aucun profil trouvé' : 'No profiles found';
 }
 
 

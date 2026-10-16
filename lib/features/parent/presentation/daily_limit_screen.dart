@@ -12,7 +12,9 @@ import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
 import '../../shop/presentation/shop_controller.dart';
 import 'daily_limit_controller.dart';
+import 'parent_dashboard_screen.dart';
 import 'widgets/daily_quota_indicator.dart';
+import 'widgets/parental_gate_dialog.dart';
 
 /// Écran 6 (AppFlow 2.4) : Limite quotidienne atteinte (6/6) & Repos bienveillant.
 /// Conforme aux normes Google Play Familles / COPPA pour la régulation du temps d'écran :
@@ -298,6 +300,32 @@ class _DailyLimitScreenState extends ConsumerState<DailyLimitScreen> {
                   variant: ChunkyButtonVariant.primary,
                   height: 56,
                   onPressed: () => _backToHome(context),
+                ),
+
+                const SizedBox(height: AppSpace.s2),
+
+                // 7. Accès réservé aux parents (déblocage ou ajustement des quotas)
+                TextButton.icon(
+                  key: const Key('daily_limit_parent_access_button'),
+                  onPressed: () async {
+                    final navigator = Navigator.of(context);
+                    final unlocked = await ParentalGateDialog.show(context);
+                    if (unlocked == true && navigator.mounted) {
+                      navigator.push(
+                        MaterialPageRoute(
+                          builder: (_) => const ParentDashboardScreen(),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.lock_outline_rounded, size: 16, color: AppColors.sky600),
+                  label: Text(
+                    strings.parentSettingsEntryTitle,
+                    style: AppText.buttonM.copyWith(
+                      color: AppColors.sky600,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
               ],
             ),
