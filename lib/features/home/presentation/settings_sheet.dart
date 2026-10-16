@@ -8,6 +8,8 @@ import '../../../core/theme/theme_mode_controller.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../../core/widgets/language_switcher.dart';
 import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
+import '../../parent/presentation/parent_dashboard_screen.dart';
+import '../../parent/presentation/widgets/parental_gate_dialog.dart';
 
 /// Feuille modale des Paramètres (accessible via l'icône engrenage).
 /// Contient le réglage de la langue (EN / FR) et les préférences.
@@ -148,6 +150,83 @@ class SettingsSheet extends ConsumerWidget {
                           const SizedBox(height: 2),
                           Text(
                             strings.changeProfile,
+                            style: AppText.bodyS.copyWith(
+                              color: isDark ? AppColors.darkInk500 : AppColors.ink600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: isDark ? AppColors.darkInk500 : AppColors.ink500,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: AppSpace.s3),
+
+            // Espace Parents sécurisé par le Parental Gate
+            GestureDetector(
+              key: const Key('parent_dashboard_entry_tile'),
+              onTap: () async {
+                final navigator = Navigator.of(context);
+                final unlocked = await ParentalGateDialog.show(context);
+                if (unlocked == true && navigator.mounted) {
+                  navigator.pop();
+                  navigator.push(
+                    MaterialPageRoute(
+                      builder: (_) => const ParentDashboardScreen(),
+                    ),
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(AppSpace.s4),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSpace.s2),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : AppColors.sky50,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: const Icon(
+                        Icons.shield_outlined,
+                        color: AppColors.sky600,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpace.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                strings.parentSettingsEntryTitle,
+                                style: AppText.label.copyWith(
+                                  color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.lock_rounded, size: 14, color: AppColors.sky600),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            strings.parentSettingsEntrySubtitle,
                             style: AppText.bodyS.copyWith(
                               color: isDark ? AppColors.darkInk500 : AppColors.ink600,
                             ),

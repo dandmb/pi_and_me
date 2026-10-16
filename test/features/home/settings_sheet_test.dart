@@ -72,4 +72,33 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('pi_theme_mode_key'), equals('dark'));
   });
+
+  testWidgets('SettingsSheet allows opening Espace Parents via Parental Gate without null check exception',
+      (WidgetTester tester) async {
+    final container = ProviderContainer(
+      overrides: [
+        languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SettingsSheet(),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const Key('parent_dashboard_entry_tile')), findsOneWidget);
+
+    // Tap Espace Parents tile
+    await tester.tap(find.byKey(const Key('parent_dashboard_entry_tile')));
+    await tester.pumpAndSettle();
+
+    // Check that ParentalGateDialog opened
+    expect(find.byKey(const Key('parental_gate_input')), findsOneWidget);
+  });
 }

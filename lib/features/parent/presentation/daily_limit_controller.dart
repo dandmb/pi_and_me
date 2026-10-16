@@ -110,6 +110,20 @@ class DailyLimitController extends StateNotifier<DailyLimitState> {
     await _save();
   }
 
+  /// Accorde une ou plusieurs sessions bonus supplémentaires pour aujourd'hui.
+  Future<void> grantBonusSession([int bonus = 1]) async {
+    final currentMax = state.maxDailySessions;
+    final newMax = (state.usedSessionsToday >= currentMax)
+        ? state.usedSessionsToday + bonus
+        : currentMax + bonus;
+    state = state.copyWith(
+      maxDailySessions: newMax,
+      isUnlockedByParent: false,
+      lastSessionDate: DateTime.now(),
+    );
+    await _save();
+  }
+
   /// Remet à zéro le quota de la journée (depuis l'espace parent ou après minuit).
   Future<void> resetTodayQuota() async {
     state = state.copyWith(
