@@ -18,6 +18,8 @@ import 'care_controller.dart';
 import 'interactive_play_area.dart';
 import 'widgets/kibble_widget.dart';
 import 'widgets/tennis_ball_widget.dart';
+import '../../parent/presentation/daily_limit_controller.dart';
+import '../../parent/presentation/daily_limit_screen.dart';
 
 /// Écran 4 : Soins et Aire de jeu de Pi le chiot (Bilingue FR/EN).
 /// Inclut le tutoriel interactif Showcase / Feature Discovery,
@@ -355,6 +357,10 @@ class _CareScreenState extends ConsumerState<CareScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final limitState = ref.watch(dailyLimitControllerProvider);
+    if (limitState.isLimitReached) {
+      return const DailyLimitScreen();
+    }
     final companion = ref.watch(careControllerProvider);
     final strings = ref.watch(stringsProvider);
     final shopState = ref.watch(shopControllerProvider);

@@ -80,8 +80,8 @@ void main() {
       // 4. Offline activity card
       expect(find.text('L\'activité hors-écran du jour :'), findsOneWidget);
 
-      // 5. Action buttons
-      expect(find.text('Prendre soin de Pi'), findsOneWidget);
+      // 5. Action button (only Return to Home, Care is deactivated when limit reached)
+      expect(find.text('Prendre soin de Pi'), findsNothing);
       expect(find.text('Retour au salon'), findsOneWidget);
     });
 
@@ -102,7 +102,7 @@ void main() {
       expect(find.textContaining('Bravo Alex!'), findsOneWidget);
       expect(find.text('Next reset in:'), findsOneWidget);
       expect(find.text('Today\'s off-screen activity:'), findsOneWidget);
-      expect(find.text('Take care of Pi'), findsOneWidget);
+      expect(find.text('Take care of Pi'), findsNothing);
       expect(find.text('Return to Home'), findsOneWidget);
     });
 

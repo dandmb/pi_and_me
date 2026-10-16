@@ -8,6 +8,9 @@ import 'package:pi_et_moi/features/profile/data/profile_repository.dart';
 import 'package:pi_et_moi/features/profile/domain/child_profile.dart';
 import 'package:pi_et_moi/features/profile/domain/school_grade.dart';
 import 'package:pi_et_moi/features/profile/presentation/profile_controller.dart';
+import 'package:pi_et_moi/features/parent/domain/daily_limit_state.dart';
+import 'package:pi_et_moi/features/parent/presentation/daily_limit_controller.dart';
+import 'package:pi_et_moi/features/parent/presentation/daily_limit_screen.dart';
 
 void main() {
   late SharedPreferences prefs;
@@ -140,5 +143,75 @@ void main() {
 
     // Verify Tab 1 is now active
     expect(find.text('Faim'), findsWidgets);
+  });
+
+  testWidgets('When daily limit reached (6/6): tapping Soigner or Boutique opens DailyLimitScreen and stays on Salon', (tester) async {
+    final repo = ProfileRepository(prefs: prefs);
+    final profile = ChildProfile(
+      id: 'p1',
+      name: 'Léa',
+      avatar: 'avatar_dog',
+      grade: SchoolGrade.cm1,
+      createdAt: DateTime.now(),
+    );
+    await repo.saveProfile(profile);
+
+    final container = ProviderContainer(
+      overrides: [
+        languageProvider.overrideWith(
+          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+        ),
+        profileRepositoryProvider.overrideWithValue(repo),
+        dailyLimitControllerProvider.overrideWith((ref) {
+          return DailyLimitController(
+            initialProfileId: 'p1',
+            initialState: DailyLimitState(
+              profileId: 'p1',
+              usedSessionsToday: 6,
+              maxDailySessions: 6,
+              lastSessionDate: DateTime.now(),
+            ),
+          );
+        }),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: MainShellScreen(),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Verify lock icons or docked items are visible
+    expect(find.text('Soigner'), findsWidgets);
+    expect(find.text('Boutique'), findsWidgets);
+
+    // Tap on Soigner tab
+    await tester.tap(find.text('Soigner').first);
+    await tester.pumpAndSettle();
+
+    // Must open DailyLimitScreen, NOT CareScreen
+    expect(find.byType(DailyLimitScreen), findsOneWidget);
+
+    // Pop DailyLimitScreen
+    final returnBtn = find.text('Retour au salon');
+    expect(returnBtn, findsOneWidget);
+    await tester.tap(returnBtn);
+    await tester.pumpAndSettle();
+
+    // We are back on Salon
+    expect(find.text('Voir Pi se reposer (6/6)'), findsOneWidget);
+
+    // Tap on Boutique tab
+    await tester.tap(find.text('Boutique').first);
+    await tester.pumpAndSettle();
+
+    // Must open DailyLimitScreen, NOT ShopScreen
+    expect(find.byType(DailyLimitScreen), findsOneWidget);
   });
 }

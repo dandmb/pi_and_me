@@ -14,6 +14,8 @@ import '../domain/accessory_category.dart';
 import '../domain/accessory_item.dart';
 import '../domain/shop_state.dart';
 import 'shop_controller.dart';
+import '../../parent/presentation/daily_limit_controller.dart';
+import '../../parent/presentation/daily_limit_screen.dart';
 
 /// Onglets de navigation au sein de l'espace Boutique / Dressing
 enum ShopTabMode { shop, wardrobe }
@@ -39,6 +41,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final limitState = ref.watch(dailyLimitControllerProvider);
+    if (limitState.isLimitReached) {
+      return const DailyLimitScreen();
+    }
     final strings = ref.watch(stringsProvider);
     final companion = ref.watch(careControllerProvider);
     final shopState = ref.watch(shopControllerProvider);

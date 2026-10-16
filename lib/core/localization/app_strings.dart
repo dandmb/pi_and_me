@@ -416,6 +416,15 @@ class AppStrings {
   String get offlineActivityFindShapes => isFrench
       ? 'Chasse aux trésors : trouve 5 cercles ou rectangles cachés dans ta chambre !'
       : 'Treasure hunt: find 5 circles or rectangles hidden in your room!';
+  String get careDisabledWhenLimitReached => isFrench
+      ? 'Pi dort · Soins désactivés'
+      : 'Pi is sleeping · Care disabled';
+  String get shopClosedWhenLimitReached => isFrench
+      ? 'Pi dort · Boutique fermée'
+      : 'Pi is sleeping · Shop closed';
+  String get allActivitiesSleeping => isFrench
+      ? 'Pi fait un gros dodo ! Les soins et la boutique rouvriront demain.'
+      : 'Pi is having a good sleep! Care and shop will reopen tomorrow.';
 }
 
 

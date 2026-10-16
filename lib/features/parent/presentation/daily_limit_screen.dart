@@ -63,15 +63,6 @@ class _DailyLimitScreenState extends ConsumerState<DailyLimitScreen> {
     return activities[dayIndex] as String;
   }
 
-  void _goToCare(BuildContext context) {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) => const MainShellScreen(initialIndex: 1),
-      ),
-      (route) => false,
-    );
-  }
-
   void _backToHome(BuildContext context) {
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
@@ -301,23 +292,12 @@ class _DailyLimitScreenState extends ConsumerState<DailyLimitScreen> {
 
                 const SizedBox(height: AppSpace.s3),
 
-                // 6. Boutons d'action (Soins ou Retour au Salon)
-                Column(
-                  children: [
-                    ChunkyButton(
-                      label: strings.takeCareOfPiAction,
-                      variant: ChunkyButtonVariant.primary,
-                      height: 56,
-                      onPressed: () => _goToCare(context),
-                    ),
-                    const SizedBox(height: AppSpace.s2),
-                    ChunkyButton(
-                      label: strings.returnToHome,
-                      variant: ChunkyButtonVariant.secondary,
-                      height: 48,
-                      onPressed: () => _backToHome(context),
-                    ),
-                  ],
+                // 6. Bouton d'action : Retour au Salon
+                ChunkyButton(
+                  label: strings.returnToHome,
+                  variant: ChunkyButtonVariant.primary,
+                  height: 56,
+                  onPressed: () => _backToHome(context),
                 ),
               ],
             ),

@@ -205,9 +205,16 @@ class HomeScreen extends ConsumerWidget {
 
                   const SizedBox(height: AppSpace.s4),
 
-                  // Mascotte Pi animée avec ombre au sol (Cliquer ouvre l'aire de jeu / soins)
+                  // Mascotte Pi animée avec ombre au sol (Cliquer ouvre l'aire de jeu / soins ou l'écran repos si limite atteinte)
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () {
+                      if (limitState.isLimitReached) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
+                        );
+                        return;
+                      }
                       if (onSwitchTab != null) {
                         onSwitchTab!(1);
                       } else {
@@ -225,6 +232,21 @@ class HomeScreen extends ConsumerWidget {
                           isSleeping: limitState.isLimitReached,
                           equippedAccessoryId: shopState.equippedAccessoryId,
                           equippedAccessoryIds: shopState.equippedAccessoryIds,
+                          onTap: () {
+                            if (limitState.isLimitReached) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
+                              );
+                              return;
+                            }
+                            if (onSwitchTab != null) {
+                              onSwitchTab!(1);
+                            } else {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const CareScreen()),
+                              );
+                            }
+                          },
                         ),
                       ),
                     ),
@@ -232,9 +254,15 @@ class HomeScreen extends ConsumerWidget {
 
                   const SizedBox(height: AppSpace.s4),
 
-                  // Jauges de Pi (cliquables pour ouvrir l'aire de jeu)
+                  // Jauges de Pi (cliquables pour ouvrir l'aire de jeu ou écran repos si limite atteinte)
                   GestureDetector(
                     onTap: () {
+                      if (limitState.isLimitReached) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
+                        );
+                        return;
+                      }
                       if (onSwitchTab != null) {
                         onSwitchTab!(1);
                       } else {
@@ -323,22 +351,26 @@ class HomeScreen extends ConsumerWidget {
 
                   const SizedBox(height: AppSpace.s2),
 
-                  // Bouton secondaire pour prendre soin et jouer avec Pi
+                  // Bouton secondaire pour prendre soin et jouer avec Pi (désactivé si limite 6/6 atteinte)
                   ChunkyButton(
-                    label: strings.feedAndCare,
+                    label: limitState.isLimitReached
+                        ? strings.careDisabledWhenLimitReached
+                        : strings.feedAndCare,
                     variant: ChunkyButtonVariant.secondary,
                     height: 48,
-                    onPressed: () {
-                      if (onSwitchTab != null) {
-                        onSwitchTab!(1);
-                      } else {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const CareScreen(),
-                          ),
-                        );
-                      }
-                    },
+                    onPressed: limitState.isLimitReached
+                        ? null
+                        : () {
+                            if (onSwitchTab != null) {
+                              onSwitchTab!(1);
+                            } else {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const CareScreen(),
+                                ),
+                              );
+                            }
+                          },
                   ),
 
                   const SizedBox(height: AppSpace.s2),
@@ -355,7 +387,7 @@ class HomeScreen extends ConsumerWidget {
                   // 3-Tab Bottom Dock (si non embarqué dans MainShellScreen)
                   if (!isEmbedded) ...[
                     const SizedBox(height: AppSpace.s3),
-                    _buildBottomDock(context, strings),
+                    _buildBottomDock(context, strings, limitState.isLimitReached),
                   ],
                 ],
               ),
@@ -366,7 +398,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBottomDock(BuildContext context, dynamic strings) {
+  Widget _buildBottomDock(BuildContext context, dynamic strings, bool isLimitReached) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
       decoration: BoxDecoration(
@@ -384,31 +416,40 @@ class HomeScreen extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          // 1. Soigner
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const CareScreen()),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.favorite_rounded,
-                    size: 18,
-                    color: AppColors.ink500,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    strings.careDockLabel,
-                    style: AppText.bodyS.copyWith(
-                      fontWeight: FontWeight.w700,
+          // 1. Soigner (désactivé si limite atteinte)
+          Opacity(
+            opacity: isLimitReached ? 0.45 : 1.0,
+            child: GestureDetector(
+              onTap: () {
+                if (isLimitReached) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
+                  );
+                } else {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CareScreen()),
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(
+                      isLimitReached ? Icons.lock_outline_rounded : Icons.favorite_rounded,
+                      size: 18,
                       color: AppColors.ink500,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    Text(
+                      strings.careDockLabel,
+                      style: AppText.bodyS.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.ink500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -440,31 +481,40 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
 
-          // 3. Boutique
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ShopScreen()),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.storefront_rounded,
-                    size: 18,
-                    color: AppColors.ink500,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    strings.shopDockLabel,
-                    style: AppText.bodyS.copyWith(
-                      fontWeight: FontWeight.w700,
+          // 3. Boutique (désactivée si limite atteinte)
+          Opacity(
+            opacity: isLimitReached ? 0.45 : 1.0,
+            child: GestureDetector(
+              onTap: () {
+                if (isLimitReached) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
+                  );
+                } else {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ShopScreen()),
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(
+                      isLimitReached ? Icons.lock_outline_rounded : Icons.storefront_rounded,
+                      size: 18,
                       color: AppColors.ink500,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    Text(
+                      strings.shopDockLabel,
+                      style: AppText.bodyS.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.ink500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
