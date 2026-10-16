@@ -6,6 +6,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../care/presentation/care_controller.dart';
+import '../../care/presentation/widgets/animated_pi_mascot.dart';
 import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
@@ -13,7 +14,6 @@ import '../domain/accessory_category.dart';
 import '../domain/accessory_item.dart';
 import '../domain/shop_state.dart';
 import 'shop_controller.dart';
-import 'widgets/accessory_overlay_widget.dart';
 
 /// Onglets de navigation au sein de l'espace Boutique / Dressing
 enum ShopTabMode { shop, wardrobe }
@@ -72,7 +72,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               const SizedBox(height: AppSpace.s2),
 
               // 3. Sélecteur de catégories d'accessoires (Chapeaux, Lunettes, Colliers, Capes)
-              _buildCategorySelector(shopState.selectedCategory, shopNotifier, strings),
+              _buildCategorySelector(shopState, shopNotifier, strings),
 
               const SizedBox(height: AppSpace.s2),
 
@@ -281,15 +281,20 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
   // --- SÉLECTEUR DE CATÉGORIES ---
   Widget _buildCategorySelector(
-    AccessoryCategory selectedCategory,
+    ShopState shopState,
     ShopController shopNotifier,
     dynamic strings,
   ) {
+    final selectedCategory = shopState.selectedCategory;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: AccessoryCategory.values.map((category) {
           final isSelected = category == selectedCategory;
+          final hasEquippedInCat = shopState.equippedByCategory.containsKey(category);
+          final hasPreviewInCat = shopState.previewByCategory.containsKey(category) &&
+              shopState.previewByCategory[category] != shopState.equippedByCategory[category];
+
           return Padding(
             padding: const EdgeInsets.only(right: AppSpace.s2),
             child: GestureDetector(
@@ -340,6 +345,19 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         fontSize: 12,
                       ),
                     ),
+                    if (hasEquippedInCat || hasPreviewInCat) ...[
+                      const SizedBox(width: 5),
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: hasPreviewInCat
+                              ? AppColors.sky500
+                              : AppColors.green500,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -358,7 +376,17 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     ShopController shopNotifier,
     dynamic strings,
   ) {
-    final isPreviewEquipped = previewId != null && shopState.isEquipped(previewId);
+    final activeIds = shopState.activeFittingRoomIds;
+    final unequippedPreviews = shopState.unequippedPreviewIds;
+    final hasAnyEquipped = shopState.equippedAccessoryIds.isNotEmpty;
+    final isPreviewEquipped =
+        unequippedPreviews.isEmpty && hasAnyEquipped;
+
+    final activeNames = activeIds
+        .map((id) => ShopCatalog.findById(id)?.getName(strings.isFrench))
+        .whereType<String>()
+        .toList();
+    final combinedNamesLabel = activeNames.join(' + ');
 
     return Container(
       width: double.infinity,
@@ -401,7 +429,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 ),
               ),
               if (_tabMode == ShopTabMode.wardrobe) ...[
-                if (shopState.equippedAccessoryId != null)
+                if (hasAnyEquipped)
                   GestureDetector(
                     onTap: () {
                       shopNotifier.unequipAccessory(isFrench: strings.isFrench);
@@ -415,7 +443,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       ),
                     ),
                   )
-                else if (previewId != null)
+                else if (unequippedPreviews.isNotEmpty)
                   GestureDetector(
                     onTap: () {
                       shopNotifier.selectAccessory('');
@@ -430,11 +458,16 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     ),
                   ),
               ] else ...[
-                if (previewId != null)
+                if (activeIds.isNotEmpty)
                   GestureDetector(
                     onTap: () {
                       if (isPreviewEquipped) {
-                        shopNotifier.unequipAccessory(isFrench: strings.isFrench);
+                        final catId = shopState
+                            .equippedByCategory[shopState.selectedCategory];
+                        shopNotifier.unequipAccessory(
+                          id: catId,
+                          isFrench: strings.isFrench,
+                        );
                       } else {
                         shopNotifier.selectAccessory(''); // Déselectionne l'essai
                       }
@@ -454,7 +487,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
           const SizedBox(height: 6),
 
-          // Pi sur son socle d'essayage avec l'accessoire superposé
+          // Pi sur son socle d'essayage avec tous les accessoires combinés superposés
           SizedBox(
             height: 125,
             width: 140,
@@ -483,40 +516,12 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   ),
                 ),
 
-                // Ombre douce de contact au sol
+                // Mascotte Pi animée (queue qui bat, clignement des yeux sous les lunettes et tenues combinées)
                 Positioned(
-                  bottom: 6,
-                  child: Container(
-                    width: 85,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.12),
-                      borderRadius: const BorderRadius.all(Radius.elliptical(85, 12)),
-                    ),
-                  ),
-                ),
-
-                // Mascotte Pi
-                Positioned(
-                  bottom: 8,
-                  child: Image.asset(
-                    'assets/images/pi_transparent.png',
-                    height: 105,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.pets,
-                      size: 70,
-                      color: AppColors.sky600,
-                    ),
-                  ),
-                ),
-
-                // Superposition de l'accessoire
-                Positioned(
-                  bottom: 8,
-                  child: AccessoryOverlayWidget(
-                    accessoryId: previewId,
+                  bottom: 4,
+                  child: AnimatedPiMascot(
                     piSize: 105,
+                    equippedAccessoryIds: activeIds,
                   ),
                 ),
               ],
@@ -525,13 +530,16 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
           const SizedBox(height: 6),
 
-          // Libellé de statut d'essayage
+          // Libellé de statut d'essayage ou de tenue combinée
           Text(
-            previewItem != null
+            activeNames.isNotEmpty
                 ? (isPreviewEquipped
-                    ? strings.piWears(previewItem.getName(strings.isFrench))
-                    : strings.piTries(previewItem.getName(strings.isFrench)))
+                    ? strings.piWears(combinedNamesLabel)
+                    : strings.piTries(combinedNamesLabel))
                 : strings.piNatural,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: AppText.bodyS.copyWith(
               fontWeight: FontWeight.w800,
               color: context.appText,
@@ -1020,7 +1028,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     label: strings.unequipAction,
                     variant: ChunkyButtonVariant.secondary,
                     height: 32,
-                    onPressed: () => shopNotifier.unequipAccessory(isFrench: strings.isFrench),
+                    onPressed: () => shopNotifier.unequipAccessory(
+                      id: item.id,
+                      isFrench: strings.isFrench,
+                    ),
                   )
                 else
                   ChunkyButton(

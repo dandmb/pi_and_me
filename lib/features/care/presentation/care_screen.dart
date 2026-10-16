@@ -101,7 +101,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
   @override
   void dispose() {
     try {
-      ShowcaseView.get().unregister();
+      ShowcaseView.get().dismiss();
     } catch (_) {}
     _fetchTimer?.cancel();
     _returnTimer?.cancel();
@@ -178,8 +178,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
 
     notifier.throwBall(targetX, targetY, strings.piChasingBall);
 
-    // Après 2 secondes, Pi démarre automatiquement pour aller chercher la balle
-    _fetchTimer = Timer(const Duration(seconds: 2), () {
+    // Dès que la balle touche le sol (750ms), Pi s'élance automatiquement pour la rapporter
+    _fetchTimer = Timer(const Duration(milliseconds: 750), () {
       if (!mounted) return;
       final current = ref.read(careControllerProvider);
       if (!current.isBallActive) return;
@@ -235,9 +235,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     if (companion.isSleeping) return;
     if (companion.bowlFoodCount <= 0 || companion.isEating) return;
 
-    // Pi se dirige vers l'assiette située en (-0.68, 0.48)
-    const bowlX = -0.68;
-    const bowlY = 0.48;
+    // Pi se place juste à droite de l'assiette (-0.68, 0.52), tourné vers elle
+    const bowlX = -0.34;
+    const bowlY = 0.46;
 
     notifier.startEating(bowlX, bowlY, strings.piEating);
 
@@ -324,7 +324,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         break;
 
       case CareInteractionMode.clean:
-        _cleanPi();
+        // Le lavage se déclenche uniquement via le bouton « Laver »
         break;
 
       case CareInteractionMode.walk:
@@ -429,7 +429,12 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 child: InteractivePlayArea(
                   companion: companion,
                   activeMode: _activeMode,
-                  equippedAccessoryId: shopState.equippedAccessoryId,
+                  equippedAccessoryId: _activeMode == CareInteractionMode.clean
+                      ? null
+                      : shopState.equippedAccessoryId,
+                  equippedAccessoryIds: _activeMode == CareInteractionMode.clean
+                      ? const []
+                      : shopState.equippedAccessoryIds,
                   onSurfaceTapped: _onSurfaceTapped,
                 ),
               ),

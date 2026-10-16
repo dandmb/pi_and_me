@@ -40,7 +40,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: 'Léa');
+    _nameController = TextEditingController();
   }
 
   @override
@@ -70,7 +70,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     if (!mounted) return;
 
-    if (widget.canCancel) {
+    if (widget.canCancel && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     } else {
       Navigator.of(context).pushReplacement(
@@ -89,26 +89,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     final strings = ref.watch(stringsProvider);
 
-    return Scaffold(
-      backgroundColor: context.appBg,
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: AppSpace.maxContentWidth),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.s5,
-                vertical: AppSpace.s3,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Bouton Annuler si ouvert depuis le switcher de profil
-                  if (widget.canCancel) ...[
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => Navigator.of(context).pop(),
+    return PopScope(
+      canPop: widget.canCancel,
+      child: Scaffold(
+        backgroundColor: context.appBg,
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: AppSpace.maxContentWidth),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.s5,
+                  vertical: AppSpace.s3,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Bouton Annuler si ouvert depuis le switcher de profil
+                    if (widget.canCancel) ...[
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              }
+                            },
                           child: Container(
                             width: 38,
                             height: 38,
@@ -362,6 +368,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

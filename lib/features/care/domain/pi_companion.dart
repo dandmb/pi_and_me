@@ -66,6 +66,7 @@ class PiCompanion {
       activeBallY: targetY,
       initialPiX: piX,
       initialPiY: piY,
+      isFacingLeft: targetX < piX,
       statusMessage: message,
       isCarryingBall: false,
     );
@@ -82,19 +83,25 @@ class PiCompanion {
     );
   }
 
+  static double _roundGauge(double value) {
+    return ((value.clamp(0.0, 1.0) * 100).round()) / 100.0;
+  }
+
   /// Pi attrape la balle, revient à son point initial, la balle est décomptée,
   /// et en jouant dehors Pi attrape de la saleté (à nettoyer ensuite).
   PiCompanion collectAndReturnBall(String successMessage) {
     if (!isBallActive) return this;
-    final newJoy = (joy + 0.25).clamp(0.0, 1.0);
-    final newEnergy = (energy - 0.05).clamp(0.1, 1.0);
+    final newJoy = _roundGauge((joy + 0.25).clamp(0.0, 1.0));
+    final newEnergy = _roundGauge((energy - 0.05).clamp(0.1, 1.0));
+    final newHunger = _roundGauge((hunger - 0.15).clamp(0.1, 1.0));
     final newBalls = balls > 0 ? balls - 1 : 0;
     // Quand Pi court chercher la balle, il se salit nettement pour que le bain soit flagrant
     final newDirt = (dirtCount + 2).clamp(1, 4);
-    final newCleanliness = (cleanliness - 0.35).clamp(0.0, 1.0);
+    final newCleanliness = _roundGauge((cleanliness - 0.35).clamp(0.0, 1.0));
 
     return copyWith(
       balls: newBalls,
+      hunger: newHunger,
       joy: newJoy,
       energy: newEnergy,
       dirtCount: newDirt,
@@ -113,7 +120,7 @@ class PiCompanion {
     return copyWith(
       isSleeping: true,
       energy: 1.0,
-      joy: (joy + 0.15).clamp(0.0, 1.0),
+      joy: _roundGauge((joy + 0.15).clamp(0.0, 1.0)),
       statusMessage: successMessage,
       piX: 0.0,
       piY: 0.20,
@@ -142,7 +149,7 @@ class PiCompanion {
       isEating: true,
       piX: targetX,
       piY: targetY,
-      isFacingLeft: targetX < piX,
+      isFacingLeft: true,
       statusMessage: message,
     );
   }
@@ -151,8 +158,8 @@ class PiCompanion {
   /// et Pi revient au centre de la pièce
   PiCompanion finishEating(String successMessage) {
     final foodGained = bowlFoodCount * 0.20 + 0.15; // 1 croquette: +35%, 2: +55%, 3: +75%
-    final newHunger = (hunger + foodGained).clamp(0.0, 1.0);
-    final newJoy = (joy + 0.15).clamp(0.0, 1.0);
+    final newHunger = _roundGauge((hunger + foodGained).clamp(0.0, 1.0));
+    final newJoy = _roundGauge((joy + 0.15).clamp(0.0, 1.0));
 
     return copyWith(
       hunger: newHunger,
@@ -161,6 +168,7 @@ class PiCompanion {
       isEating: false,
       piX: 0.0,
       piY: 0.2, // Retour au centre
+      isFacingLeft: 0.0 < piX,
       statusMessage: successMessage,
     );
   }
@@ -168,7 +176,7 @@ class PiCompanion {
   /// Nettoie Pi des taches accumulées pendant le jeu (bain/savon)
   PiCompanion clean(String successMessage) {
     if (isSleeping) return this;
-    final newJoy = (joy + 0.15).clamp(0.0, 1.0);
+    final newJoy = _roundGauge((joy + 0.15).clamp(0.0, 1.0));
     return copyWith(
       cleanliness: 1.0,
       dirtCount: 0,
@@ -180,8 +188,8 @@ class PiCompanion {
   /// Nourrit Pi ponctuellement (mode direct)
   PiCompanion feed(double targetX, double targetY, String successMessage) {
     if (croquettes <= 0 || hunger >= 1.0 || isSleeping) return this;
-    final newHunger = (hunger + 0.25).clamp(0.0, 1.0);
-    final newJoy = (joy + 0.10).clamp(0.0, 1.0);
+    final newHunger = _roundGauge((hunger + 0.25).clamp(0.0, 1.0));
+    final newJoy = _roundGauge((joy + 0.10).clamp(0.0, 1.0));
     return copyWith(
       hunger: newHunger,
       joy: newJoy,
@@ -195,7 +203,7 @@ class PiCompanion {
 
   /// Fait reposer Pi (+30% Énergie)
   PiCompanion rest(double targetX, double targetY, String successMessage) {
-    final newEnergy = (energy + 0.30).clamp(0.0, 1.0);
+    final newEnergy = _roundGauge((energy + 0.30).clamp(0.0, 1.0));
     return copyWith(
       energy: newEnergy,
       statusMessage: successMessage,

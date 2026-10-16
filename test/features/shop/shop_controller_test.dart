@@ -157,5 +157,57 @@ void main() {
       expect(shopController.state.equippedAccessoryId, isNull);
       expect(shopController.state.feedbackMessage, equals('Accessory removed'));
     });
+
+    test('combines accessories across categories when trying on and wearing (hat + glasses + collar + cape)', () {
+      careController.state = careController.state.copyWith(bones: 500);
+
+      // 1. Try on hat + glasses + collar simultaneously in fitting room
+      shopController.selectAccessory('top_hat');
+      shopController.selectAccessory('nerd_glasses');
+      shopController.selectAccessory('pirate_bandana');
+
+      expect(
+        shopController.state.activeFittingRoomIds,
+        equals(['pirate_bandana', 'nerd_glasses', 'top_hat']),
+      );
+
+      // 2. Buy and equip hat, glasses, collar, and cape -> all 4 remain equipped together
+      shopController.buyAccessory(
+        item: ShopCatalog.findById('top_hat')!,
+        careNotifier: careController,
+        isFrench: true,
+      );
+      shopController.buyAccessory(
+        item: ShopCatalog.findById('nerd_glasses')!,
+        careNotifier: careController,
+        isFrench: true,
+      );
+      shopController.buyAccessory(
+        item: ShopCatalog.findById('pirate_bandana')!,
+        careNotifier: careController,
+        isFrench: true,
+      );
+      shopController.buyAccessory(
+        item: ShopCatalog.findById('hero_cape')!,
+        careNotifier: careController,
+        isFrench: true,
+      );
+
+      expect(
+        shopController.state.equippedAccessoryIds,
+        equals(['hero_cape', 'pirate_bandana', 'nerd_glasses', 'top_hat']),
+      );
+      expect(shopController.state.isEquipped('top_hat'), isTrue);
+      expect(shopController.state.isEquipped('nerd_glasses'), isTrue);
+      expect(shopController.state.isEquipped('pirate_bandana'), isTrue);
+      expect(shopController.state.isEquipped('hero_cape'), isTrue);
+
+      // 3. Unequipping only glasses leaves hat, collar, and cape equipped
+      shopController.unequipAccessory(id: 'nerd_glasses', isFrench: true);
+      expect(
+        shopController.state.equippedAccessoryIds,
+        equals(['hero_cape', 'pirate_bandana', 'top_hat']),
+      );
+    });
   });
 }

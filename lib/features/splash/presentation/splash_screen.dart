@@ -65,8 +65,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     if (!mounted) return;
 
-    // Vérification du profil actif
-    final profile = await ref.read(activeProfileProvider.future);
+    // Vérification du profil actif avec sécurité anti-blocage au relancement
+    dynamic profile;
+    try {
+      profile = await ref
+          .read(activeProfileProvider.future)
+          .timeout(const Duration(seconds: 3));
+    } catch (_) {
+      profile = ref.read(activeProfileProvider).valueOrNull;
+    }
 
     if (!mounted) return;
 

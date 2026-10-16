@@ -6,8 +6,10 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../care/presentation/care_controller.dart';
+import '../../care/presentation/widgets/animated_pi_mascot.dart';
 import '../../navigation/presentation/main_shell_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
+import '../../shop/presentation/shop_controller.dart';
 import 'quiz_controller.dart';
 
 /// Écran 3 : Résultats du Quiz & Célébration bienveillante avec Pi.
@@ -36,6 +38,7 @@ class QuizResultsScreen extends ConsumerWidget {
     final quizState = ref.watch(quizControllerProvider);
     final profile = ref.watch(activeProfileProvider).value;
     final strings = ref.watch(stringsProvider);
+    final shopState = ref.watch(shopControllerProvider);
 
     final childName = profile?.name ?? 'Ami';
     final score = quizState.score;
@@ -69,7 +72,12 @@ class QuizResultsScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       // 2. Mascotte Pi qui célèbre + Badge du Score
-                      _buildMascotCelebration(score, total, strings),
+                      _buildMascotCelebration(
+                        score,
+                        total,
+                        strings,
+                        shopState.equippedAccessoryIds,
+                      ),
 
                       const SizedBox(height: AppSpace.s4),
 
@@ -146,12 +154,18 @@ class QuizResultsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMascotCelebration(int score, int total, dynamic strings) {
+  Widget _buildMascotCelebration(
+    int score,
+    int total,
+    dynamic strings,
+    List<String> equippedAccessoryIds,
+  ) {
     return SizedBox(
-      height: 180,
-      width: 180,
+      height: 185,
+      width: 185,
       child: Stack(
         alignment: Alignment.center,
+        clipBehavior: Clip.none,
         children: [
           // Halo doré lumineux
           Container(
@@ -163,31 +177,13 @@ class QuizResultsScreen extends ConsumerWidget {
             ),
           ),
 
-          // Pi avec son ombre au sol
+          // Pi qui saute de joie (yeux rieurs ^ ^, bouche ouverte, queue qui bat et coeurs)
           Positioned(
             bottom: 22,
-            child: Container(
-              width: 100,
-              height: 16,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.12),
-                borderRadius: const BorderRadius.all(
-                  Radius.elliptical(100, 16),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 24,
-            child: Image.asset(
-              'assets/images/pi_transparent.png',
-              height: 130,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => const Icon(
-                Icons.pets,
-                size: 90,
-                color: AppColors.sky600,
-              ),
+            child: AnimatedPiMascot(
+              piSize: 122,
+              isCelebrating: true,
+              equippedAccessoryIds: equippedAccessoryIds,
             ),
           ),
 

@@ -1,38 +1,22 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/theme/app_theme.dart';
-import 'core/widgets/app_error_view.dart';
-import 'features/splash/presentation/splash_screen.dart';
-
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'core/widgets/app_error_view.dart';
+import 'features/navigation/presentation/main_shell_screen.dart';
+import 'features/splash/presentation/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final prefs = await SharedPreferences.getInstance();
-  if (!prefs.containsKey('pi_profiles_list')) {
-    final defaultProfiles = jsonEncode([
-      {
-        'id': 'profile_1',
-        'name': 'Léa',
-        'avatar': 'paw',
-        'grade': 'cm1',
-        'createdAt': DateTime.now().toIso8601String(),
-      },
-      {
-        'id': 'profile_2',
-        'name': 'Thomas',
-        'avatar': 'rabbit',
-        'grade': 'ce2',
-        'createdAt': DateTime.now().toIso8601String(),
-      },
-    ]);
-    await prefs.setString('pi_profiles_list', defaultProfiles);
-    await prefs.setString('pi_active_profile_id', 'profile_1');
+  try {
+    await SharedPreferences.getInstance().timeout(
+      const Duration(seconds: 3),
+    );
+  } catch (e) {
+    debugPrint('[Bootstrap] SharedPreferences init warning: $e');
   }
 
   // Gestion des erreurs de rendu Flutter
@@ -60,14 +44,81 @@ void main() async {
   runApp(const ProviderScope(child: PiEtMoiApp()));
 }
 
-class PiEtMoiApp extends ConsumerWidget {
+/// Observateur de routes permettant de détecter si la pile Navigator devient vide
+/// (cause classique d'écran noir au retour sur l'application) et de restaurer l'accueil.
+class _RootRouteCounterObserver extends NavigatorObserver {
+  int routeCount = 0;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    routeCount++;
+    super.didPush(route, previousRoute);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    routeCount = (routeCount - 1).clamp(0, 999);
+    super.didPop(route, previousRoute);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    routeCount = (routeCount - 1).clamp(0, 999);
+    super.didRemove(route, previousRoute);
+  }
+}
+
+class PiEtMoiApp extends ConsumerStatefulWidget {
   const PiEtMoiApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PiEtMoiApp> createState() => _PiEtMoiAppState();
+}
+
+class _PiEtMoiAppState extends ConsumerState<PiEtMoiApp>
+    with WidgetsBindingObserver {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final _RootRouteCounterObserver _routeObserver = _RootRouteCounterObserver();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // Force le moteur Flutter à redessiner immédiatement une frame après recréation de la surface Android
+      WidgetsBinding.instance.scheduleForcedFrame();
+
+      // Si la pile de navigation a été vidée accidentellement (ex: back système), restaure le Salon
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final nav = _navigatorKey.currentState;
+        if (nav != null && _routeObserver.routeCount <= 0) {
+          nav.pushReplacement(
+            MaterialPageRoute(builder: (_) => const MainShellScreen()),
+          );
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp(
+      navigatorKey: _navigatorKey,
+      navigatorObservers: [_routeObserver],
       title: 'Pi & Moi',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
@@ -77,3 +128,4 @@ class PiEtMoiApp extends ConsumerWidget {
     );
   }
 }
+
