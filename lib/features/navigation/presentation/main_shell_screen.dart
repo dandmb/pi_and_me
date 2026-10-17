@@ -20,12 +20,7 @@ import '../../shop/presentation/shop_screen.dart';
 import '../../parent/presentation/daily_limit_controller.dart';
 import '../../parent/presentation/daily_limit_screen.dart';
 
-/// Écran Coquille Principale (MainShellScreen) unifiant :
-/// - Une AppBar persistante et stylée (Profil avec switch, Solde d'os dorés, Switch Dark Mode, Paramètres).
-/// - Un corps avec navigation par onglets (IndexedStack) préservant l'état des écrans.
-/// - Une BottomBar stylée (Dock flottant) avec 3 onglets : [Salon, Soigner, Boutique] avec le Salon au début.
-/// - Règle stricte de navigation : On ne peut quitter l'application que si l'on est sur le Salon.
-///   Si l'on est sur Soigner ou Boutique, le bouton Retour ramène automatiquement au Salon.
+/// Conteneur principal de navigation avec barre d'onglets (Salon, Soigner, Boutique).
 class MainShellScreen extends ConsumerStatefulWidget {
   final int initialIndex;
 
@@ -39,6 +34,7 @@ class MainShellScreen extends ConsumerStatefulWidget {
 }
 
 class _MainShellScreenState extends ConsumerState<MainShellScreen> {
+  // L'index de l'onglet actuellement sélectionné (0 = Salon, 1 = Soigner, 2 = Boutique)
   late int _currentIndex;
 
   @override
@@ -107,7 +103,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               ),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
-            child: Text(strings.quit),
+            child: Text(strings.quit, style: AppText.buttonM),
           ),
         ],
       ),
@@ -461,18 +457,14 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                 vertical: 8,
               ),
               decoration: BoxDecoration(
-                gradient: isActive
-                    ? const LinearGradient(
-                        colors: [Color(0xFF0284C7), Color(0xFF38BDF8)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
+                color: isActive
+                    ? (isDark ? AppColors.darkSky500 : AppColors.sky500)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                          color: (isDark ? AppColors.darkSky500 : AppColors.sky500).withValues(alpha: 0.30),
                           offset: const Offset(0, 3),
                           blurRadius: 8,
                         ),
@@ -486,7 +478,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                     effectiveIcon,
                     size: 20,
                     color: isActive
-                        ? Colors.white
+                        ? (isDark ? const Color(0xFF003640) : Colors.white)
                         : (isDark ? AppColors.darkInk500 : AppColors.ink500),
                   ),
                   const SizedBox(width: 5),
@@ -499,7 +491,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                         fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
                         fontSize: 12.5,
                         color: isActive
-                            ? Colors.white
+                            ? (isDark ? const Color(0xFF003640) : Colors.white)
                             : (isDark ? AppColors.darkInk600 : AppColors.ink600),
                       ),
                     ),

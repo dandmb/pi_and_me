@@ -1,4 +1,4 @@
-/// Dimensions, espacements et rayons officiels de Pi & Moi.
+/// Dimensions, espacements et rayons officiels de MathPup.
 /// Conforme à DESIGN_SYSTEM.md §4 et §5.
 abstract final class AppSpace {
   static const s1 = 4.0;

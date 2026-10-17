@@ -213,11 +213,12 @@ class PiCompanion {
     );
   }
 
-  /// Change de cadre / décor de jeu avec message grammaticalement correct
-  PiCompanion setEnvironment(PlayEnvironment newEnv, {required bool isFrench}) {
+  /// Change de cadre / décor de jeu avec message grammaticalement correct (affiché seulement à la 1re découverte)
+  PiCompanion setEnvironment(PlayEnvironment newEnv, {required bool isFrench, bool showWelcome = true}) {
     return copyWith(
       environment: newEnv,
-      statusMessage: newEnv.getWelcome(isFrench),
+      statusMessage: showWelcome ? newEnv.getWelcome(isFrench) : null,
+      clearStatus: !showWelcome,
     );
   }
 

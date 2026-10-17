@@ -8,8 +8,10 @@ import '../domain/play_environment.dart';
 /// Persistance locale automatique dans SharedPreferences.
 class CareController extends StateNotifier<PiCompanion> {
   static const String _storageKey = 'pi_companion_state_v1';
+  static const String _visitedEnvKey = 'pi_visited_environments_v1';
   final SharedPreferences? _prefs;
   Timer? _statusTimer;
+  Set<String> _visitedEnvironments = {};
 
   CareController({SharedPreferences? prefsInstance, PiCompanion? initialCompanion})
       : _prefs = prefsInstance,
@@ -47,6 +49,10 @@ class CareController extends StateNotifier<PiCompanion> {
       if (rawJson != null && rawJson.isNotEmpty) {
         state = PiCompanion.fromJson(rawJson);
       }
+      final visited = prefs.getStringList(_visitedEnvKey);
+      if (visited != null) {
+        _visitedEnvironments = visited.toSet();
+      }
     } catch (_) {
       // Conserve l'état initial en cas d'erreur de parsing
     }
@@ -58,6 +64,15 @@ class CareController extends StateNotifier<PiCompanion> {
       await prefs.setString(_storageKey, state.toJson());
     } catch (_) {
       // Ignorer silencieusement pour le mode offline
+    }
+  }
+
+  Future<void> _saveVisitedEnvironments() async {
+    try {
+      final prefs = await _getPrefs();
+      await prefs.setStringList(_visitedEnvKey, _visitedEnvironments.toList());
+    } catch (_) {
+      // Ignorer silencieusement
     }
   }
 
@@ -106,11 +121,18 @@ class CareController extends StateNotifier<PiCompanion> {
     _saveToStorage();
   }
 
-  /// Change de décor / environnement avec grammaire française correcte
+  /// Change de décor / environnement (affiche le message de bienvenue uniquement lors de la 1re découverte)
   void changeEnvironment(PlayEnvironment newEnv, {required bool isFrench}) {
-    state = state.setEnvironment(newEnv, isFrench: isFrench);
+    final isFirstVisit = !_visitedEnvironments.contains(newEnv.id);
+    if (isFirstVisit) {
+      _visitedEnvironments.add(newEnv.id);
+      _saveVisitedEnvironments();
+      state = state.setEnvironment(newEnv, isFrench: isFrench, showWelcome: true);
+      _startStatusDismissTimer(seconds: 4);
+    } else {
+      state = state.setEnvironment(newEnv, isFrench: isFrench, showWelcome: false);
+    }
     _saveToStorage();
-    _startStatusDismissTimer(seconds: 4);
   }
 
   /// Ajoute des récompenses remportées lors d'un quiz

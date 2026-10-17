@@ -134,7 +134,7 @@ class PlayOnboardingDialog extends StatelessWidget {
                       isFrench
                           ? 'Tu pourras revoir ce guide à tout moment dans les Paramètres ⚙️.'
                           : 'You can review this guide anytime in Settings ⚙️.',
-                      style: AppText.bodyS.copyWith(
+                      style: AppText.guideSubtitleM.copyWith(
                         fontSize: 11,
                         color: context.appSubText,
                         fontWeight: FontWeight.w600,
@@ -195,9 +195,10 @@ class PlayOnboardingDialog extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 description,
-                style: AppText.bodyS.copyWith(
+                style: AppText.guideSubtitleM.copyWith(
                   color: context.appSubText,
                   fontSize: 12,
+                  height: 1.4,
                 ),
               ),
             ],

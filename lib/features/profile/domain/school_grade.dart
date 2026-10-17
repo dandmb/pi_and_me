@@ -1,4 +1,4 @@
-/// Niveaux scolaires officiels couverts par Pi & Moi (CP à la 3e).
+/// Niveaux scolaires officiels couverts par MathPup (CP à la 3e).
 /// Structurés selon les cycles pédagogiques du système éducatif français.
 enum SchoolGrade {
   cp(

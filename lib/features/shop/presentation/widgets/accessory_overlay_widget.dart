@@ -35,6 +35,8 @@ class AccessoryOverlayWidget extends StatelessWidget {
     }
 
     final double width = piSize * (420.0 / 482.0);
+    final double totalHeight = piSize * (560.0 / 482.0);
+    final double topOffset = -piSize * (78.0 / 482.0);
 
     return IgnorePointer(
       child: SizedBox(
@@ -42,15 +44,22 @@ class AccessoryOverlayWidget extends StatelessWidget {
         height: piSize,
         child: Stack(
           alignment: Alignment.center,
+          clipBehavior: Clip.none,
           children: [
             for (final id in ids)
-              Image.asset(
-                'assets/images/accessories/$id.png',
-                width: width,
-                height: piSize,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox.shrink(),
+              Positioned(
+                top: topOffset,
+                left: 0,
+                right: 0,
+                height: totalHeight,
+                child: Image.asset(
+                  'assets/images/accessories/$id.png',
+                  width: width,
+                  height: totalHeight,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
+                ),
               ),
           ],
         ),

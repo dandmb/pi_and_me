@@ -22,7 +22,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Pi & Moi'), findsOneWidget);
+    expect(find.text('MathPup'), findsOneWidget);
     expect(find.text('Official curriculum from Grade 1 to 9'), findsOneWidget);
     expect(find.text('Loading...'), findsOneWidget);
 
@@ -41,7 +41,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Pi & Moi'), findsOneWidget);
+    expect(find.text('MathPup'), findsOneWidget);
     expect(find.text('Programmes officiels du CP à la 3e'), findsOneWidget);
     expect(find.text('Chargement...'), findsOneWidget);
 

@@ -122,7 +122,7 @@ class ParentDashboardController extends StateNotifier<ParentDashboardState> {
 
     final Map<String, dynamic> exportData = {
       'schemaVersion': '1.0.0',
-      'appName': 'Pi & Moi',
+      'appName': 'MathPup',
       'exportDate': DateTime.now().toIso8601String(),
       'compliance': {
         'regulation': 'RGPD (UE 2016/679) & COPPA',

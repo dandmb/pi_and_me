@@ -241,9 +241,9 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
             // Description explicative détaillée
             Text(
               step.description,
-              style: AppText.bodyS.copyWith(
+              style: AppText.guideSubtitle.copyWith(
                 color: context.appSubText,
-                height: 1.4,
+                height: 1.45,
               ),
               textAlign: TextAlign.center,
             ),

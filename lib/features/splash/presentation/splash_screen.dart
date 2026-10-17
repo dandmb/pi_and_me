@@ -8,7 +8,7 @@ import '../../navigation/presentation/main_shell_screen.dart';
 import '../../onboarding/presentation/onboarding_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
 
-/// Écran 0 : Splash Screen de lancement de Pi & Moi.
+/// Écran 0 : Splash Screen de lancement de MathPup.
 /// Dégradé bleu ciel, saut réaliste de Pi et chargement silencieux du profil.
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});

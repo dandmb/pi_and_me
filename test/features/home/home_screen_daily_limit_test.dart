@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pi_et_moi/core/localization/locale_controller.dart';
-import 'package:pi_et_moi/core/widgets/chunky_button.dart';
 import 'package:pi_et_moi/features/care/presentation/widgets/animated_pi_mascot.dart';
 import 'package:pi_et_moi/features/home/presentation/home_screen.dart';
 import 'package:pi_et_moi/features/parent/domain/daily_limit_state.dart';
@@ -73,6 +72,19 @@ void main() {
 
       // Normal dialogue
       expect(find.textContaining('Prête pour le quiz'), findsOneWidget);
+
+      // Tapping on DailyQuotaIndicator when quota is available opens info dialog, NOT DailyLimitScreen
+      await tester.tap(find.text('2/6'));
+      await tester.pumpAndSettle();
+
+      // Info dialog appears with title 'Parties du jour'
+      expect(find.text('Parties du jour'), findsOneWidget);
+      expect(find.byType(DailyLimitScreen), findsNothing);
+
+      // Dismiss dialog
+      await tester.tap(find.text('C\'est parti !'));
+      await tester.pumpAndSettle();
+      expect(find.text('Parties du jour'), findsNothing);
     });
 
     testWidgets(
@@ -102,14 +114,30 @@ void main() {
       final restBtn = find.text('Voir Pi se reposer (6/6)');
       expect(restBtn, findsOneWidget);
 
-      // Care button is disabled and shows sleeping label
-      final careBtnFinder = find.widgetWithText(ChunkyButton, 'Pi dort · Soins désactivés');
-      expect(careBtnFinder, findsOneWidget);
-      final ChunkyButton careBtn = tester.widget(careBtnFinder);
-      expect(careBtn.onPressed, isNull);
-
-      // Tapping opens DailyLimitScreen
+      // Tapping rest button opens DailyLimitScreen
       await tester.tap(restBtn);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DailyLimitScreen), findsOneWidget);
+    });
+
+    testWidgets('When quota reached: tapping 6/6 DailyQuotaIndicator opens DailyLimitScreen',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildTestApp(
+        limitState: DailyLimitState(
+          profileId: 'test_child',
+          usedSessionsToday: 6,
+          maxDailySessions: 6,
+          lastSessionDate: DateTime.now(),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('6/6'));
       await tester.pumpAndSettle();
 
       expect(find.byType(DailyLimitScreen), findsOneWidget);

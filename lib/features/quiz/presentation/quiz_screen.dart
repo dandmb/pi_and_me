@@ -286,9 +286,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           // Énoncé
           Text(
             question.getPrompt(isFrench),
-            style: AppText.h3.copyWith(
+            style: AppText.question.copyWith(
               color: context.appText,
-              fontSize: 17,
             ),
             textAlign: TextAlign.center,
           ),
