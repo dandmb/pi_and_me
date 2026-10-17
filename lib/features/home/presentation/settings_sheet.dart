@@ -7,6 +7,8 @@ import '../../../core/theme/app_text.dart';
 import '../../../core/theme/theme_mode_controller.dart';
 import '../../../core/widgets/chunky_button.dart';
 import '../../../core/widgets/language_switcher.dart';
+import '../../../core/audio/audio_service.dart';
+import '../../../core/audio/sound_mode_controller.dart';
 import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
 import '../../parent/presentation/parent_dashboard_screen.dart';
 import '../../parent/presentation/widgets/parental_gate_dialog.dart';
@@ -29,6 +31,7 @@ class SettingsSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = ref.watch(stringsProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final isSoundEnabled = ref.watch(soundEnabledProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -39,10 +42,11 @@ class SettingsSheet extends ConsumerWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             // Poignée de glissement
             Center(
               child: Container(
@@ -100,6 +104,69 @@ class SettingsSheet extends ConsumerWidget {
                     ],
                   ),
                   const LanguageSwitcher(),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: AppSpace.s3),
+
+            // Effets Sonores (Activer / Désactiver)
+            Container(
+              padding: const EdgeInsets.all(AppSpace.s4),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(
+                  color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                  width: 1.5,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSpace.s2),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : AppColors.sky50,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
+                    child: Icon(
+                      isSoundEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                      color: isSoundEnabled ? AppColors.sky600 : AppColors.ink500,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.s3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          strings.soundEffectsTitle,
+                          style: AppText.label.copyWith(
+                            color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          isSoundEnabled ? strings.soundEnabled : strings.soundDisabled,
+                          style: AppText.bodyS.copyWith(
+                            color: isDark ? AppColors.darkInk500 : AppColors.ink600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch.adaptive(
+                    key: const Key('sound_effects_switch'),
+                    value: isSoundEnabled,
+                    activeTrackColor: AppColors.sky600,
+                    onChanged: (val) {
+                      ref.read(soundEnabledProvider.notifier).setSoundEnabled(val);
+                      if (val) {
+                        ref.read(audioServiceProvider).playPop();
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
@@ -333,7 +400,8 @@ class SettingsSheet extends ConsumerWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildThemeOption(

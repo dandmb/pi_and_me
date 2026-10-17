@@ -101,4 +101,35 @@ void main() {
     // Check that ParentalGateDialog opened
     expect(find.byKey(const Key('parental_gate_input')), findsOneWidget);
   });
+
+  testWidgets('SettingsSheet allows toggling sound effects', (WidgetTester tester) async {
+    final container = ProviderContainer(
+      overrides: [
+        languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SettingsSheet(),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Effets sonores'), findsOneWidget);
+    expect(find.text('Activé'), findsOneWidget);
+    expect(find.byKey(const Key('sound_effects_switch')), findsOneWidget);
+
+    // Toggle switch off
+    await tester.tap(find.byKey(const Key('sound_effects_switch')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Désactivé'), findsOneWidget);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('mathpup_sound_enabled_v1'), isFalse);
+  });
 }

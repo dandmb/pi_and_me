@@ -9,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
+import '../../../core/audio/audio_service.dart';
 import '../../navigation/presentation/main_shell_screen.dart';
 import '../../shop/presentation/shop_controller.dart';
 import '../domain/care_interaction_mode.dart';
@@ -178,6 +179,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final targetX = z[0] + random.nextDouble() * (z[1] - z[0]);
     final targetY = z[2] + random.nextDouble() * (z[3] - z[2]);
 
+    ref.read(audioServiceProvider).playBall();
     notifier.throwBall(targetX, targetY, strings.piChasingBall);
 
     // Dès que la balle touche le sol (750ms), Pi s'élance automatiquement pour la rapporter
@@ -194,6 +196,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
 
       _returnTimer = Timer(const Duration(milliseconds: 700), () {
         if (!mounted) return;
+        ref.read(audioServiceProvider).playBark();
         notifier.collectAndReturnBall(strings.piFetchedBall);
       });
     });
@@ -225,6 +228,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
       return;
     }
 
+    ref.read(audioServiceProvider).playFeed();
     notifier.serveBowl(message: strings.bowlFilled);
   }
 
@@ -237,6 +241,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     if (companion.isSleeping) return;
     if (companion.bowlFoodCount <= 0 || companion.isEating) return;
 
+    ref.read(audioServiceProvider).playPop();
+
     // Pi se place juste à droite de l'assiette (-0.68, 0.52), tourné vers elle
     const bowlX = -0.34;
     const bowlY = 0.46;
@@ -247,6 +253,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     _eatingTimer?.cancel();
     _eatingTimer = Timer(const Duration(seconds: 5), () {
       if (!mounted) return;
+      ref.read(audioServiceProvider).playBark();
       // Pi termine son repas, gagne de la Faim/Joie et rentre au centre
       notifier.finishEating(strings.piFinishedEating);
     });
@@ -263,6 +270,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
       return;
     }
 
+    ref.read(audioServiceProvider).playWater();
     notifier.cleanPi(strings.piCleaned);
   }
 

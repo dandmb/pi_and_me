@@ -111,6 +111,12 @@ class AppStrings {
   // --- Paramètres / Settings ---
   String get settings => isFrench ? 'Paramètres' : 'Settings';
   String get languageTitle => isFrench ? 'Langue de l\'application' : 'App Language';
+  String get soundEffectsTitle => isFrench ? 'Effets sonores' : 'Sound Effects';
+  String get soundEffectsSubtitle => isFrench
+      ? 'Aboiements de Pi, bruits du jeu et sons de quiz'
+      : 'Pi\'s barks, game sounds and quiz chimes';
+  String get soundEnabled => isFrench ? 'Activé' : 'Enabled';
+  String get soundDisabled => isFrench ? 'Désactivé' : 'Disabled';
   String get themeTitle => isFrench ? 'Mode Sombre / Apparence' : 'Dark Mode / Appearance';
   String get lightTheme => isFrench ? 'Clair' : 'Light';
   String get darkTheme => isFrench ? 'Sombre' : 'Dark';

@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
+import '../../../core/audio/audio_service.dart';
 import '../../care/presentation/care_controller.dart';
 import '../../care/presentation/widgets/animated_pi_mascot.dart';
 import '../../navigation/presentation/main_shell_screen.dart';
@@ -304,7 +305,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           return Padding(
             padding: const EdgeInsets.only(right: AppSpace.s2),
             child: GestureDetector(
-              onTap: () => shopNotifier.selectCategory(category),
+              onTap: () {
+                ref.read(audioServiceProvider).playPop();
+                shopNotifier.selectCategory(category);
+              },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(
@@ -619,7 +623,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             : item.primaryColor;
 
         return GestureDetector(
-          onTap: () => shopNotifier.selectAccessory(item.id),
+          onTap: () {
+            ref.read(audioServiceProvider).playPop();
+            shopNotifier.selectAccessory(item.id);
+          },
           child: Container(
             padding: const EdgeInsets.all(AppSpace.s3),
             decoration: BoxDecoration(
@@ -816,6 +823,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       variant: ChunkyButtonVariant.primary,
       height: 32,
       onPressed: () {
+        ref.read(audioServiceProvider).playBone();
         final careNotifier = ref.read(careControllerProvider.notifier);
         shopNotifier.buyAccessory(
           item: item,
@@ -962,7 +970,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             : item.primaryColor;
 
         return GestureDetector(
-          onTap: () => shopNotifier.selectAccessory(item.id),
+          onTap: () {
+            ref.read(audioServiceProvider).playPop();
+            shopNotifier.selectAccessory(item.id);
+          },
           child: Container(
             padding: const EdgeInsets.all(AppSpace.s3),
             decoration: BoxDecoration(
@@ -1034,17 +1045,23 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     label: strings.unequipAction,
                     variant: ChunkyButtonVariant.secondary,
                     height: 32,
-                    onPressed: () => shopNotifier.unequipAccessory(
-                      id: item.id,
-                      isFrench: strings.isFrench,
-                    ),
+                    onPressed: () {
+                      ref.read(audioServiceProvider).playPop();
+                      shopNotifier.unequipAccessory(
+                        id: item.id,
+                        isFrench: strings.isFrench,
+                      );
+                    },
                   )
                 else
                   ChunkyButton(
                     label: strings.wearAction,
                     variant: ChunkyButtonVariant.primary,
                     height: 32,
-                    onPressed: () => shopNotifier.equipAccessory(item.id, isFrench: strings.isFrench),
+                    onPressed: () {
+                      ref.read(audioServiceProvider).playPop();
+                      shopNotifier.equipAccessory(item.id, isFrench: strings.isFrench);
+                    },
                   ),
               ],
             ),
