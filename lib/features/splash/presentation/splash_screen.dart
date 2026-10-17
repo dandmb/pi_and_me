@@ -4,7 +4,9 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../navigation/presentation/main_shell_screen.dart';
+import '../../onboarding/presentation/onboarding_carousel_screen.dart';
 import '../../onboarding/presentation/onboarding_screen.dart';
 import '../../profile/presentation/profile_controller.dart';
 
@@ -73,9 +75,22 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     await Future.delayed(const Duration(milliseconds: 100));
     if (!mounted) return;
 
-    final targetScreen = profile == null
-        ? const OnboardingScreen()
-        : const MainShellScreen();
+    bool hasSeenIntro = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      hasSeenIntro = prefs.getBool(kHasSeenOnboardingIntroKey) ?? false;
+    } catch (_) {}
+
+    if (!mounted) return;
+
+    final Widget targetScreen;
+    if (profile != null) {
+      targetScreen = const MainShellScreen();
+    } else if (!hasSeenIntro) {
+      targetScreen = const OnboardingCarouselScreen();
+    } else {
+      targetScreen = const OnboardingScreen();
+    }
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(

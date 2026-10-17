@@ -141,7 +141,7 @@ class _MathPupAppState extends ConsumerState<MathPupApp>
       theme: buildAppTheme(textTheme),
       darkTheme: buildAppDarkTheme(textTheme),
       themeMode: themeMode,
-      home: const SplashScreen(), // 🐾 Premier écran : le SplashScreen avec le saut joyeux de Pi !
+      home: const SplashScreen(),
     );
   }
 }

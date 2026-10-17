@@ -27,7 +27,15 @@ void main() {
     // Let the animation and navigation settle
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    // Navigated to Onboarding
+    // Navigated to Onboarding Carousel Intro
+    expect(find.text('Playful Math'), findsOneWidget);
+    expect(find.text('Skip'), findsOneWidget);
+
+    // Tap Skip to transition to Profile Setup
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+
+    // Navigated to Profile Setup Onboarding
     expect(find.text('Who will play with Pi?'), findsOneWidget);
     expect(find.text('Let\'s go!'), findsOneWidget);
   });

@@ -33,6 +33,38 @@ class AppStrings {
   String get yourGrade => isFrench ? 'Ta classe' : 'Your grade';
   String get letsGo => isFrench ? 'C\'est parti !' : 'Let\'s go!';
 
+  // --- Onboarding Carousel Intro ---
+  String get onboardingSkip => isFrench ? 'Passer' : 'Skip';
+  String get onboardingNext => isFrench ? 'Suivant' : 'Next';
+  String get onboardingMeetPi =>
+      isFrench ? 'Rencontrer Pi 🐾' : 'Meet Pi 🐾';
+
+  String get onboardingSlide1Tag =>
+      isFrench ? 'Maths Ludiques' : 'Playful Math';
+  String get onboardingSlide1Title => isFrench
+      ? 'Progresse en maths sans stress'
+      : 'Level up in math stress-free';
+  String get onboardingSlide1Desc => isFrench
+      ? 'Des quiz de 6 questions adaptés à ton niveau, avec les encouragements chaleureux de Pi à chaque étape.'
+      : '6 tailored questions adapted to your grade, with cheerful encouragement from Pi every step of the way.';
+
+  String get onboardingSlide2Tag =>
+      isFrench ? 'Ton Compagnon' : 'Your Pet Companion';
+  String get onboardingSlide2Title =>
+      isFrench ? 'Prends soin de ton chiot Pi' : 'Feed & care for puppy Pi';
+  String get onboardingSlide2Desc => isFrench
+      ? 'Nourris-le, lave-le et joue à la balle ! Garde ses jauges de bonheur au maximum au fil des jours.'
+      : 'Feed him, wash him, and throw the ball! Keep his happiness gauges filled as you practice.';
+
+  String get onboardingSlide3Tag =>
+      isFrench ? 'Récompenses & Boutique' : 'Rewards & Shop';
+  String get onboardingSlide3Title => isFrench
+      ? 'Gagne des os et habille Pi'
+      : 'Earn golden bones & dress up Pi';
+  String get onboardingSlide3Desc => isFrench
+      ? 'Chaque quiz réussi te rapporte des Os dorés. Débloque chapeaux, lunettes et déguisements magiques !'
+      : 'Each completed quiz earns golden bones. Unlock cute hats, sunglasses, and magic costumes!';
+
   // --- Avatars ---
   String avatarLabel(String id) {
     switch (id) {
