@@ -70,4 +70,37 @@ void main() {
     await tester.tap(ctaFinder);
     await tester.pumpAndSettle();
   });
+
+  testWidgets('OnboardingScreen allows back button / pop when canCancel is true', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: Center(child: Text('Home Root')),
+          ),
+        ),
+      ),
+    );
+
+    // Push Onboarding with canCancel: true
+    final context = tester.element(find.text('Home Root'));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const OnboardingScreen(canCancel: true)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ajouter un profil'), findsOneWidget);
+
+    // Tap back button
+    final backBtnFinder = find.byIcon(Icons.arrow_back_rounded);
+    expect(backBtnFinder, findsOneWidget);
+    await tester.tap(backBtnFinder);
+    await tester.pumpAndSettle();
+
+    // Successfully returned to root
+    expect(find.text('Home Root'), findsOneWidget);
+  });
 }

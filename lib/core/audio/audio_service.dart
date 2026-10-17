@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'sound_mode_controller.dart';
 
@@ -8,32 +9,64 @@ abstract class AudioPlayerClient {
   void dispose();
 }
 
-/// Implémentation réelle utilisant `audioplayers` avec mode faible latence pour mobile.
+/// Implémentation réelle utilisant `audioplayers` optimisée pour mobile (iOS & Android).
 class RealAudioPlayerClient implements AudioPlayerClient {
-  final AudioPlayer _player;
+  final List<AudioPlayer> _activePlayers = [];
 
-  RealAudioPlayerClient({AudioPlayer? player})
-      : _player = player ?? AudioPlayer() {
+  RealAudioPlayerClient() {
+    _initAudioContext();
+  }
+
+  void _initAudioContext() {
     try {
-      _player.setPlayerMode(PlayerMode.lowLatency);
-      _player.setReleaseMode(ReleaseMode.stop);
-    } catch (_) {}
+      AudioPlayer.global.setAudioContext(
+        AudioContext(
+          iOS: AudioContextIOS(
+            category: AVAudioSessionCategory.playback,
+            options: const {
+              AVAudioSessionOptions.mixWithOthers,
+              AVAudioSessionOptions.defaultToSpeaker,
+            },
+          ),
+          android: const AudioContextAndroid(
+            isSpeakerphoneOn: true,
+            stayAwake: false,
+            contentType: AndroidContentType.sonification,
+            usageType: AndroidUsageType.game,
+            audioFocus: AndroidAudioFocus.gainTransientMayDuck,
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('[Audio] AudioContext init warning: $e');
+    }
   }
 
   @override
   Future<void> playAsset(String assetPath) async {
     try {
-      // Dans audioplayers, AssetSource cherche par défaut dans le dossier "assets/"
-      await _player.stop();
-      await _player.play(AssetSource(assetPath));
-    } catch (_) {}
+      final player = AudioPlayer();
+      _activePlayers.add(player);
+      await player.setVolume(1.0);
+      await player.play(AssetSource(assetPath));
+
+      player.onPlayerComplete.listen((_) {
+        _activePlayers.remove(player);
+        player.dispose();
+      });
+    } catch (e) {
+      debugPrint('[Audio] Erreur lecture asset $assetPath: $e');
+    }
   }
 
   @override
   void dispose() {
-    try {
-      _player.dispose();
-    } catch (_) {}
+    for (final player in _activePlayers) {
+      try {
+        player.dispose();
+      } catch (_) {}
+    }
+    _activePlayers.clear();
   }
 }
 
