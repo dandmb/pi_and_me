@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
+import '../../../core/audio/audio_service.dart';
 import '../../care/presentation/care_controller.dart';
 import '../../care/presentation/widgets/animated_pi_mascot.dart';
 import '../../navigation/presentation/main_shell_screen.dart';
@@ -17,10 +18,30 @@ import 'quiz_controller.dart';
 
 /// Écran 3 : Résultats du Quiz & Célébration bienveillante avec Pi.
 /// Attribue les récompenses en Os dorés 🦴, croquettes 🍖 et balles 🎾.
-class QuizResultsScreen extends ConsumerWidget {
+class QuizResultsScreen extends ConsumerStatefulWidget {
   const QuizResultsScreen({super.key});
 
-  void _finishAndNavigate(BuildContext context, WidgetRef ref, int targetIndex) {
+  @override
+  ConsumerState<QuizResultsScreen> createState() => _QuizResultsScreenState();
+}
+
+class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final score = ref.read(quizControllerProvider).score;
+      if (score >= 4) {
+        ref.read(audioServiceProvider).playCelebration();
+      } else {
+        ref.read(audioServiceProvider).playBark();
+      }
+    });
+  }
+
+  void _finishAndNavigate(BuildContext context, int targetIndex) {
+    ref.read(audioServiceProvider).playPop();
     final quizState = ref.read(quizControllerProvider);
     ref.read(careControllerProvider.notifier).addRewards(
           bones: quizState.bonesEarned,
@@ -38,7 +59,7 @@ class QuizResultsScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final quizState = ref.watch(quizControllerProvider);
     final profile = ref.watch(activeProfileProvider).value;
     final strings = ref.watch(stringsProvider);
@@ -53,7 +74,7 @@ class QuizResultsScreen extends ConsumerWidget {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
-          _finishAndNavigate(context, ref, 0);
+          _finishAndNavigate(context, 0);
         }
       },
       child: Scaffold(
@@ -96,7 +117,7 @@ class QuizResultsScreen extends ConsumerWidget {
               const SizedBox(height: AppSpace.s3),
 
               // 4. Boutons d'action : Soigner Pi & Retour au Salon
-              _buildActionButtons(context, ref, strings),
+              _buildActionButtons(context, strings),
             ],
           ),
         ),
@@ -397,7 +418,6 @@ class QuizResultsScreen extends ConsumerWidget {
 
   Widget _buildActionButtons(
     BuildContext context,
-    WidgetRef ref,
     dynamic strings,
   ) {
     return Column(
@@ -406,14 +426,14 @@ class QuizResultsScreen extends ConsumerWidget {
           label: strings.feedAndCare,
           variant: ChunkyButtonVariant.primary,
           height: 52,
-          onPressed: () => _finishAndNavigate(context, ref, 1),
+          onPressed: () => _finishAndNavigate(context, 1),
         ),
         const SizedBox(height: AppSpace.s2),
         ChunkyButton(
           label: strings.backToHome,
           variant: ChunkyButtonVariant.secondary,
           height: 48,
-          onPressed: () => _finishAndNavigate(context, ref, 0),
+          onPressed: () => _finishAndNavigate(context, 0),
         ),
       ],
     );

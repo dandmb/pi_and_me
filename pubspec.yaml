@@ -44,6 +44,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   showcaseview: ^5.1.0
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +69,7 @@ flutter:
     - assets/images/
     - assets/images/accessories/
     - assets/icons/
+    - assets/audio/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

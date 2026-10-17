@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/chunky_button.dart';
+import '../../../core/audio/audio_service.dart';
 import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
 import 'quiz_controller.dart';
@@ -385,7 +386,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         return GestureDetector(
           onTap: isAnswered
               ? null
-              : () => ref.read(quizControllerProvider.notifier).selectOption(index),
+              : () {
+                  ref.read(audioServiceProvider).playPop();
+                  ref.read(quizControllerProvider.notifier).selectOption(index);
+                },
           child: Container(
             decoration: BoxDecoration(
               color: bgColor,
@@ -528,7 +532,15 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         variant: ChunkyButtonVariant.primary,
         height: 52,
         onPressed: hasSelected
-            ? () => ref.read(quizControllerProvider.notifier).validateAnswer()
+            ? () {
+                ref.read(quizControllerProvider.notifier).validateAnswer();
+                final isCorrect = ref.read(quizControllerProvider).isCurrentCorrect;
+                if (isCorrect == true) {
+                  ref.read(audioServiceProvider).playSuccess();
+                } else {
+                  ref.read(audioServiceProvider).playError();
+                }
+              }
             : null,
       );
     }
@@ -540,6 +552,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       variant: ChunkyButtonVariant.primary,
       height: 52,
       onPressed: () {
+        ref.read(audioServiceProvider).playPop();
         ref.read(quizControllerProvider.notifier).nextQuestion();
         if (isLast) {
           Navigator.of(context).pushReplacement(

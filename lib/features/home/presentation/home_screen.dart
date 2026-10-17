@@ -7,6 +7,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/chunky_button.dart';
+import '../../../core/audio/audio_service.dart';
 import '../../care/presentation/care_controller.dart';
 import '../../care/presentation/care_screen.dart';
 import '../../profile/domain/school_grade.dart';
@@ -228,7 +229,9 @@ class HomeScreen extends ConsumerWidget {
                                   MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
                                 );
                               }
-                            : null,
+                            : () {
+                                ref.read(audioServiceProvider).playBark();
+                              },
                       ),
                     ),
                   ),

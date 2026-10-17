@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
@@ -90,7 +91,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final strings = ref.watch(stringsProvider);
 
     return PopScope(
-      canPop: widget.canCancel,
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        // Si l'écran ne peut pas être dépilé dans Flutter (écran racine), on quitte l'application sur Android
+        if (!didPop && !widget.canCancel) {
+          SystemNavigator.pop();
+        }
+      },
       child: Scaffold(
         backgroundColor: context.appBg,
         body: SafeArea(

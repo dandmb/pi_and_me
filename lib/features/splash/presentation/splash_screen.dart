@@ -54,52 +54,38 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _startBootstrap() async {
-    // Progression fluide de la barre de chargement
-    for (int i = 1; i <= 10; i++) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (!mounted) return;
-      setState(() {
-        _loadProgress = i / 10.0;
-      });
-    }
-
-    if (!mounted) return;
-
-    // Vérification du profil actif avec sécurité anti-blocage au relancement
+    // 1. Récupération instantanée du profil actif (déjà en mémoire via SharedPreferences)
     dynamic profile;
     try {
       profile = await ref
           .read(activeProfileProvider.future)
-          .timeout(const Duration(seconds: 3));
+          .timeout(const Duration(milliseconds: 1000));
     } catch (_) {
       profile = ref.read(activeProfileProvider).valueOrNull;
     }
 
     if (!mounted) return;
+    setState(() {
+      _loadProgress = 1.0;
+    });
 
-    if (profile == null) {
-      // Aucun profil -> Onboarding
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const OnboardingScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: AppMotion.base,
-        ),
-      );
-    } else {
-      // Profil existant -> Coquille principale (Salon, Soigner, Boutique)
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const MainShellScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: AppMotion.base,
-        ),
-      );
-    }
+    // 2. Micro-pause (100 ms) pour une transition visuelle douce et ultra-rapide
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
+
+    final targetScreen = profile == null
+        ? const OnboardingScreen()
+        : const MainShellScreen();
+
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => targetScreen,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: AppMotion.fast,
+      ),
+    );
   }
 
   @override
