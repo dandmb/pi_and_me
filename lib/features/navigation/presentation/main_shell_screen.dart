@@ -20,12 +20,7 @@ import '../../shop/presentation/shop_screen.dart';
 import '../../parent/presentation/daily_limit_controller.dart';
 import '../../parent/presentation/daily_limit_screen.dart';
 
-/// Écran Coquille Principale (MainShellScreen) unifiant :
-/// - Une AppBar persistante et stylée (Profil avec switch, Solde d'os dorés, Switch Dark Mode, Paramètres).
-/// - Un corps avec navigation par onglets (IndexedStack) préservant l'état des écrans.
-/// - Une BottomBar stylée (Dock flottant) avec 3 onglets : [Salon, Soigner, Boutique] avec le Salon au début.
-/// - Règle stricte de navigation : On ne peut quitter l'application que si l'on est sur le Salon.
-///   Si l'on est sur Soigner ou Boutique, le bouton Retour ramène automatiquement au Salon.
+/// Conteneur principal de navigation avec barre d'onglets (Salon, Soigner, Boutique).
 class MainShellScreen extends ConsumerStatefulWidget {
   final int initialIndex;
 
@@ -39,6 +34,7 @@ class MainShellScreen extends ConsumerStatefulWidget {
 }
 
 class _MainShellScreenState extends ConsumerState<MainShellScreen> {
+  // L'index de l'onglet actuellement sélectionné (0 = Salon, 1 = Soigner, 2 = Boutique)
   late int _currentIndex;
 
   @override

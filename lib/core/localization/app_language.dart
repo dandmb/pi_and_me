@@ -1,4 +1,4 @@
-/// Langues prises en charge par Pi & Moi.
+/// Langues prises en charge par MathPup.
 /// Par défaut : Anglais (en). Si le français est activé : Français (fr).
 enum AppLanguage {
   en(

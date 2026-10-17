@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Palette de couleurs officielle de Pi & Moi (WCAG 2.1 AA compliant).
+/// Palette de couleurs officielle de MathPup (WCAG 2.1 AA compliant).
 /// Conforme au document de référence DESIGN_SYSTEM.md.
 abstract final class AppColors {
   // Bleus & Sarcelles (Primary MaterialTheme & Actions principales)

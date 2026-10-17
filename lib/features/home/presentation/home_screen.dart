@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/localization/app_strings.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -16,13 +17,14 @@ import '../../quiz/presentation/quiz_screen.dart';
 import '../../shop/presentation/shop_controller.dart';
 import '../../shop/presentation/shop_screen.dart';
 import '../../care/presentation/widgets/animated_pi_mascot.dart';
+import '../../parent/domain/daily_limit_state.dart';
 import '../../parent/presentation/daily_limit_controller.dart';
 import '../../parent/presentation/daily_limit_screen.dart';
 import '../../parent/presentation/widgets/daily_quota_indicator.dart';
 import 'settings_sheet.dart';
 
-/// Écran 1 bis : Le Salon de Pi (Hub Principal bilingue EN/FR).
-/// Présente l'enfant, l'état de Pi et le point d'accès au Quiz.
+/// Écran d'accueil principal (Salon).
+/// Présente l'état de Pi, la progression et les activités mathématiques.
 class HomeScreen extends ConsumerWidget {
   final bool isEmbedded;
   final ValueChanged<int>? onSwitchTab;
@@ -35,6 +37,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 🔍 1. On "écoute" les données dont l'écran a besoin. Si l'une d'elles change, Flutter redessine l'écran.
     final profileAsync = ref.watch(activeProfileProvider);
     final strings = ref.watch(stringsProvider);
     final companion = ref.watch(careControllerProvider);
@@ -165,11 +168,15 @@ class HomeScreen extends ConsumerWidget {
                     maxSessions: limitState.maxDailySessions,
                     isLimitReached: limitState.isLimitReached,
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const DailyLimitScreen(),
-                        ),
-                      );
+                      if (limitState.isLimitReached) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const DailyLimitScreen(),
+                          ),
+                        );
+                      } else {
+                        _showQuotaInfoDialog(context, limitState, strings);
+                      }
                     },
                   ),
 
@@ -205,123 +212,80 @@ class HomeScreen extends ConsumerWidget {
 
                   const SizedBox(height: AppSpace.s4),
 
-                  // Mascotte Pi animée avec ombre au sol (Cliquer ouvre l'aire de jeu / soins ou l'écran repos si limite atteinte)
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      if (limitState.isLimitReached) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
-                        );
-                        return;
-                      }
-                      if (onSwitchTab != null) {
-                        onSwitchTab!(1);
-                      } else {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const CareScreen()),
-                        );
-                      }
-                    },
-                    child: SizedBox(
-                      height: 160,
-                      width: 160,
-                      child: Center(
-                        child: AnimatedPiMascot(
-                          piSize: 130,
-                          isSleeping: limitState.isLimitReached,
-                          equippedAccessoryId: shopState.equippedAccessoryId,
-                          equippedAccessoryIds: shopState.equippedAccessoryIds,
-                          onTap: () {
-                            if (limitState.isLimitReached) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
-                              );
-                              return;
-                            }
-                            if (onSwitchTab != null) {
-                              onSwitchTab!(1);
-                            } else {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const CareScreen()),
-                              );
-                            }
-                          },
+                  // Mascotte Pi animée avec ombre au sol
+                  SizedBox(
+                    height: 160,
+                    width: 160,
+                    child: Center(
+                      child: AnimatedPiMascot(
+                        piSize: 130,
+                        isSleeping: limitState.isLimitReached,
+                        equippedAccessoryId: shopState.equippedAccessoryId,
+                        equippedAccessoryIds: shopState.equippedAccessoryIds,
+                        onTap: limitState.isLimitReached
+                            ? () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
+                                );
+                              }
+                            : null,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSpace.s4),
+
+                  // Tableau des jauges vitales de Pi (consultation)
+                  Container(
+                    padding: const EdgeInsets.all(AppSpace.s4),
+                    decoration: BoxDecoration(
+                      color: context.appSurface,
+                      borderRadius: BorderRadius.circular(AppRadius.xl),
+                      border: Border.all(color: context.appBorder, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: context.appShadow,
+                          offset: const Offset(0, 4),
+                          blurRadius: 0,
                         ),
-                      ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        _GaugeRow(
+                          icon: Icons.restaurant_rounded,
+                          label: strings.hunger,
+                          value: companion.hunger,
+                          color: context.isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+                        ),
+                        const SizedBox(height: AppSpace.s3),
+                        _GaugeRow(
+                          icon: Icons.sports_tennis_rounded,
+                          label: strings.joy,
+                          value: companion.joy,
+                          color: context.isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+                        ),
+                        const SizedBox(height: AppSpace.s3),
+                        _GaugeRow(
+                          icon: Icons.nightlight_round,
+                          label: strings.energy,
+                          value: companion.energy,
+                          color: context.isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A),
+                        ),
+                        const SizedBox(height: AppSpace.s3),
+                        _GaugeRow(
+                          icon: Icons.auto_awesome_rounded,
+                          label: strings.cleanliness,
+                          value: companion.cleanliness,
+                          color: context.isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        ),
+                      ],
                     ),
                   ),
 
                   const SizedBox(height: AppSpace.s4),
 
-                  // Jauges de Pi (cliquables pour ouvrir l'aire de jeu ou écran repos si limite atteinte)
-                  GestureDetector(
-                    onTap: () {
-                      if (limitState.isLimitReached) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const DailyLimitScreen()),
-                        );
-                        return;
-                      }
-                      if (onSwitchTab != null) {
-                        onSwitchTab!(1);
-                      } else {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const CareScreen()),
-                        );
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(AppSpace.s4),
-                      decoration: BoxDecoration(
-                        color: context.appSurface,
-                        borderRadius: BorderRadius.circular(AppRadius.xl),
-                        border: Border.all(color: context.appBorder, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: context.appShadow,
-                            offset: const Offset(0, 4),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          _GaugeRow(
-                            icon: Icons.restaurant_rounded,
-                            label: strings.hunger,
-                            value: companion.hunger,
-                            color: context.isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
-                          ),
-                          const SizedBox(height: AppSpace.s3),
-                          _GaugeRow(
-                            icon: Icons.sports_tennis_rounded,
-                            label: strings.joy,
-                            value: companion.joy,
-                            color: context.isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
-                          ),
-                          const SizedBox(height: AppSpace.s3),
-                          _GaugeRow(
-                            icon: Icons.nightlight_round,
-                            label: strings.energy,
-                            value: companion.energy,
-                            color: context.isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A),
-                          ),
-                          const SizedBox(height: AppSpace.s3),
-                          _GaugeRow(
-                            icon: Icons.auto_awesome_rounded,
-                            label: strings.cleanliness,
-                            value: companion.cleanliness,
-                            color: context.isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: AppSpace.s4),
-
-                  // Bouton principal pour lancer le quiz (ou voir Pi se reposer si limite 6/6 atteinte)
+                  // Bouton principal d'action : Lancer le quiz (ou voir Pi se reposer si limite 6/6 atteinte)
                   ChunkyButton(
                     label: limitState.isLimitReached
                         ? strings.seePiRestAction
@@ -347,30 +311,6 @@ class HomeScreen extends ConsumerWidget {
                         ),
                       );
                     },
-                  ),
-
-                  const SizedBox(height: AppSpace.s2),
-
-                  // Bouton secondaire pour prendre soin et jouer avec Pi (désactivé si limite 6/6 atteinte)
-                  ChunkyButton(
-                    label: limitState.isLimitReached
-                        ? strings.careDisabledWhenLimitReached
-                        : strings.feedAndCare,
-                    variant: ChunkyButtonVariant.secondary,
-                    height: 48,
-                    onPressed: limitState.isLimitReached
-                        ? null
-                        : () {
-                            if (onSwitchTab != null) {
-                              onSwitchTab!(1);
-                            } else {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const CareScreen(),
-                                ),
-                              );
-                            }
-                          },
                   ),
 
                   const SizedBox(height: AppSpace.s2),
@@ -520,6 +460,82 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Affiche une boîte de dialogue d'information bienveillante lorsque l'enfant
+  /// touche l'indicateur de quota (les 6 balles) et que la limite n'est pas encore atteinte.
+  void _showQuotaInfoDialog(
+    BuildContext context,
+    DailyLimitState limitState,
+    AppStrings strings,
+  ) {
+    final remaining = limitState.remainingSessions;
+    final isFrench = strings.isFrench;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: AppSpace.s5),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpace.s5),
+            decoration: BoxDecoration(
+              color: ctx.appSurface,
+              borderRadius: BorderRadius.circular(AppRadius.xxl),
+              border: Border.all(color: ctx.appBorder, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: ctx.appShadow,
+                  offset: const Offset(0, 4),
+                  blurRadius: 0,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  strings.dailyQuotaTitle,
+                  style: AppText.h3.copyWith(color: ctx.appText),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpace.s4),
+                DailyQuotaIndicator(
+                  usedSessions: limitState.usedSessionsToday,
+                  maxSessions: limitState.maxDailySessions,
+                  isLimitReached: limitState.isLimitReached,
+                ),
+                const SizedBox(height: AppSpace.s4),
+                Text(
+                  limitState.usedSessionsToday == 0
+                      ? (isFrench
+                          ? 'Tu as 6 parties de quiz disponibles aujourd\'hui pour t\'entraîner et gagner des récompenses pour Pi !'
+                          : 'You have 6 quizzes available today to practice and earn rewards for Pi!')
+                      : (isFrench
+                          ? 'Tu as joué ${limitState.usedSessionsToday} sur ${limitState.maxDailySessions} parties aujourd\'hui.\nIl te reste $remaining partie${remaining > 1 ? "s" : ""} !'
+                          : 'You played ${limitState.usedSessionsToday} of ${limitState.maxDailySessions} quizzes today.\nYou have $remaining quiz${remaining > 1 ? "zes" : ""} left!'),
+                  style: AppText.body.copyWith(
+                    color: ctx.appText,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpace.s5),
+                SizedBox(
+                  width: double.infinity,
+                  child: ChunkyButton(
+                    label: isFrench ? 'C\'est parti !' : 'Let\'s go!',
+                    height: 48,
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

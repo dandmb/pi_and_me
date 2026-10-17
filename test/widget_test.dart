@@ -21,7 +21,7 @@ void main() {
     await tester.pump();
 
     // Verify splash screen in English
-    expect(find.text('Pi & Moi'), findsOneWidget);
+    expect(find.text('MathPup'), findsOneWidget);
     expect(find.text('Official curriculum from Grade 1 to 9'), findsOneWidget);
 
     // Let the animation and navigation settle

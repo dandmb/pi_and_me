@@ -1,6 +1,6 @@
 import '../../profile/domain/school_grade.dart';
 
-/// Représente une question mathématique dans le quiz de Pi & Moi.
+/// Représente une question mathématique dans le quiz de MathPup.
 /// Bilingue (Français/Anglais), adaptée au niveau scolaire de l'enfant (CP à 3e).
 class MathQuestion {
   final String id;

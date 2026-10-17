@@ -97,11 +97,20 @@ void main() {
       expect(controller.state.statusMessage, isNull);
     });
 
-    test('changeEnvironment updates companion environment with correct grammar', () {
+    test('changeEnvironment updates companion environment and shows welcome only on first visit', () {
       controller.changeEnvironment(PlayEnvironment.beach, isFrench: true);
 
       expect(controller.state.environment, equals(PlayEnvironment.beach));
       expect(controller.state.statusMessage, equals('Bienvenue à la plage !'));
+
+      // Switch to another environment and back to beach
+      controller.changeEnvironment(PlayEnvironment.garden, isFrench: true);
+      expect(controller.state.statusMessage, equals('Bienvenue dans le jardin !'));
+
+      // Re-visit beach: should not show welcome message again
+      controller.changeEnvironment(PlayEnvironment.beach, isFrench: true);
+      expect(controller.state.environment, equals(PlayEnvironment.beach));
+      expect(controller.state.statusMessage, isNull);
     });
   });
 }

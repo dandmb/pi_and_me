@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_dimens.dart';
 import 'theme.dart';
 
-/// Configuration ThemeData officielle de Pi & Moi basée sur MaterialTheme (M3).
+/// Configuration ThemeData officielle de MathPup basée sur MaterialTheme (M3).
 ThemeData buildAppTheme([TextTheme? textTheme]) {
   final tt = textTheme ?? Typography.material2021().black;
   final base = MaterialTheme(tt).light();
@@ -62,7 +62,7 @@ ThemeData buildAppTheme([TextTheme? textTheme]) {
   );
 }
 
-/// Configuration ThemeData Sombre officielle de Pi & Moi basée sur MaterialTheme (M3).
+/// Configuration ThemeData Sombre officielle de MathPup basée sur MaterialTheme (M3).
 ThemeData buildAppDarkTheme([TextTheme? textTheme]) {
   final tt = textTheme ?? Typography.material2021().white;
   final base = MaterialTheme(tt).dark();

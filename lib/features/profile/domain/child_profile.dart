@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'school_grade.dart';
 
-/// Modèle représentant le profil d'un enfant dans Pi & Moi.
+/// Modèle représentant le profil d'un enfant dans MathPup.
 /// Conforme aux exigences RGPD / Google Play Familles :
 /// Seuls le prénom, l'avatar et la classe sont collectés (zéro nom de famille, zéro PII).
 class ChildProfile {

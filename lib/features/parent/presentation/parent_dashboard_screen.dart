@@ -954,9 +954,13 @@ class _PrivacyTab extends ConsumerWidget {
         backgroundColor: context.appSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(strings.parentExportTitle, style: AppText.h3.copyWith(color: context.appText, fontSize: 16)),
+            Expanded(
+              child: Text(
+                strings.parentExportTitle,
+                style: AppText.h3.copyWith(color: context.appText, fontSize: 16),
+              ),
+            ),
             IconButton(
               icon: const Icon(Icons.close_rounded),
               onPressed: () => Navigator.of(ctx).pop(),

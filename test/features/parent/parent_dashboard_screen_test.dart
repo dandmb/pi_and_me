@@ -67,7 +67,7 @@ void main() {
       final jsonOutput = await controller.exportHouseholdDataJson();
 
       final decoded = jsonDecode(jsonOutput) as Map<String, dynamic>;
-      expect(decoded['appName'], 'Pi & Moi');
+      expect(decoded['appName'], 'MathPup');
       expect(decoded['compliance']['article'], contains('Article 20'));
       expect(decoded['compliance']['zeroAds'], isTrue);
       expect(decoded['profiles'], isNotEmpty);

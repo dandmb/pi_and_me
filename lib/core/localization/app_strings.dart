@@ -11,7 +11,7 @@ class AppStrings {
   bool get isFrench => language == AppLanguage.fr;
 
   // --- Titre & Splash ---
-  String get appTitle => 'Pi & Moi';
+  String get appTitle => 'MathPup';
   String get splashBadge => isFrench
       ? 'Programmes officiels du CP à la 3e'
       : 'Official curriculum from Grade 1 to 9';
@@ -131,7 +131,7 @@ class AppStrings {
   String get profileActivated => isFrench ? 'Profil activé !' : 'Profile activated!';
 
   // --- Confirmation Quitter l'application ---
-  String get confirmExitTitle => isFrench ? 'Quitter Pi & Moi ?' : 'Exit Pi & Moi?';
+  String get confirmExitTitle => isFrench ? 'Quitter MathPup ?' : 'Exit MathPup?';
   String get confirmExitMessage => isFrench
       ? 'À très vite pour jouer et apprendre avec Pi !'
       : 'See you very soon to learn and play with Pi!';

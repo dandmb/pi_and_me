@@ -1,8 +1,11 @@
-# 🐶 Pi & Moi — Application Mathématique CP → 3e
+# 🐶 MathPup — Application Mathématique CP → 3e
 
 Application mobile ludo-éducative d'apprentissage des mathématiques du CP à la 3e (Cycles 2, 3 et 4) avec un compagnon virtuel bienveillant : **Pi le chiot**.
 
 100 % gratuit · Zéro publicité · Respect du temps d'écran · Conforme Google Play Familles & RGPD.
+
+> 💡 **Tu débutes en Flutter ?**  
+> Découvre notre guide pédagogique pas à pas : [**GUIDE_DEBUTANT.md**](GUIDE_DEBUTANT.md) pour comprendre facilement l'architecture, Riverpod et le flux des données !
 
 ---
 
@@ -12,8 +15,9 @@ Application mobile ludo-éducative d'apprentissage des mathématiques du CP à l
 - **State Management** : `flutter_riverpod: ^2.5.1`
 - **Stockage Local** : `shared_preferences: ^2.3.2` (Offline-first avec Repository Pattern)
 - **Typographie** : `google_fonts: ^6.2.1`
-  - **Quicksand** (500, 600, 700) pour tous les textes et interfaces
-  - **Lexend** (600, 700, 800) pour tous les nombres, calculs et fractions
+  - **Abril Fatface** pour les titres chaleureux et magiques
+  - **ABeeZee** pour les textes, boutons et dialogues
+  - **Lexend** pour tous les nombres, calculs, fractions et guides de lecture
 - **Internationalisation** : Bilingue natif (🇬🇧 Anglais par défaut / 🇫🇷 Français activable, persistance SharedPreferences)
 - **Graphismes & Animations** : `flutter_svg`, `flutter_animate`
 - **Moteur de rendu** : Impeller

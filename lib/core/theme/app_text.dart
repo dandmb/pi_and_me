@@ -29,7 +29,7 @@ TextStyle _math(double s, FontWeight w, double h, {double ls = 0, Color color = 
       color: color,
     );
 
-/// Typographie officielle de Pi & Moi :
+/// Typographie officielle de MathPup :
 /// - Abril Fatface pour les grands titres display (GoogleFonts)
 /// - ABeeZee pour les interfaces, textes et boutons (GoogleFonts)
 /// - Lexend pour les nombres et calculs mathématiques (GoogleFonts)

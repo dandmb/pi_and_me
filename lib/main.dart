@@ -9,9 +9,12 @@ import 'core/widgets/app_error_view.dart';
 import 'features/navigation/presentation/main_shell_screen.dart';
 import 'features/splash/presentation/splash_screen.dart';
 
+/// Point d'entrée principal de l'application MathPup.
 void main() async {
+  // 1. Initialise les liaisons internes de Flutter avant d'appeler du code asynchrone
   WidgetsFlutterBinding.ensureInitialized();
 
+  // 2. Pré-initialise le stockage local (SharedPreferences) pour sauvegarder les données
   try {
     await SharedPreferences.getInstance().timeout(
       const Duration(seconds: 3),
@@ -20,19 +23,19 @@ void main() async {
     debugPrint('[Bootstrap] SharedPreferences init warning: $e');
   }
 
-  // Gestion des erreurs de rendu Flutter
+  // 3. Gestion globale des erreurs de rendu (ex: widgets mal dimensionnés)
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     debugPrint('[FlutterError] ${details.exceptionAsString()}');
   };
 
-  // Gestion des erreurs asynchrones
+  // 4. Gestion des erreurs asynchrones non interceptées
   PlatformDispatcher.instance.onError = (error, stack) {
     debugPrint('[PlatformDispatcher] Unhandled error: $error');
     return true;
   };
 
-  // Fallback visuel rassurant adapté aux enfants
+  // 5. Écran de secours rassurant affiché à l'enfant en cas de problème imprévu
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return const Scaffold(
       backgroundColor: Colors.white,
@@ -42,7 +45,8 @@ void main() async {
     );
   };
 
-  runApp(const ProviderScope(child: PiEtMoiApp()));
+  // 6. Lance l'application avec Riverpod (ProviderScope)
+  runApp(const ProviderScope(child: MathPupApp()));
 }
 
 /// Observateur de routes permettant de détecter si la pile Navigator devient vide
@@ -69,26 +73,33 @@ class _RootRouteCounterObserver extends NavigatorObserver {
   }
 }
 
-class PiEtMoiApp extends ConsumerStatefulWidget {
-  const PiEtMoiApp({super.key});
+/// Widget racine de l'application MathPup.
+class MathPupApp extends ConsumerStatefulWidget {
+  const MathPupApp({super.key});
 
   @override
-  ConsumerState<PiEtMoiApp> createState() => _PiEtMoiAppState();
+  ConsumerState<MathPupApp> createState() => _MathPupAppState();
 }
 
-class _PiEtMoiAppState extends ConsumerState<PiEtMoiApp>
+/// Alias conservé pour la compatibilité avec d'anciens tests de widgets
+typedef PiEtMoiApp = MathPupApp;
+
+class _MathPupAppState extends ConsumerState<MathPupApp>
     with WidgetsBindingObserver {
+  // Clé globale pour contrôler la navigation à la racine
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final _RootRouteCounterObserver _routeObserver = _RootRouteCounterObserver();
 
   @override
   void initState() {
     super.initState();
+    // Enregistre l'observateur pour surveiller la mise en veille / reprise de l'app
     WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
+    // Nettoie l'observateur quand le widget est détruit (bonne pratique Flutter)
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -97,10 +108,11 @@ class _PiEtMoiAppState extends ConsumerState<PiEtMoiApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      // Force le moteur Flutter à redessiner immédiatement une frame après recréation de la surface Android
+      // 🔄 Quand l'utilisateur revient sur l'application :
+      // 1. Force Flutter à redessiner immédiatement l'écran
       WidgetsBinding.instance.scheduleForcedFrame();
 
-      // Si la pile de navigation a été vidée accidentellement (ex: back système), restaure le Salon
+      // 2. Si la pile de navigation a été fermée accidentellement, rouvre le Salon
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         final nav = _navigatorKey.currentState;
@@ -115,18 +127,21 @@ class _PiEtMoiAppState extends ConsumerState<PiEtMoiApp>
 
   @override
   Widget build(BuildContext context) {
+    // 🎨 Écoute le mode de thème choisi par l'utilisateur (clair, sombre ou système)
     final themeMode = ref.watch(themeModeProvider);
+
+    // 🔤 Prépare la typographie officielle de l'app (ABeeZee pour les textes, Abril Fatface pour les titres)
     final textTheme = createTextTheme(context, "ABeeZee", "Abril Fatface");
 
     return MaterialApp(
       navigatorKey: _navigatorKey,
       navigatorObservers: [_routeObserver],
-      title: 'Pi & Moi',
+      title: 'MathPup',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(textTheme),
       darkTheme: buildAppDarkTheme(textTheme),
       themeMode: themeMode,
-      home: const SplashScreen(),
+      home: const SplashScreen(), // 🐾 Premier écran : le SplashScreen avec le saut joyeux de Pi !
     );
   }
 }
