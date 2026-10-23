@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'accessory_category.dart';
 import 'accessory_item.dart';
 
@@ -29,10 +30,10 @@ class ShopState {
     String? selectedAccessoryId,
     this.selectedCategory = AccessoryCategory.hats,
     this.feedbackMessage,
-  })  : _equippedMap = equippedByCategory,
-        _previewMap = previewByCategory,
-        _legacyEquippedId = equippedAccessoryId,
-        _legacySelectedId = selectedAccessoryId;
+  }) : _equippedMap = equippedByCategory,
+       _previewMap = previewByCategory,
+       _legacyEquippedId = equippedAccessoryId,
+       _legacySelectedId = selectedAccessoryId;
 
   /// Accessoires actuellement portés par Pi (jusqu'à 1 par catégorie : chapeau, lunettes, collier/écharpe, cape).
   Map<AccessoryCategory, String> get equippedByCategory {
@@ -146,7 +147,9 @@ class ShopState {
     if (clearEquipped) {
       nextEquipped = const {};
     } else if (equippedByCategory != null) {
-      nextEquipped = Map<AccessoryCategory, String>.unmodifiable(equippedByCategory);
+      nextEquipped = Map<AccessoryCategory, String>.unmodifiable(
+        equippedByCategory,
+      );
     } else if (equippedAccessoryId != null) {
       final item = ShopCatalog.findById(equippedAccessoryId);
       final cat = item?.category ?? (selectedCategory ?? this.selectedCategory);
@@ -162,13 +165,16 @@ class ShopState {
     if (clearSelected) {
       nextPreview = const {};
     } else if (previewByCategory != null) {
-      nextPreview = Map<AccessoryCategory, String>.unmodifiable(previewByCategory);
+      nextPreview = Map<AccessoryCategory, String>.unmodifiable(
+        previewByCategory,
+      );
     } else if (selectedAccessoryId != null) {
       if (selectedAccessoryId.isEmpty) {
         nextPreview = const {};
       } else {
         final item = ShopCatalog.findById(selectedAccessoryId);
-        final cat = item?.category ?? (selectedCategory ?? this.selectedCategory);
+        final cat =
+            item?.category ?? (selectedCategory ?? this.selectedCategory);
         nextPreview = Map<AccessoryCategory, String>.unmodifiable({
           ...this.previewByCategory,
           cat: selectedAccessoryId,
@@ -183,8 +189,9 @@ class ShopState {
       equippedByCategory: nextEquipped,
       previewByCategory: nextPreview,
       selectedCategory: selectedCategory ?? this.selectedCategory,
-      feedbackMessage:
-          clearFeedback ? null : (feedbackMessage ?? this.feedbackMessage),
+      feedbackMessage: clearFeedback
+          ? null
+          : (feedbackMessage ?? this.feedbackMessage),
     );
   }
 

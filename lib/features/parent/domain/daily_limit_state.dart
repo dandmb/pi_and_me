@@ -71,14 +71,16 @@ class DailyLimitState {
       parsedDate = DateTime.now();
     }
 
-    final used = map['usedSessionsToday'] as int? ??
+    final used =
+        map['usedSessionsToday'] as int? ??
         map['questionsAnsweredToday'] as int? ??
         0;
 
     return DailyLimitState(
       profileId: map['profileId'] as String? ?? 'default',
       usedSessionsToday: used,
-      maxDailySessions: map['maxDailySessions'] as int? ??
+      maxDailySessions:
+          map['maxDailySessions'] as int? ??
           map['maxDailyQuestions'] as int? ??
           6,
       lastSessionDate: parsedDate,

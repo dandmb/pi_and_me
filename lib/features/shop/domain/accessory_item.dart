@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../profile/domain/school_grade.dart';
 import 'accessory_category.dart';
 
@@ -31,7 +32,8 @@ class AccessoryItem {
   });
 
   String getName(bool isFrench) => isFrench ? nameFr : nameEn;
-  String getDescription(bool isFrench) => isFrench ? descriptionFr : descriptionEn;
+  String getDescription(bool isFrench) =>
+      isFrench ? descriptionFr : descriptionEn;
 
   /// Vérifie si l'article est déverrouillable selon la classe de l'enfant
   bool isGradeUnlocked(SchoolGrade currentGrade) {
@@ -48,7 +50,8 @@ class ShopCatalog {
       id: 'blue_cap',
       nameFr: 'Casquette Bleue',
       nameEn: 'Blue Cap',
-      descriptionFr: 'Une casquette sportive parfaite pour aller chercher la balle !',
+      descriptionFr:
+          'Une casquette sportive parfaite pour aller chercher la balle !',
       descriptionEn: 'A sporty cap ready for playing fetch!',
       category: AccessoryCategory.hats,
       price: 50,
@@ -72,7 +75,8 @@ class ShopCatalog {
       id: 'winter_beanie',
       nameFr: 'Bonnet d\'hiver',
       nameEn: 'Winter Beanie',
-      descriptionFr: 'Garde les oreilles de Pi bien au chaud lors des fraîches journées.',
+      descriptionFr:
+          'Garde les oreilles de Pi bien au chaud lors des fraîches journées.',
       descriptionEn: 'Keeps Pi\'s ears warm during chilly winter days.',
       category: AccessoryCategory.hats,
       price: 60,
@@ -124,7 +128,8 @@ class ShopCatalog {
       id: 'nerd_glasses',
       nameFr: 'Lunettes Rondes',
       nameEn: 'Round Glasses',
-      descriptionFr: 'Le look savant pour résoudre toutes les équations avec brio.',
+      descriptionFr:
+          'Le look savant pour résoudre toutes les équations avec brio.',
       descriptionEn: 'The scholar look to solve every equation with style.',
       category: AccessoryCategory.glasses,
       price: 70,
@@ -136,8 +141,10 @@ class ShopCatalog {
       id: 'sun_glasses',
       nameFr: 'Lunettes de Soleil',
       nameEn: 'Sunglasses',
-      descriptionFr: 'Idéales pour se prélasser à la plage ou courir sous le soleil.',
-      descriptionEn: 'Ideal for chilling at the beach or running under the sun.',
+      descriptionFr:
+          'Idéales pour se prélasser à la plage ou courir sous le soleil.',
+      descriptionEn:
+          'Ideal for chilling at the beach or running under the sun.',
       category: AccessoryCategory.glasses,
       price: 90,
       previewIcon: Icons.wb_sunny_rounded,
@@ -149,7 +156,8 @@ class ShopCatalog {
       nameFr: 'Lunettes Étoiles Noires',
       nameEn: 'Black Star Glasses',
       descriptionFr: 'Des montures noires en étoile très stylées pour voir la magie des maths !',
-      descriptionEn: 'Stylish black star frames to see the magic in every math problem!',
+      descriptionEn:
+          'Stylish black star frames to see the magic in every math problem!',
       category: AccessoryCategory.glasses,
       price: 85,
       previewIcon: Icons.star_rounded,
@@ -160,7 +168,8 @@ class ShopCatalog {
       id: 'swimming_goggles',
       nameFr: 'Masque de Plongeur',
       nameEn: 'Swim Goggles',
-      descriptionFr: 'Prêt pour explorer les profondeurs des tables de multiplication !',
+      descriptionFr:
+          'Prêt pour explorer les profondeurs des tables de multiplication !',
       descriptionEn: 'Ready to dive into multiplication tables!',
       category: AccessoryCategory.glasses,
       price: 65,
@@ -186,7 +195,8 @@ class ShopCatalog {
       id: 'pirate_bandana',
       nameFr: 'Bandana Aventurier',
       nameEn: 'Explorer Bandana',
-      descriptionFr: 'Pour les chiots courageux qui explorent la forêt secrète.',
+      descriptionFr:
+          'Pour les chiots courageux qui explorent la forêt secrète.',
       descriptionEn: 'For brave puppies exploring the secret forest.',
       category: AccessoryCategory.collars,
       price: 65,
@@ -198,8 +208,10 @@ class ShopCatalog {
       id: 'bell_collar',
       nameFr: 'Collier à Grelot',
       nameEn: 'Jingle Bell Collar',
-      descriptionFr: 'Un grelot doré scintillant qui tinte gaiement à chaque pas.',
-      descriptionEn: 'A shiny golden bell that jingles happily with every step.',
+      descriptionFr:
+          'Un grelot doré scintillant qui tinte gaiement à chaque pas.',
+      descriptionEn:
+          'A shiny golden bell that jingles happily with every step.',
       category: AccessoryCategory.collars,
       price: 45,
       previewIcon: Icons.notifications_active_rounded,
@@ -210,7 +222,8 @@ class ShopCatalog {
       id: 'gold_chain',
       nameFr: 'Médaille d\'Or',
       nameEn: 'Gold Champion Medal',
-      descriptionFr: 'La médaille officielle des as du calcul mental et de la logique !',
+      descriptionFr:
+          'La médaille officielle des as du calcul mental et de la logique !',
       descriptionEn: 'The official medal for mental math and logic masters!',
       category: AccessoryCategory.collars,
       price: 130,
@@ -225,7 +238,8 @@ class ShopCatalog {
       id: 'hero_cape',
       nameFr: 'Cape de Super-Héros',
       nameEn: 'Superhero Cape',
-      descriptionFr: 'Pour voler au secours des fractions et des multiplications !',
+      descriptionFr:
+          'Pour voler au secours des fractions et des multiplications !',
       descriptionEn: 'To fly to the rescue of fractions and multiplications!',
       category: AccessoryCategory.capes,
       price: 110,
@@ -237,7 +251,8 @@ class ShopCatalog {
       id: 'star_cape',
       nameFr: 'Cape Étoilée',
       nameEn: 'Starry Wizard Cape',
-      descriptionFr: 'Ornée d\'étoiles magiques pour les maîtres de la géométrie.',
+      descriptionFr:
+          'Ornée d\'étoiles magiques pour les maîtres de la géométrie.',
       descriptionEn: 'Adorned with magic stars for geometry masters.',
       category: AccessoryCategory.capes,
       price: 140,
@@ -250,7 +265,8 @@ class ShopCatalog {
       id: 'cosmic_cape',
       nameFr: 'Cape Galactique',
       nameEn: 'Cosmic Cape',
-      descriptionFr: 'Tissée dans les étoiles lointaines pour voyager à grande vitesse !',
+      descriptionFr:
+          'Tissée dans les étoiles lointaines pour voyager à grande vitesse !',
       descriptionEn: 'Woven with starlight to travel at the speed of math!',
       category: AccessoryCategory.capes,
       price: 160,
@@ -264,7 +280,8 @@ class ShopCatalog {
       nameFr: 'Cape de la Forêt',
       nameEn: 'Forest Ranger Cape',
       descriptionFr: 'Camouflage parfait pour jouer et chercher la balle entre les arbres.',
-      descriptionEn: 'Perfect camouflage to play and fetch balls among the trees.',
+      descriptionEn:
+          'Perfect camouflage to play and fetch balls among the trees.',
       category: AccessoryCategory.capes,
       price: 85,
       previewIcon: Icons.forest_rounded,

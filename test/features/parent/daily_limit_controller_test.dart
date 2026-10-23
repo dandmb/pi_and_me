@@ -24,18 +24,21 @@ void main() {
       expect(state.isLimitReached, isFalse);
     });
 
-    test('Limit reached when used sessions >= maxDailySessions and not unlocked', () {
-      final now = DateTime.now();
-      final state = DailyLimitState(
-        usedSessionsToday: 6,
-        maxDailySessions: 6,
-        lastSessionDate: now,
-      );
+    test(
+      'Limit reached when used sessions >= maxDailySessions and not unlocked',
+      () {
+        final now = DateTime.now();
+        final state = DailyLimitState(
+          usedSessionsToday: 6,
+          maxDailySessions: 6,
+          lastSessionDate: now,
+        );
 
-      expect(state.isLimitReached, isTrue);
-      expect(state.remainingSessions, 0);
-      expect(state.progress, 1.0);
-    });
+        expect(state.isLimitReached, isTrue);
+        expect(state.remainingSessions, 0);
+        expect(state.progress, 1.0);
+      },
+    );
 
     test('Parent override bypasses limit reached', () {
       final now = DateTime.now();
@@ -89,22 +92,25 @@ void main() {
       expect(controller.state.isLimitReached, isFalse);
     });
 
-    test('recordCompletedQuiz increments quota and marks limit reached at 6', () async {
-      final prefs = await SharedPreferences.getInstance();
-      final controller = DailyLimitController(
-        prefs: prefs,
-        initialProfileId: 'profile_test',
-      );
+    test(
+      'recordCompletedQuiz increments quota and marks limit reached at 6',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        final controller = DailyLimitController(
+          prefs: prefs,
+          initialProfileId: 'profile_test',
+        );
 
-      await Future.delayed(const Duration(milliseconds: 20));
-      await controller.recordCompletedQuiz(3);
-      expect(controller.state.usedSessionsToday, 3);
-      expect(controller.state.isLimitReached, isFalse);
+        await Future.delayed(const Duration(milliseconds: 20));
+        await controller.recordCompletedQuiz(3);
+        expect(controller.state.usedSessionsToday, 3);
+        expect(controller.state.isLimitReached, isFalse);
 
-      await controller.recordCompletedQuiz(3);
-      expect(controller.state.usedSessionsToday, 6);
-      expect(controller.state.isLimitReached, isTrue);
-    });
+        await controller.recordCompletedQuiz(3);
+        expect(controller.state.usedSessionsToday, 6);
+        expect(controller.state.isLimitReached, isTrue);
+      },
+    );
 
     test('grantParentOverride unlocks limit', () async {
       final prefs = await SharedPreferences.getInstance();
@@ -136,30 +142,33 @@ void main() {
       expect(controller.state.isLimitReached, isFalse);
     });
 
-    test('Auto-midnight rollover resets quota when previous session was yesterday', () async {
-      final prefs = await SharedPreferences.getInstance();
-      // Enregistre un état d'hier avec quota 6/6
-      final yesterday = DateTime.now().subtract(const Duration(days: 1));
-      final yesterdayState = DailyLimitState(
-        profileId: 'rollover_profile',
-        usedSessionsToday: 6,
-        maxDailySessions: 6,
-        lastSessionDate: yesterday,
-      );
-      await prefs.setString(
-        'pi_daily_limit_state_v1_rollover_profile',
-        yesterdayState.toJson(),
-      );
+    test(
+      'Auto-midnight rollover resets quota when previous session was yesterday',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        // Enregistre un état d'hier avec quota 6/6
+        final yesterday = DateTime.now().subtract(const Duration(days: 1));
+        final yesterdayState = DailyLimitState(
+          profileId: 'rollover_profile',
+          usedSessionsToday: 6,
+          maxDailySessions: 6,
+          lastSessionDate: yesterday,
+        );
+        await prefs.setString(
+          'pi_daily_limit_state_v1_rollover_profile',
+          yesterdayState.toJson(),
+        );
 
-      final controller = DailyLimitController(
-        prefs: prefs,
-        initialProfileId: 'rollover_profile',
-      );
+        final controller = DailyLimitController(
+          prefs: prefs,
+          initialProfileId: 'rollover_profile',
+        );
 
-      await Future.delayed(const Duration(milliseconds: 50));
-      // Après le chargement, le contrôleur a automatiquement remis à 0
-      expect(controller.state.usedSessionsToday, 0);
-      expect(controller.state.isLimitReached, isFalse);
-    });
+        await Future.delayed(const Duration(milliseconds: 50));
+        // Après le chargement, le contrôleur a automatiquement remis à 0
+        expect(controller.state.usedSessionsToday, 0);
+        expect(controller.state.isLimitReached, isFalse);
+      },
+    );
   });
 }

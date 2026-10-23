@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_text.dart';
@@ -79,7 +80,9 @@ class DailyQuotaIndicator extends StatelessWidget {
               '$clampedUsed/$effectiveMax',
               style: AppText.mathS.copyWith(
                 color: isLimitReached
-                    ? (context.isDark ? const Color(0xFFA5B4FC) : AppColors.night700)
+                    ? (context.isDark
+                          ? const Color(0xFFA5B4FC)
+                          : AppColors.night700)
                     : context.appText,
                 fontWeight: FontWeight.w800,
               ),

@@ -11,21 +11,21 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('SettingsSheet allows switching language from Settings', (WidgetTester tester) async {
+  testWidgets('SettingsSheet allows switching language from Settings', (
+    WidgetTester tester,
+  ) async {
     final container = ProviderContainer(
       overrides: [
-        languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'en')),
+        languageProvider.overrideWith(
+          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'en'),
+        ),
       ],
     );
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: const MaterialApp(
-          home: Scaffold(
-            body: SettingsSheet(),
-          ),
-        ),
+        child: const MaterialApp(home: Scaffold(body: SettingsSheet())),
       ),
     );
 
@@ -45,21 +45,21 @@ void main() {
     expect(find.text('Français activé'), findsOneWidget);
   });
 
-  testWidgets('SettingsSheet allows selecting dark mode theme', (WidgetTester tester) async {
+  testWidgets('SettingsSheet allows selecting dark mode theme', (
+    WidgetTester tester,
+  ) async {
     final container = ProviderContainer(
       overrides: [
-        languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
+        languageProvider.overrideWith(
+          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+        ),
       ],
     );
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: const MaterialApp(
-          home: Scaffold(
-            body: SettingsSheet(),
-          ),
-        ),
+        child: const MaterialApp(home: Scaffold(body: SettingsSheet())),
       ),
     );
 
@@ -73,50 +73,53 @@ void main() {
     expect(prefs.getString('pi_theme_mode_key'), equals('dark'));
   });
 
-  testWidgets('SettingsSheet allows opening Espace Parents via Parental Gate without null check exception',
-      (WidgetTester tester) async {
+  testWidgets(
+    'SettingsSheet allows opening Espace Parents via Parental Gate without null check exception',
+    (WidgetTester tester) async {
+      final container = ProviderContainer(
+        overrides: [
+          languageProvider.overrideWith(
+            (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: Scaffold(body: SettingsSheet())),
+        ),
+      );
+
+      expect(
+        find.byKey(const Key('parent_dashboard_entry_tile')),
+        findsOneWidget,
+      );
+
+      // Tap Espace Parents tile
+      await tester.tap(find.byKey(const Key('parent_dashboard_entry_tile')));
+      await tester.pumpAndSettle();
+
+      // Check that ParentalGateDialog opened
+      expect(find.byKey(const Key('parental_gate_input')), findsOneWidget);
+    },
+  );
+
+  testWidgets('SettingsSheet allows toggling sound effects', (
+    WidgetTester tester,
+  ) async {
     final container = ProviderContainer(
       overrides: [
-        languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
+        languageProvider.overrideWith(
+          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+        ),
       ],
     );
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: const MaterialApp(
-          home: Scaffold(
-            body: SettingsSheet(),
-          ),
-        ),
-      ),
-    );
-
-    expect(find.byKey(const Key('parent_dashboard_entry_tile')), findsOneWidget);
-
-    // Tap Espace Parents tile
-    await tester.tap(find.byKey(const Key('parent_dashboard_entry_tile')));
-    await tester.pumpAndSettle();
-
-    // Check that ParentalGateDialog opened
-    expect(find.byKey(const Key('parental_gate_input')), findsOneWidget);
-  });
-
-  testWidgets('SettingsSheet allows toggling sound effects', (WidgetTester tester) async {
-    final container = ProviderContainer(
-      overrides: [
-        languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
-      ],
-    );
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const MaterialApp(
-          home: Scaffold(
-            body: SettingsSheet(),
-          ),
-        ),
+        child: const MaterialApp(home: Scaffold(body: SettingsSheet())),
       ),
     );
 

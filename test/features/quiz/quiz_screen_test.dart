@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,54 +39,58 @@ void main() {
           return controller;
         }),
       ],
-      child: const MaterialApp(
-        home: QuizScreen(),
-      ),
+      child: const MaterialApp(home: QuizScreen()),
     );
   }
 
   group('QuizScreen Widget Tests', () {
-    testWidgets('renders question card, options grid and progress bar in French', (tester) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'renders question card, options grid and progress bar in French',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableQuizScreen(systemLocale: 'fr'));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildTestableQuizScreen(systemLocale: 'fr'));
+        await tester.pumpAndSettle();
 
-      // Vérifie la présence de la jauge et du badge sans stress
-      expect(find.text('Question 1 / 6'), findsOneWidget);
-      expect(find.text('🌱 Sans stress'), findsOneWidget);
+        // Vérifie la présence de la jauge et du badge sans stress
+        expect(find.text('Question 1 / 6'), findsOneWidget);
+        expect(find.text('🌱 Sans stress'), findsOneWidget);
 
-      // Vérifie que les 4 options (A, B, C, D) sont affichées
-      expect(find.text('A'), findsOneWidget);
-      expect(find.text('B'), findsOneWidget);
-      expect(find.text('C'), findsOneWidget);
-      expect(find.text('D'), findsOneWidget);
+        // Vérifie que les 4 options (A, B, C, D) sont affichées
+        expect(find.text('A'), findsOneWidget);
+        expect(find.text('B'), findsOneWidget);
+        expect(find.text('C'), findsOneWidget);
+        expect(find.text('D'), findsOneWidget);
 
-      // Le bouton valider est affiché
-      expect(find.text('Valider la réponse 🚀'), findsOneWidget);
-    });
+        // Le bouton valider est affiché
+        expect(find.text('Valider la réponse 🚀'), findsOneWidget);
+      },
+    );
 
-    testWidgets('selecting an option enables validation and displays feedback', (tester) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'selecting an option enables validation and displays feedback',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableQuizScreen(systemLocale: 'fr'));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildTestableQuizScreen(systemLocale: 'fr'));
+        await tester.pumpAndSettle();
 
-      // Tap sur l'option A
-      await tester.tap(find.text('A'));
-      await tester.pumpAndSettle();
+        // Tap sur l'option A
+        await tester.tap(find.text('A'));
+        await tester.pumpAndSettle();
 
-      // Tap sur valider
-      await tester.tap(find.text('Valider la réponse 🚀'));
-      await tester.pumpAndSettle();
+        // Tap sur valider
+        await tester.tap(find.text('Valider la réponse 🚀'));
+        await tester.pumpAndSettle();
 
-      // Le bouton d'action devient "Question suivante ➔"
-      expect(find.text('Question suivante ➔'), findsOneWidget);
-    });
+        // Le bouton d'action devient "Question suivante ➔"
+        expect(find.text('Question suivante ➔'), findsOneWidget);
+      },
+    );
 
     testWidgets('exit cross shows confirmation modal', (tester) async {
       tester.view.physicalSize = const Size(800, 1200);

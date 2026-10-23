@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../shop/presentation/widgets/accessory_overlay_widget.dart';
 import 'dirt_splatters_widget.dart';
@@ -93,19 +95,20 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
     }
 
     // 3. Course / bonds lors des déplacements (durée synchronisée avec AnimatedAlign 650ms)
-    _runController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 650),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed ||
-            status == AnimationStatus.dismissed) {
-          if (_isCarryingBallOnReturn && mounted) {
-            setState(() {
-              _isCarryingBallOnReturn = false;
-            });
+    _runController =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 650),
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed ||
+              status == AnimationStatus.dismissed) {
+            if (_isCarryingBallOnReturn && mounted) {
+              setState(() {
+                _isCarryingBallOnReturn = false;
+              });
+            }
           }
-        }
-      });
+        });
 
     // 4. Repas à la gamelle (mastication + hochement vers la gamelle)
     _eatController = AnimationController(
@@ -131,7 +134,8 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
     super.didUpdateWidget(oldWidget);
 
     // Déclenche les bonds de course dès que la position cible (piX, piY) change
-    final hasMoved = (widget.piX - oldWidget.piX).abs() > 0.001 ||
+    final hasMoved =
+        (widget.piX - oldWidget.piX).abs() > 0.001 ||
         (widget.piY - oldWidget.piY).abs() > 0.001;
 
     if (hasMoved && !widget.isSleeping) {
@@ -162,14 +166,18 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
     }
 
     // Saut de joie quand Pi vient d'être lavé via le bouton Laver
-    if (oldWidget.dirtCount > 0 && widget.dirtCount == 0 && !widget.isSleeping) {
+    if (oldWidget.dirtCount > 0 &&
+        widget.dirtCount == 0 &&
+        !widget.isSleeping) {
       _joyController.forward(from: 0.0);
     }
   }
 
   void _handleTap() {
     if (!widget.enableTapInteraction) return;
-    if (!widget.isSleeping && !_runController.isAnimating && !widget.isCelebrating) {
+    if (!widget.isSleeping &&
+        !_runController.isAnimating &&
+        !widget.isCelebrating) {
       _joyController.forward(from: 0.0);
     }
     widget.onTap?.call();
@@ -208,7 +216,8 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
         ]),
         builder: (context, _) {
           final isRunning = _runController.isAnimating;
-          final isJumpingJoy = _joyController.isAnimating || widget.isCelebrating;
+          final isJumpingJoy =
+              _joyController.isAnimating || widget.isCelebrating;
           final isEatingAtBowl = widget.isEating && !isRunning && !isSleeping;
           final joyVal = (_isTestEnv && widget.isCelebrating)
               ? 0.5
@@ -238,7 +247,8 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
           }
 
           // Clignement naturel des yeux (entre 88% et 94% du cycle de 3.4s, soit ~200ms toutes les 3.4s)
-          final isBlinking = !_isTestEnv &&
+          final isBlinking =
+              !_isTestEnv &&
               !isSleeping &&
               !isJumpingJoy &&
               (lifeT > 0.88 && lifeT < 0.94);
@@ -254,7 +264,9 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
           }
 
           if (isSleeping) {
-            final breath = Curves.easeInOutSine.transform(_idleController.value);
+            final breath = Curves.easeInOutSine.transform(
+              _idleController.value,
+            );
             scaleY = 1.0 + 0.025 * breath;
             scaleX = 1.0 - 0.012 * breath;
           } else if (isRunning) {
@@ -264,7 +276,8 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
             final envelope = math.sin(t * math.pi);
 
             translateY = -16.0 * hop;
-            rotationAngle = dirSign *
+            rotationAngle =
+                dirSign *
                 (0.15 * envelope + 0.06 * math.cos(stridePhase * 2.0));
             scaleX = 1.0 + 0.06 * hop - 0.04 * (1.0 - hop) * envelope;
             scaleY = 1.0 - 0.04 * hop + 0.05 * (1.0 - hop) * envelope;
@@ -287,7 +300,9 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
             shadowScale = 1.0 - 0.30 * hop;
             shadowAlpha = 0.15 * (1.0 - 0.40 * hop);
           } else {
-            final breath = Curves.easeInOutSine.transform(_idleController.value);
+            final breath = Curves.easeInOutSine.transform(
+              _idleController.value,
+            );
             scaleY = 1.0 + 0.028 * breath;
             scaleX = 1.0 - 0.014 * breath;
             rotationAngle = 0.012 * math.sin(breath * math.pi - math.pi / 2);
@@ -353,10 +368,10 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Icon(
-                                    Icons.pets,
-                                    size: widget.piSize * 0.75,
-                                    color: AppColors.sky600,
-                                  ),
+                                        Icons.pets,
+                                        size: widget.piSize * 0.75,
+                                        color: AppColors.sky600,
+                                      ),
                                 ),
                               )
                             else
@@ -390,18 +405,21 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
                                         height: widget.piSize,
                                         fit: BoxFit.contain,
                                         errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Image.asset(
-                                          'assets/images/pi_transparent.png',
-                                          width: spriteWidth,
-                                          height: widget.piSize,
-                                          fit: BoxFit.contain,
-                                          errorBuilder: (_, _, _) => Icon(
-                                            Icons.pets,
-                                            size: widget.piSize * 0.75,
-                                            color: AppColors.sky600,
-                                          ),
-                                        ),
+                                            (
+                                              context,
+                                              error,
+                                              stackTrace,
+                                            ) => Image.asset(
+                                              'assets/images/pi_transparent.png',
+                                              width: spriteWidth,
+                                              height: widget.piSize,
+                                              fit: BoxFit.contain,
+                                              errorBuilder: (_, _, _) => Icon(
+                                                Icons.pets,
+                                                size: widget.piSize * 0.75,
+                                                color: AppColors.sky600,
+                                              ),
+                                            ),
                                       ),
 
                                       // C. Expressions faciales (clignement des yeux, yeux joyeux ^ ^, bouche qui mâche)
@@ -410,7 +428,10 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
                                           isJumpingJoy ||
                                           mouthOpen > 0.05)
                                         CustomPaint(
-                                          size: Size(spriteWidth, widget.piSize),
+                                          size: Size(
+                                            spriteWidth,
+                                            widget.piSize,
+                                          ),
                                           painter: _PiFacialExpressionsPainter(
                                             isBlinking: isBlinking,
                                             isHappyEyes: isJumpingJoy,
@@ -420,8 +441,11 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
 
                                       // D. Accessoires équipés combinés (calibrés 1:1 avec le gabarit 420x482)
                                       if (widget.equippedAccessoryId != null ||
-                                          (widget.equippedAccessoryIds != null &&
-                                              widget.equippedAccessoryIds!.isNotEmpty))
+                                          (widget.equippedAccessoryIds !=
+                                                  null &&
+                                              widget
+                                                  .equippedAccessoryIds!
+                                                  .isNotEmpty))
                                         AccessoryOverlayWidget(
                                           accessoryId:
                                               widget.equippedAccessoryId,
@@ -464,7 +488,9 @@ class _AnimatedPiMascotState extends State<AnimatedPiMascot>
                     top: -8,
                     left: widget.isFacingLeft ? 4 : null,
                     right: widget.isFacingLeft ? null : 4,
-                    child: _FloatingHeartsEffect(progress: _eatController.value),
+                    child: _FloatingHeartsEffect(
+                      progress: _eatController.value,
+                    ),
                   ),
 
                 if (isJumpingJoy)

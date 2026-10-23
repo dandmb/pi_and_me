@@ -105,7 +105,10 @@ void main() {
 
       // Switch to another environment and back to beach
       controller.changeEnvironment(PlayEnvironment.garden, isFrench: true);
-      expect(controller.state.statusMessage, equals('Bienvenue dans le jardin !'));
+      expect(
+        controller.state.statusMessage,
+        equals('Bienvenue dans le jardin !'),
+      );
 
       // Re-visit beach: should not show welcome message again
       controller.changeEnvironment(PlayEnvironment.beach, isFrench: true);

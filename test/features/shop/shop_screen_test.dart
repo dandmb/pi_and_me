@@ -31,10 +31,7 @@ void main() {
         ),
         careControllerProvider.overrideWith(
           (ref) => CareController(
-            initialCompanion: initialCompanion ??
-                const PiCompanion(
-                  bones: 150,
-                ),
+            initialCompanion: initialCompanion ?? const PiCompanion(bones: 150),
           ),
         ),
         shopControllerProvider.overrideWith(
@@ -54,49 +51,55 @@ void main() {
           ),
         ),
       ],
-      child: const MaterialApp(
-        home: ShopScreen(),
-      ),
+      child: const MaterialApp(home: ShopScreen()),
     );
   }
 
   group('ShopScreen Widget Tests', () {
-    testWidgets('renders shop header, bones balance, category selector, fitting room and catalog grid', (tester) async {
-      tester.view.physicalSize = const Size(800, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'renders shop header, bones balance, category selector, fitting room and catalog grid',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableShopScreen());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildTestableShopScreen());
+        await tester.pumpAndSettle();
 
-      // Vérification Header
-      expect(find.text('Boutique de Pi'), findsOneWidget);
-      expect(find.text('150'), findsOneWidget); // Solde d'os dorés
+        // Vérification Header
+        expect(find.text('Boutique de Pi'), findsOneWidget);
+        expect(find.text('150'), findsOneWidget); // Solde d'os dorés
 
-      // Vérification Catégories
-      expect(find.text('Chapeaux'), findsOneWidget);
-      expect(find.text('Lunettes'), findsOneWidget);
-      expect(find.text('Colliers'), findsOneWidget);
-      expect(find.text('Capes'), findsOneWidget);
+        // Vérification Catégories
+        expect(find.text('Chapeaux'), findsOneWidget);
+        expect(find.text('Lunettes'), findsOneWidget);
+        expect(find.text('Colliers'), findsOneWidget);
+        expect(find.text('Capes'), findsOneWidget);
 
-      // Vérification Cabine d'essayage
-      expect(find.text('CABINE D\'ESSAYAGE'), findsOneWidget);
-      expect(find.text('Pi au naturel ! Choisis un accessoire.'), findsOneWidget);
+        // Vérification Cabine d'essayage
+        expect(find.text('CABINE D\'ESSAYAGE'), findsOneWidget);
+        expect(
+          find.text('Pi au naturel ! Choisis un accessoire.'),
+          findsOneWidget,
+        );
 
-      // Vérification Catalogue Chapeaux
-      expect(find.text('Casquette Bleue'), findsOneWidget);
-      expect(find.text('Haut-de-forme'), findsOneWidget);
-      expect(find.text('Bonnet d\'hiver'), findsOneWidget);
-      expect(find.text('Couronne Royale'), findsOneWidget);
+        // Vérification Catalogue Chapeaux
+        expect(find.text('Casquette Bleue'), findsOneWidget);
+        expect(find.text('Haut-de-forme'), findsOneWidget);
+        expect(find.text('Bonnet d\'hiver'), findsOneWidget);
+        expect(find.text('Couronne Royale'), findsOneWidget);
 
-      // Onglets haut et Bottom dock
-      expect(find.text('Garde-robe'), findsOneWidget);
-      expect(find.text('Boutique'), findsNWidgets(2)); // Onglet haut + Dock
-      expect(find.text('Soigner'), findsOneWidget);
-      expect(find.text('Salon'), findsOneWidget);
-    });
+        // Onglets haut et Bottom dock
+        expect(find.text('Garde-robe'), findsOneWidget);
+        expect(find.text('Boutique'), findsNWidgets(2)); // Onglet haut + Dock
+        expect(find.text('Soigner'), findsOneWidget);
+        expect(find.text('Salon'), findsOneWidget);
+      },
+    );
 
-    testWidgets('switching categories displays accessories of that category', (tester) async {
+    testWidgets('switching categories displays accessories of that category', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -120,7 +123,9 @@ void main() {
       expect(find.text('Cape Étoilée'), findsOneWidget);
     });
 
-    testWidgets('selecting an item updates fitting room preview label', (tester) async {
+    testWidgets('selecting an item updates fitting room preview label', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -141,9 +146,11 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableShopScreen(
-        initialCompanion: const PiCompanion(bones: 100),
-      ));
+      await tester.pumpWidget(
+        buildTestableShopScreen(
+          initialCompanion: const PiCompanion(bones: 100),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Find buy button for Casquette Bleue (Acheter (50))
@@ -162,14 +169,14 @@ void main() {
       expect(find.text('Retirer'), findsOneWidget);
     });
 
-    testWidgets('renders English strings when language is English', (tester) async {
+    testWidgets('renders English strings when language is English', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableShopScreen(
-        systemLocale: 'en',
-      ));
+      await tester.pumpWidget(buildTestableShopScreen(systemLocale: 'en'));
       await tester.pumpAndSettle();
 
       expect(find.text('Pi\'s Shop'), findsOneWidget);
@@ -182,21 +189,24 @@ void main() {
       expect(find.text('Blue Cap'), findsOneWidget);
     });
 
-    testWidgets('switching to wardrobe tab shows empty wardrobe state when no items owned', (tester) async {
-      tester.view.physicalSize = const Size(800, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'switching to wardrobe tab shows empty wardrobe state when no items owned',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableShopScreen());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildTestableShopScreen());
+        await tester.pumpAndSettle();
 
-      // Clic sur l'onglet Garde-robe
-      await tester.tap(find.text('Garde-robe'));
-      await tester.pumpAndSettle();
+        // Clic sur l'onglet Garde-robe
+        await tester.tap(find.text('Garde-robe'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Garde-robe vide'), findsOneWidget);
-      expect(find.text('Aller à la boutique'), findsOneWidget);
-    });
+        expect(find.text('Garde-robe vide'), findsOneWidget);
+        expect(find.text('Aller à la boutique'), findsOneWidget);
+      },
+    );
   });
 }
 

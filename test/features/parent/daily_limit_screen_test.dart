@@ -19,7 +19,8 @@ void main() {
     ChildProfile? profile,
     DailyLimitState? limitState,
   }) {
-    final effectiveProfile = profile ??
+    final effectiveProfile =
+        profile ??
         ChildProfile(
           id: 'child_1',
           name: 'Léa',
@@ -28,7 +29,8 @@ void main() {
           createdAt: DateTime.now(),
         );
 
-    final effectiveState = limitState ??
+    final effectiveState =
+        limitState ??
         DailyLimitState(
           profileId: effectiveProfile.id,
           usedSessionsToday: 6,
@@ -51,9 +53,7 @@ void main() {
           );
         }),
       ],
-      child: const MaterialApp(
-        home: DailyLimitScreen(),
-      ),
+      child: const MaterialApp(home: DailyLimitScreen()),
     );
   }
 
@@ -62,8 +62,9 @@ void main() {
   });
 
   group('DailyLimitScreen Widget Tests', () {
-    testWidgets('Renders all benevolent screen time components in French',
-        (tester) async {
+    testWidgets('Renders all benevolent screen time components in French', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
@@ -86,16 +87,18 @@ void main() {
     });
 
     testWidgets('Renders properly in English', (tester) async {
-      await tester.pumpWidget(buildTestApp(
-        language: AppLanguage.en,
-        profile: ChildProfile(
-          id: 'child_en',
-          name: 'Alex',
-          avatar: 'avatar_fox',
-          grade: SchoolGrade.cm1,
-          createdAt: DateTime.now(),
+      await tester.pumpWidget(
+        buildTestApp(
+          language: AppLanguage.en,
+          profile: ChildProfile(
+            id: 'child_en',
+            name: 'Alex',
+            avatar: 'avatar_fox',
+            grade: SchoolGrade.cm1,
+            createdAt: DateTime.now(),
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('6/6'), findsOneWidget);
@@ -106,8 +109,9 @@ void main() {
       expect(find.text('Return to Home'), findsOneWidget);
     });
 
-    testWidgets('Tapping Return to Home button pops or navigates safely',
-        (tester) async {
+    testWidgets('Tapping Return to Home button pops or navigates safely', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 

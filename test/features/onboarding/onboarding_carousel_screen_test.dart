@@ -27,20 +27,16 @@ void main() {
           (ref) => LanguageNotifier(systemLocaleCodeOverride: locale),
         ),
         audioServiceProvider.overrideWithValue(
-          AudioService(
-            client: _FakeAudioPlayerClient(),
-            isSoundEnabled: false,
-          ),
+          AudioService(client: _FakeAudioPlayerClient(), isSoundEnabled: false),
         ),
       ],
-      child: const MaterialApp(
-        home: OnboardingCarouselScreen(),
-      ),
+      child: const MaterialApp(home: OnboardingCarouselScreen()),
     );
   }
 
-  testWidgets('renders first slide with tag, title, and buttons in French',
-      (tester) async {
+  testWidgets('renders first slide with tag, title, and buttons in French', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildTestWidget(locale: 'fr'));
     await tester.pumpAndSettle();
 
@@ -50,8 +46,9 @@ void main() {
     expect(find.text('Suivant'), findsOneWidget);
   });
 
-  testWidgets('renders first slide in English when locale is en',
-      (tester) async {
+  testWidgets('renders first slide in English when locale is en', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildTestWidget(locale: 'en'));
     await tester.pumpAndSettle();
 
@@ -61,8 +58,9 @@ void main() {
     expect(find.text('Next'), findsOneWidget);
   });
 
-  testWidgets('swiping / clicking Next advances slides up to meet Pi CTA',
-      (tester) async {
+  testWidgets('swiping / clicking Next advances slides up to meet Pi CTA', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildTestWidget(locale: 'fr'));
     await tester.pumpAndSettle();
 
@@ -94,8 +92,9 @@ void main() {
     expect(prefs.getBool(kHasSeenOnboardingIntroKey), isTrue);
   });
 
-  testWidgets('tapping Passer on slide 1 skips directly to OnboardingScreen',
-      (tester) async {
+  testWidgets('tapping Passer on slide 1 skips directly to OnboardingScreen', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildTestWidget(locale: 'fr'));
     await tester.pumpAndSettle();
 

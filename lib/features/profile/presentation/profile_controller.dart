@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/profile_repository.dart';
 import '../domain/child_profile.dart';
 
@@ -58,5 +59,5 @@ class ActiveProfileNotifier extends AsyncNotifier<ChildProfile?> {
 /// Provider global du profil enfant actif.
 final activeProfileProvider =
     AsyncNotifierProvider<ActiveProfileNotifier, ChildProfile?>(() {
-  return ActiveProfileNotifier();
-});
+      return ActiveProfileNotifier();
+    });

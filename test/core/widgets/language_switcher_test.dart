@@ -11,17 +11,15 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('LanguageSwitcher toggles language between EN and FR', (WidgetTester tester) async {
+  testWidgets('LanguageSwitcher toggles language between EN and FR', (
+    WidgetTester tester,
+  ) async {
     final container = ProviderContainer();
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: const MaterialApp(
-          home: Scaffold(
-            body: LanguageSwitcher(),
-          ),
-        ),
+        child: const MaterialApp(home: Scaffold(body: LanguageSwitcher())),
       ),
     );
 

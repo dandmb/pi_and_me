@@ -1,4 +1,4 @@
-package com.pinetmoi.app.pi_et_moi
+package com.danbizwa.mathpup
 
 import io.flutter.embedding.android.FlutterActivity
 

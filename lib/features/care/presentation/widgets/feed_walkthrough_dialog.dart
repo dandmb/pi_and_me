@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_text.dart';
@@ -12,13 +13,13 @@ class FeedWalkthroughDialog extends StatefulWidget {
   static const String prefKey = 'pi_feed_walkthrough_shown';
   final bool isFrench;
 
-  const FeedWalkthroughDialog({
-    super.key,
-    required this.isFrench,
-  });
+  const FeedWalkthroughDialog({super.key, required this.isFrench});
 
   /// Affiche le tutoriel et persiste l'affichage dans SharedPreferences
-  static Future<void> show(BuildContext context, {required bool isFrench}) async {
+  static Future<void> show(
+    BuildContext context, {
+    required bool isFrench,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(prefKey, true);
 
@@ -66,7 +67,9 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
       ),
       _TutorialStep(
         badge: isFr ? 'Étape 2 sur 4' : 'Step 2 of 4',
-        title: isFr ? '2. L\'assiette dans le coin' : '2. The bowl in the corner',
+        title: isFr
+            ? '2. L\'assiette dans le coin'
+            : '2. The bowl in the corner',
         description: isFr
             ? 'Regarde dans le coin inférieur du décor : l\'assiette de Pi t\'y attend, posée sur son tapis.'
             : 'Look in the bottom corner: Pi\'s bowl is waiting on its feeding mat.',
@@ -106,14 +109,18 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
               Icon(
                 Icons.soup_kitchen_rounded,
                 size: 16,
-                color: context.isDark ? const Color(0xFF6EE7B7) : AppColors.green700,
+                color: context.isDark
+                    ? const Color(0xFF6EE7B7)
+                    : AppColors.green700,
               ),
               const SizedBox(width: 6),
               Text(
                 isFr ? 'Servir' : 'Serve',
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: context.isDark ? const Color(0xFF6EE7B7) : AppColors.green700,
+                  color: context.isDark
+                      ? const Color(0xFF6EE7B7)
+                      : AppColors.green700,
                 ),
               ),
             ],
@@ -148,7 +155,9 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
                 isFr ? 'Viens manger !' : 'Come eat!',
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: context.isDark ? AppColors.darkSky500 : AppColors.sky700,
+                  color: context.isDark
+                      ? AppColors.darkSky500
+                      : AppColors.sky700,
                 ),
               ),
             ],
@@ -181,7 +190,10 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.s3,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: step.accentColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -229,10 +241,7 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
             // Titre de l'étape
             Text(
               step.title,
-              style: AppText.h3.copyWith(
-                color: context.appText,
-                fontSize: 18,
-              ),
+              style: AppText.h3.copyWith(color: context.appText, fontSize: 18),
               textAlign: TextAlign.center,
             ),
 
@@ -263,7 +272,9 @@ class _FeedWalkthroughDialogState extends State<FeedWalkthroughDialog> {
                   decoration: BoxDecoration(
                     color: _currentStep == index
                         ? step.accentColor
-                        : (context.isDark ? AppColors.darkInk200 : AppColors.ink200),
+                        : (context.isDark
+                              ? AppColors.darkInk200
+                              : AppColors.ink200),
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
                 ),

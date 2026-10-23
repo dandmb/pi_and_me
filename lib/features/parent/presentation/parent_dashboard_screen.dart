@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -22,7 +23,8 @@ class ParentDashboardScreen extends ConsumerStatefulWidget {
   const ParentDashboardScreen({super.key});
 
   @override
-  ConsumerState<ParentDashboardScreen> createState() => _ParentDashboardScreenState();
+  ConsumerState<ParentDashboardScreen> createState() =>
+      _ParentDashboardScreenState();
 }
 
 class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
@@ -62,12 +64,19 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.lock_outline_rounded, size: 18, color: AppColors.sky600),
+                const Icon(
+                  Icons.lock_outline_rounded,
+                  size: 18,
+                  color: AppColors.sky600,
+                ),
                 const SizedBox(width: AppSpace.s1),
                 Flexible(
                   child: Text(
                     strings.parentDashboardTitle,
-                    style: AppText.h3.copyWith(color: context.appText, fontSize: 18),
+                    style: AppText.h3.copyWith(
+                      color: context.appText,
+                      fontSize: 18,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -110,11 +119,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          _ChildrenTab(),
-          _StatsTab(),
-          _PrivacyTab(),
-        ],
+        children: const [_ChildrenTab(), _StatsTab(), _PrivacyTab()],
       ),
     );
   }
@@ -137,8 +142,13 @@ class _ChildrenTab extends ConsumerWidget {
           final strings = ref.watch(stringsProvider);
           return AlertDialog(
             backgroundColor: context.appSurface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
-            title: Text(strings.parentAddChild, style: AppText.h3.copyWith(color: context.appText)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+            ),
+            title: Text(
+              strings.parentAddChild,
+              style: AppText.h3.copyWith(color: context.appText),
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -148,11 +158,16 @@ class _ChildrenTab extends ConsumerWidget {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: strings.nameLabel,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppSpace.s3),
-                  Text(strings.selectGrade, style: AppText.label.copyWith(color: context.appText)),
+                  Text(
+                    strings.selectGrade,
+                    style: AppText.label.copyWith(color: context.appText),
+                  ),
                   const SizedBox(height: AppSpace.s1),
                   DropdownButtonFormField<SchoolGrade>(
                     initialValue: selectedGrade,
@@ -171,7 +186,9 @@ class _ChildrenTab extends ConsumerWidget {
                       }
                     },
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                      ),
                     ),
                   ),
                 ],
@@ -180,13 +197,18 @@ class _ChildrenTab extends ConsumerWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: Text(strings.cancel, style: AppText.buttonM.copyWith(color: context.appSubText)),
+                child: Text(
+                  strings.cancel,
+                  style: AppText.buttonM.copyWith(color: context.appSubText),
+                ),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.sky600,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
                 ),
                 onPressed: () async {
                   final name = nameController.text.trim();
@@ -198,7 +220,9 @@ class _ChildrenTab extends ConsumerWidget {
                       grade: selectedGrade,
                       createdAt: DateTime.now(),
                     );
-                    await ref.read(activeProfileProvider.notifier).saveProfile(newProfile);
+                    await ref
+                        .read(activeProfileProvider.notifier)
+                        .saveProfile(newProfile);
                     if (ctx.mounted) Navigator.of(ctx).pop();
                   }
                 },
@@ -211,7 +235,11 @@ class _ChildrenTab extends ConsumerWidget {
     );
   }
 
-  void _showEditGradeDialog(BuildContext context, WidgetRef ref, ChildProfile profile) {
+  void _showEditGradeDialog(
+    BuildContext context,
+    WidgetRef ref,
+    ChildProfile profile,
+  ) {
     SchoolGrade selected = profile.grade;
     showDialog(
       context: context,
@@ -220,9 +248,13 @@ class _ChildrenTab extends ConsumerWidget {
           final strings = ref.watch(stringsProvider);
           return AlertDialog(
             backgroundColor: context.appSurface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
-            title: Text('${strings.parentEditGradeTitle} - ${profile.name}',
-                style: AppText.h3.copyWith(color: context.appText, fontSize: 18)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+            ),
+            title: Text(
+              '${strings.parentEditGradeTitle} - ${profile.name}',
+              style: AppText.h3.copyWith(color: context.appText, fontSize: 18),
+            ),
             content: DropdownButtonFormField<SchoolGrade>(
               initialValue: selected,
               items: SchoolGrade.values.map((g) {
@@ -240,23 +272,32 @@ class _ChildrenTab extends ConsumerWidget {
                 }
               },
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                ),
               ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: Text(strings.cancel, style: AppText.buttonM.copyWith(color: context.appSubText)),
+                child: Text(
+                  strings.cancel,
+                  style: AppText.buttonM.copyWith(color: context.appSubText),
+                ),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.sky600,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
                 ),
                 onPressed: () async {
                   final updated = profile.copyWith(grade: selected);
-                  await ref.read(activeProfileProvider.notifier).saveProfile(updated);
+                  await ref
+                      .read(activeProfileProvider.notifier)
+                      .saveProfile(updated);
                   if (ctx.mounted) Navigator.of(ctx).pop();
                 },
                 child: Text(strings.save, style: AppText.buttonM),
@@ -287,20 +328,28 @@ class _ChildrenTab extends ConsumerWidget {
               color: context.isDark ? const Color(0xFF0F2537) : AppColors.sky50,
               borderRadius: BorderRadius.circular(AppRadius.lg),
               border: Border.all(
-                color: context.isDark ? const Color(0xFF1E3A8A) : AppColors.sky500.withValues(alpha: 0.3),
+                color: context.isDark
+                    ? const Color(0xFF1E3A8A)
+                    : AppColors.sky500.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.health_and_safety_rounded, color: AppColors.sky600, size: 24),
+                const Icon(
+                  Icons.health_and_safety_rounded,
+                  color: AppColors.sky600,
+                  size: 24,
+                ),
                 const SizedBox(width: AppSpace.s3),
                 Expanded(
                   child: Text(
                     strings.parentSupervisionHeader,
                     style: AppText.bodyS.copyWith(
-                      color: context.isDark ? const Color(0xFF93C5FD) : AppColors.ink900,
+                      color: context.isDark
+                          ? const Color(0xFF93C5FD)
+                          : AppColors.ink900,
                       fontWeight: FontWeight.w600,
                       height: 1.35,
                     ),
@@ -317,7 +366,10 @@ class _ChildrenTab extends ConsumerWidget {
             data: (profiles) {
               if (profiles.isEmpty) {
                 return Center(
-                  child: Text(strings.noProfiles, style: AppText.body.copyWith(color: context.appSubText)),
+                  child: Text(
+                    strings.noProfiles,
+                    style: AppText.body.copyWith(color: context.appSubText),
+                  ),
                 );
               }
 
@@ -338,12 +390,26 @@ class _ChildrenTab extends ConsumerWidget {
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: AppSpace.s4),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
-                          side: const BorderSide(color: AppColors.sky600, width: 2),
-                          backgroundColor: context.isDark ? AppColors.darkSurfaceAlt : AppColors.surface,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: AppSpace.s4,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
+                          ),
+                          side: const BorderSide(
+                            color: AppColors.sky600,
+                            width: 2,
+                          ),
+                          backgroundColor: context.isDark
+                              ? AppColors.darkSurfaceAlt
+                              : AppColors.surface,
                         ),
-                        icon: const Icon(Icons.add_rounded, color: AppColors.sky600, size: 20),
+                        icon: const Icon(
+                          Icons.add_rounded,
+                          color: AppColors.sky600,
+                          size: 20,
+                        ),
                         label: Text(
                           strings.parentAddChild,
                           style: AppText.buttonM.copyWith(
@@ -364,7 +430,10 @@ class _ChildrenTab extends ConsumerWidget {
               ),
             ),
             error: (err, _) => Center(
-              child: Text('Erreur : $err', style: AppText.body.copyWith(color: AppColors.coral500)),
+              child: Text(
+                'Erreur : $err',
+                style: AppText.body.copyWith(color: AppColors.coral500),
+              ),
             ),
           ),
         ],
@@ -419,7 +488,10 @@ class _ChildrenTab extends ConsumerWidget {
                   children: [
                     Text(
                       profile.name,
-                      style: AppText.h3.copyWith(color: context.appText, fontSize: 17),
+                      style: AppText.h3.copyWith(
+                        color: context.appText,
+                        fontSize: 17,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -435,7 +507,10 @@ class _ChildrenTab extends ConsumerWidget {
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -467,7 +542,9 @@ class _ChildrenTab extends ConsumerWidget {
               // Stepper [-] X [+]
               Container(
                 decoration: BoxDecoration(
-                  color: context.isDark ? const Color(0xFF1E293B) : AppColors.bg,
+                  color: context.isDark
+                      ? const Color(0xFF1E293B)
+                      : AppColors.bg,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(color: context.appBorder, width: 1.5),
                 ),
@@ -478,19 +555,30 @@ class _ChildrenTab extends ConsumerWidget {
                     IconButton(
                       key: Key('daily_limit_decrease_${profile.id}'),
                       icon: const Icon(Icons.remove_rounded, size: 18),
-                      color: limitState.maxDailySessions > 1 ? AppColors.sky600 : context.appSubText.withValues(alpha: 0.3),
+                      color: limitState.maxDailySessions > 1
+                          ? AppColors.sky600
+                          : context.appSubText.withValues(alpha: 0.3),
                       padding: const EdgeInsets.all(6),
-                      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                      constraints: const BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 36,
+                      ),
                       tooltip: 'Diminuer la limite',
                       onPressed: limitState.maxDailySessions > 1
-                          ? () => ref.read(parentDashboardControllerProvider.notifier).setDailyLimit(limitState.maxDailySessions - 1)
+                          ? () => ref
+                                .read(
+                                  parentDashboardControllerProvider.notifier,
+                                )
+                                .setDailyLimit(limitState.maxDailySessions - 1)
                           : null,
                     ),
                     // Valeur actuelle (Lexend)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
-                        strings.parentSessionsPerDay(limitState.maxDailySessions),
+                        strings.parentSessionsPerDay(
+                          limitState.maxDailySessions,
+                        ),
                         style: AppText.mathM.copyWith(
                           color: context.appText,
                           fontWeight: FontWeight.w800,
@@ -502,12 +590,21 @@ class _ChildrenTab extends ConsumerWidget {
                     IconButton(
                       key: Key('daily_limit_increase_${profile.id}'),
                       icon: const Icon(Icons.add_rounded, size: 18),
-                      color: limitState.maxDailySessions < 12 ? AppColors.sky600 : context.appSubText.withValues(alpha: 0.3),
+                      color: limitState.maxDailySessions < 12
+                          ? AppColors.sky600
+                          : context.appSubText.withValues(alpha: 0.3),
                       padding: const EdgeInsets.all(6),
-                      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                      constraints: const BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 36,
+                      ),
                       tooltip: 'Augmenter la limite',
                       onPressed: limitState.maxDailySessions < 12
-                          ? () => ref.read(parentDashboardControllerProvider.notifier).setDailyLimit(limitState.maxDailySessions + 1)
+                          ? () => ref
+                                .read(
+                                  parentDashboardControllerProvider.notifier,
+                                )
+                                .setDailyLimit(limitState.maxDailySessions + 1)
                           : null,
                     ),
                   ],
@@ -518,7 +615,10 @@ class _ChildrenTab extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             strings.parentDailyLimitDesc,
-            style: AppText.bodyS.copyWith(color: context.appSubText, fontSize: 11.5),
+            style: AppText.bodyS.copyWith(
+              color: context.appSubText,
+              fontSize: 11.5,
+            ),
           ),
 
           const SizedBox(height: AppSpace.s3),
@@ -540,14 +640,19 @@ class _ChildrenTab extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         strings.parentTodayProgress,
-                        style: AppText.bodyS.copyWith(color: context.appSubText, fontWeight: FontWeight.w700),
+                        style: AppText.bodyS.copyWith(
+                          color: context.appSubText,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpace.s2),
                     Text(
                       '${limitState.usedSessionsToday} / ${limitState.maxDailySessions} terminés',
                       style: AppText.mathM.copyWith(
-                        color: limitState.isLimitReached ? AppColors.night700 : AppColors.green600,
+                        color: limitState.isLimitReached
+                            ? AppColors.night700
+                            : AppColors.green600,
                         fontWeight: FontWeight.w800,
                         fontSize: 13,
                       ),
@@ -560,9 +665,13 @@ class _ChildrenTab extends ConsumerWidget {
                   child: LinearProgressIndicator(
                     value: limitState.progress,
                     minHeight: 6,
-                    backgroundColor: context.isDark ? AppColors.darkInk200 : AppColors.ink200,
+                    backgroundColor: context.isDark
+                        ? AppColors.darkInk200
+                        : AppColors.ink200,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      limitState.isLimitReached ? AppColors.night700 : AppColors.green500,
+                      limitState.isLimitReached
+                          ? AppColors.night700
+                          : AppColors.green500,
                     ),
                   ),
                 ),
@@ -576,22 +685,38 @@ class _ChildrenTab extends ConsumerWidget {
                     // Bouton Remettre à zéro aujourd'hui
                     TextButton.icon(
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      icon: const Icon(Icons.refresh_rounded, size: 14, color: AppColors.ink500),
+                      icon: const Icon(
+                        Icons.refresh_rounded,
+                        size: 14,
+                        color: AppColors.ink500,
+                      ),
                       label: Text(
                         strings.parentResetQuotaToday,
-                        style: AppText.bodyS.copyWith(color: AppColors.ink500, fontSize: 11),
+                        style: AppText.bodyS.copyWith(
+                          color: AppColors.ink500,
+                          fontSize: 11,
+                        ),
                       ),
                       onPressed: limitState.usedSessionsToday > 0
                           ? () async {
-                              await ref.read(parentDashboardControllerProvider.notifier).resetTodayQuota();
+                              await ref
+                                  .read(
+                                    parentDashboardControllerProvider.notifier,
+                                  )
+                                  .resetTodayQuota();
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(strings.parentQuotaResetSuccess),
+                                    content: Text(
+                                      strings.parentQuotaResetSuccess,
+                                    ),
                                     behavior: SnackBarBehavior.floating,
                                     backgroundColor: AppColors.sky600,
                                   ),
@@ -606,19 +731,35 @@ class _ChildrenTab extends ConsumerWidget {
                         backgroundColor: AppColors.sky50,
                         foregroundColor: AppColors.sky700,
                         elevation: 0,
-                        side: const BorderSide(color: AppColors.sky500, width: 1.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        side: const BorderSide(
+                          color: AppColors.sky500,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      icon: const Icon(Icons.add_circle_outline_rounded, size: 15),
+                      icon: const Icon(
+                        Icons.add_circle_outline_rounded,
+                        size: 15,
+                      ),
                       label: Text(
                         strings.parentBonusSession,
-                        style: AppText.bodyS.copyWith(fontWeight: FontWeight.w800, fontSize: 11),
+                        style: AppText.bodyS.copyWith(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                        ),
                       ),
                       onPressed: () async {
-                        await ref.read(parentDashboardControllerProvider.notifier).grantBonusSession();
+                        await ref
+                            .read(parentDashboardControllerProvider.notifier)
+                            .grantBonusSession();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -652,7 +793,10 @@ class _ChildrenTab extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       strings.parentTimerFreeDesc,
-                      style: AppText.bodyS.copyWith(color: context.appSubText, fontSize: 11.5),
+                      style: AppText.bodyS.copyWith(
+                        color: context.appSubText,
+                        fontSize: 11.5,
+                      ),
                     ),
                   ],
                 ),
@@ -662,7 +806,9 @@ class _ChildrenTab extends ConsumerWidget {
                 value: isTimerFree,
                 activeTrackColor: AppColors.sky600,
                 onChanged: (enabled) {
-                  ref.read(parentDashboardControllerProvider.notifier).toggleTimerFreeMode(profile.id, enabled);
+                  ref
+                      .read(parentDashboardControllerProvider.notifier)
+                      .toggleTimerFreeMode(profile.id, enabled);
                 },
               ),
             ],
@@ -689,6 +835,41 @@ class _StatsTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (state.totalQuizzesCompleted == 0) ...[
+            Container(
+              padding: const EdgeInsets.all(AppSpace.s3),
+              decoration: BoxDecoration(
+                color: AppColors.sky500.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(
+                  color: AppColors.sky500.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    color: AppColors.sky600,
+                    size: 22,
+                  ),
+                  const SizedBox(width: AppSpace.s2),
+                  Expanded(
+                    child: Text(
+                      strings.parentNoStatsYet,
+                      style: AppText.bodyS.copyWith(
+                        color: context.appText,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpace.s4),
+          ],
+
           // Résumé général : 2 cartes métriques côte à côte
           Row(
             children: [
@@ -736,11 +917,18 @@ class _StatsTab extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.school_rounded, color: AppColors.sky600, size: 22),
+                    const Icon(
+                      Icons.school_rounded,
+                      color: AppColors.sky600,
+                      size: 22,
+                    ),
                     const SizedBox(width: AppSpace.s2),
                     Text(
                       strings.parentMasteryRate,
-                      style: AppText.h3.copyWith(color: context.appText, fontSize: 16),
+                      style: AppText.h3.copyWith(
+                        color: context.appText,
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
@@ -748,28 +936,28 @@ class _StatsTab extends ConsumerWidget {
                 _buildDomainProgressBar(
                   context,
                   domain: strings.parentMathDomainNumbers,
-                  rate: state.domainMastery['numbers'] ?? 0.92,
+                  rate: state.domainMastery['numbers'] ?? 0.0,
                   color: AppColors.sky600,
                 ),
                 const SizedBox(height: AppSpace.s3),
                 _buildDomainProgressBar(
                   context,
                   domain: strings.parentMathDomainGeometry,
-                  rate: state.domainMastery['geometry'] ?? 0.85,
+                  rate: state.domainMastery['geometry'] ?? 0.0,
                   color: AppColors.green600,
                 ),
                 const SizedBox(height: AppSpace.s3),
                 _buildDomainProgressBar(
                   context,
                   domain: strings.parentMathDomainMeasures,
-                  rate: state.domainMastery['measures'] ?? 0.78,
+                  rate: state.domainMastery['measures'] ?? 0.0,
                   color: AppColors.gold600,
                 ),
                 const SizedBox(height: AppSpace.s3),
                 _buildDomainProgressBar(
                   context,
                   domain: strings.parentMathDomainProblems,
-                  rate: state.domainMastery['problems'] ?? 0.84,
+                  rate: state.domainMastery['problems'] ?? 0.0,
                   color: AppColors.coral500,
                 ),
               ],
@@ -782,22 +970,32 @@ class _StatsTab extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(AppSpace.s4),
             decoration: BoxDecoration(
-              color: context.isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+              color: context.isDark
+                  ? const Color(0xFF1E293B)
+                  : const Color(0xFFF8FAFC),
               borderRadius: BorderRadius.circular(AppRadius.lg),
               border: Border.all(
-                color: context.isDark ? const Color(0xFF334155) : AppColors.ink200,
+                color: context.isDark
+                    ? const Color(0xFF334155)
+                    : AppColors.ink200,
                 width: 1.5,
               ),
             ),
             child: Row(
               children: [
-                const Icon(Icons.verified_rounded, color: AppColors.green600, size: 26),
+                const Icon(
+                  Icons.verified_rounded,
+                  color: AppColors.green600,
+                  size: 26,
+                ),
                 const SizedBox(width: AppSpace.s3),
                 Expanded(
                   child: Text(
                     strings.parentCurriculumNotice,
                     style: AppText.bodyS.copyWith(
-                      color: context.isDark ? const Color(0xFFCBD5E1) : AppColors.ink900,
+                      color: context.isDark
+                          ? const Color(0xFFCBD5E1)
+                          : AppColors.ink900,
                       fontWeight: FontWeight.w600,
                       height: 1.35,
                     ),
@@ -874,11 +1072,18 @@ class _StatsTab extends ConsumerWidget {
           children: [
             Text(
               domain,
-              style: AppText.label.copyWith(color: context.appText, fontSize: 13),
+              style: AppText.label.copyWith(
+                color: context.appText,
+                fontSize: 13,
+              ),
             ),
             Text(
               '$percent%',
-              style: AppText.mathM.copyWith(color: color, fontWeight: FontWeight.w800, fontSize: 13),
+              style: AppText.mathM.copyWith(
+                color: color,
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+              ),
             ),
           ],
         ),
@@ -888,7 +1093,9 @@ class _StatsTab extends ConsumerWidget {
           child: LinearProgressIndicator(
             value: rate,
             minHeight: 8,
-            backgroundColor: context.isDark ? AppColors.darkInk200 : AppColors.ink200,
+            backgroundColor: context.isDark
+                ? AppColors.darkInk200
+                : AppColors.ink200,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -909,7 +1116,9 @@ class _PrivacyTab extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: context.appSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+        ),
         title: Text(
           strings.parentDeleteDialogTitle,
           style: AppText.h3.copyWith(color: AppColors.coral500, fontSize: 18),
@@ -921,18 +1130,24 @@ class _PrivacyTab extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(strings.parentDeleteDialogCancel,
-                style: AppText.buttonM.copyWith(color: context.appSubText)),
+            child: Text(
+              strings.parentDeleteDialogCancel,
+              style: AppText.buttonM.copyWith(color: context.appSubText),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.coral500,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+              ),
             ),
             onPressed: () async {
               Navigator.of(ctx).pop();
-              await ref.read(parentDashboardControllerProvider.notifier).deleteEntireHouseholdData();
+              await ref
+                  .read(parentDashboardControllerProvider.notifier)
+                  .deleteEntireHouseholdData();
               if (context.mounted) {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const OnboardingScreen()),
@@ -940,25 +1155,37 @@ class _PrivacyTab extends ConsumerWidget {
                 );
               }
             },
-            child: Text(strings.parentDeleteDialogConfirm, style: AppText.buttonM),
+            child: Text(
+              strings.parentDeleteDialogConfirm,
+              style: AppText.buttonM,
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _showExportPreview(BuildContext context, String jsonText, dynamic strings) {
+  void _showExportPreview(
+    BuildContext context,
+    String jsonText,
+    dynamic strings,
+  ) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: context.appSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+        ),
         title: Row(
           children: [
             Expanded(
               child: Text(
                 strings.parentExportTitle,
-                style: AppText.h3.copyWith(color: context.appText, fontSize: 16),
+                style: AppText.h3.copyWith(
+                  color: context.appText,
+                  fontSize: 16,
+                ),
               ),
             ),
             IconButton(
@@ -985,7 +1212,9 @@ class _PrivacyTab extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.sky600,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+              ),
             ),
             icon: const Icon(Icons.copy_rounded, size: 18),
             label: Text(strings.parentExportCopied),
@@ -1012,10 +1241,14 @@ class _PrivacyTab extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(AppSpace.s4),
             decoration: BoxDecoration(
-              color: context.isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5),
+              color: context.isDark
+                  ? const Color(0xFF064E3B)
+                  : const Color(0xFFECFDF5),
               borderRadius: BorderRadius.circular(AppRadius.xl),
               border: Border.all(
-                color: context.isDark ? const Color(0xFF059669) : const Color(0xFFA7F3D0),
+                color: context.isDark
+                    ? const Color(0xFF059669)
+                    : const Color(0xFFA7F3D0),
                 width: 1.5,
               ),
             ),
@@ -1024,13 +1257,19 @@ class _PrivacyTab extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.verified_user_rounded, color: AppColors.green600, size: 22),
+                    const Icon(
+                      Icons.verified_user_rounded,
+                      color: AppColors.green600,
+                      size: 22,
+                    ),
                     const SizedBox(width: AppSpace.s2),
                     Expanded(
                       child: Text(
                         strings.parentPrivacyPledgeTitle,
                         style: AppText.label.copyWith(
-                          color: context.isDark ? const Color(0xFF6EE7B7) : const Color(0xFF065F46),
+                          color: context.isDark
+                              ? const Color(0xFF6EE7B7)
+                              : const Color(0xFF065F46),
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -1041,7 +1280,9 @@ class _PrivacyTab extends ConsumerWidget {
                 Text(
                   strings.parentPrivacyPledgePoints,
                   style: AppText.bodyS.copyWith(
-                    color: context.isDark ? const Color(0xFFA7F3D0) : const Color(0xFF047857),
+                    color: context.isDark
+                        ? const Color(0xFFA7F3D0)
+                        : const Color(0xFF047857),
                     height: 1.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1072,12 +1313,18 @@ class _PrivacyTab extends ConsumerWidget {
               children: [
                 Text(
                   strings.parentExportTitle,
-                  style: AppText.h3.copyWith(color: context.appText, fontSize: 16),
+                  style: AppText.h3.copyWith(
+                    color: context.appText,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: AppSpace.s1),
                 Text(
                   strings.parentExportDesc,
-                  style: AppText.bodyS.copyWith(color: context.appSubText, height: 1.35),
+                  style: AppText.bodyS.copyWith(
+                    color: context.appSubText,
+                    height: 1.35,
+                  ),
                 ),
                 const SizedBox(height: AppSpace.s3),
                 ChunkyButton(
@@ -1118,10 +1365,14 @@ class _PrivacyTab extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(AppSpace.s4),
             decoration: BoxDecoration(
-              color: context.isDark ? const Color(0xFF450A0A) : const Color(0xFFFEF2F2),
+              color: context.isDark
+                  ? const Color(0xFF450A0A)
+                  : const Color(0xFFFEF2F2),
               borderRadius: BorderRadius.circular(AppRadius.xl),
               border: Border.all(
-                color: context.isDark ? const Color(0xFF991B1B) : const Color(0xFFFCA5A5),
+                color: context.isDark
+                    ? const Color(0xFF991B1B)
+                    : const Color(0xFFFCA5A5),
                 width: 2,
               ),
             ),
@@ -1130,11 +1381,18 @@ class _PrivacyTab extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.delete_forever_rounded, color: AppColors.coral500, size: 24),
+                    const Icon(
+                      Icons.delete_forever_rounded,
+                      color: AppColors.coral500,
+                      size: 24,
+                    ),
                     const SizedBox(width: AppSpace.s2),
                     Text(
                       strings.parentDangerZoneTitle,
-                      style: AppText.h3.copyWith(color: AppColors.coral500, fontSize: 16),
+                      style: AppText.h3.copyWith(
+                        color: AppColors.coral500,
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
@@ -1142,7 +1400,9 @@ class _PrivacyTab extends ConsumerWidget {
                 Text(
                   strings.parentDangerZoneDesc,
                   style: AppText.bodyS.copyWith(
-                    color: context.isDark ? const Color(0xFFFCA5A5) : const Color(0xFF991B1B),
+                    color: context.isDark
+                        ? const Color(0xFFFCA5A5)
+                        : const Color(0xFF991B1B),
                     height: 1.35,
                   ),
                 ),
@@ -1152,13 +1412,20 @@ class _PrivacyTab extends ConsumerWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.coral500,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: AppSpace.s4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: AppSpace.s4,
+                    ),
                   ),
                   icon: const Icon(Icons.warning_amber_rounded, size: 20),
                   label: Text(
                     strings.parentDeleteHouseholdButton,
-                    style: AppText.buttonM.copyWith(fontWeight: FontWeight.w800),
+                    style: AppText.buttonM.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   onPressed: () => _showDeleteConfirmation(context, ref),
                 ),

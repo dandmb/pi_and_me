@@ -21,23 +21,21 @@ class AppStrings {
   String get onboardingWelcome => isFrench
       ? 'Wouf ! Crée ton profil pour jouer avec moi !'
       : 'Woof! Create your profile to play with me!';
-  String get whoWillPlay => isFrench
-      ? 'Qui va jouer avec Pi ?'
-      : 'Who will play with Pi?';
-  String get chooseAvatar => isFrench ? 'Choisis ton avatar' : 'Choose your avatar';
+  String get whoWillPlay =>
+      isFrench ? 'Qui va jouer avec Pi ?' : 'Who will play with Pi?';
+  String get chooseAvatar =>
+      isFrench ? 'Choisis ton avatar' : 'Choose your avatar';
   String get yourName => isFrench ? 'Ton prénom' : 'Your first name';
   String get nameHint => isFrench ? 'Ex: Léa' : 'E.g. Alex';
-  String get nameEmptyError => isFrench
-      ? 'Wouf ! Quel est ton prénom ?'
-      : 'Woof! What is your name?';
+  String get nameEmptyError =>
+      isFrench ? 'Wouf ! Quel est ton prénom ?' : 'Woof! What is your name?';
   String get yourGrade => isFrench ? 'Ta classe' : 'Your grade';
   String get letsGo => isFrench ? 'C\'est parti !' : 'Let\'s go!';
 
   // --- Onboarding Carousel Intro ---
   String get onboardingSkip => isFrench ? 'Passer' : 'Skip';
   String get onboardingNext => isFrench ? 'Suivant' : 'Next';
-  String get onboardingMeetPi =>
-      isFrench ? 'Rencontrer Pi 🐾' : 'Meet Pi 🐾';
+  String get onboardingMeetPi => isFrench ? 'Rencontrer Pi 🐾' : 'Meet Pi 🐾';
 
   String get onboardingSlide1Tag =>
       isFrench ? 'Maths Ludiques' : 'Playful Math';
@@ -130,8 +128,9 @@ class AppStrings {
       ? 'Wouf ! Prête pour le quiz, $childName ?'
       : 'Woof! Ready for the quiz, $childName?';
   String get hunger => isFrench ? 'Faim' : 'Hunger';
-  String get piNotHungry =>
-      isFrench ? 'Pi n\'a pas faim pour le moment ! 🐾' : 'Pi isn\'t hungry right now! 🐾';
+  String get piNotHungry => isFrench
+      ? 'Pi n\'a pas faim pour le moment ! 🐾'
+      : 'Pi isn\'t hungry right now! 🐾';
   String get joy => isFrench ? 'Joie' : 'Joy';
   String get energy => isFrench ? 'Énergie' : 'Energy';
   String get playQuiz => isFrench ? 'Jouer au Quiz' : 'Play Quiz';
@@ -142,41 +141,49 @@ class AppStrings {
 
   // --- Paramètres / Settings ---
   String get settings => isFrench ? 'Paramètres' : 'Settings';
-  String get languageTitle => isFrench ? 'Langue de l\'application' : 'App Language';
+  String get languageTitle =>
+      isFrench ? 'Langue de l\'application' : 'App Language';
   String get soundEffectsTitle => isFrench ? 'Effets sonores' : 'Sound Effects';
   String get soundEffectsSubtitle => isFrench
       ? 'Aboiements de Pi, bruits du jeu et sons de quiz'
       : 'Pi\'s barks, game sounds and quiz chimes';
   String get soundEnabled => isFrench ? 'Activé' : 'Enabled';
   String get soundDisabled => isFrench ? 'Désactivé' : 'Disabled';
-  String get themeTitle => isFrench ? 'Mode Sombre / Apparence' : 'Dark Mode / Appearance';
+  String get themeTitle =>
+      isFrench ? 'Mode Sombre / Apparence' : 'Dark Mode / Appearance';
   String get lightTheme => isFrench ? 'Clair' : 'Light';
   String get darkTheme => isFrench ? 'Sombre' : 'Dark';
   String get systemTheme => isFrench ? 'Système' : 'System';
   String get close => isFrench ? 'Fermer' : 'Close';
 
   // --- Profils & Sélecteur ---
-  String get profilesTitle => isFrench ? 'Profils des enfants' : 'Child Profiles';
+  String get profilesTitle =>
+      isFrench ? 'Profils des enfants' : 'Child Profiles';
   String get activeProfileLabel => isFrench ? 'Actif' : 'Active';
   String get addProfile => isFrench ? 'Ajouter un profil' : 'Add profile';
-  String get maxProfilesReached => isFrench ? 'Maximum 4 profils atteints' : 'Maximum 4 profiles reached';
-  String get deleteProfileConfirm => isFrench ? 'Supprimer ce profil ?' : 'Delete this profile?';
+  String get maxProfilesReached =>
+      isFrench ? 'Maximum 4 profils atteints' : 'Maximum 4 profiles reached';
+  String get deleteProfileConfirm =>
+      isFrench ? 'Supprimer ce profil ?' : 'Delete this profile?';
   String deleteProfileWarning(String name) => isFrench
       ? 'La progression et les données de $name seront définitivement effacées.'
       : 'All progress and data for $name will be permanently deleted.';
   String get cancel => isFrench ? 'Annuler' : 'Cancel';
   String get delete => isFrench ? 'Supprimer' : 'Delete';
-  String get profileActivated => isFrench ? 'Profil activé !' : 'Profile activated!';
+  String get profileActivated =>
+      isFrench ? 'Profil activé !' : 'Profile activated!';
 
   // --- Confirmation Quitter l'application ---
-  String get confirmExitTitle => isFrench ? 'Quitter MathPup ?' : 'Exit MathPup?';
+  String get confirmExitTitle =>
+      isFrench ? 'Quitter MathPup ?' : 'Exit MathPup?';
   String get confirmExitMessage => isFrench
       ? 'À très vite pour jouer et apprendre avec Pi !'
       : 'See you very soon to learn and play with Pi!';
   String get continuePlaying => isFrench ? 'Continuer à jouer' : 'Keep playing';
 
   // --- Gestion des erreurs ---
-  String get errorTitle => isFrench ? 'Oups ! Une petite bêtise...' : 'Oops! A little hiccup...';
+  String get errorTitle =>
+      isFrench ? 'Oups ! Une petite bêtise...' : 'Oops! A little hiccup...';
   String get errorMessage => isFrench
       ? 'Pi s\'occupe de tout réparer !'
       : 'Pi is taking care of everything!';
@@ -191,17 +198,17 @@ class AppStrings {
       isFrench ? 'Valider la réponse 🚀' : 'Submit answer 🚀';
   String get nextQuestion =>
       isFrench ? 'Question suivante ➔' : 'Next question ➔';
-  String get seeResults =>
-      isFrench ? 'Voir les résultats ✨' : 'See results ✨';
-  String get selectAnOptionNotice =>
-      isFrench ? 'Choisis une réponse pour valider' : 'Select an answer to submit';
-  String get correctFeedback =>
-      isFrench ? 'Bravo ! C\'est la bonne réponse ! 🐾' : 'Great job! That\'s correct! 🐾';
+  String get seeResults => isFrench ? 'Voir les résultats ✨' : 'See results ✨';
+  String get selectAnOptionNotice => isFrench
+      ? 'Choisis une réponse pour valider'
+      : 'Select an answer to submit';
+  String get correctFeedback => isFrench
+      ? 'Bravo ! C\'est la bonne réponse ! 🐾'
+      : 'Great job! That\'s correct! 🐾';
   String wrongFeedback(String answer) => isFrench
       ? 'Presque ! La bonne réponse était $answer. 🐾'
       : 'Almost! The correct answer was $answer. 🐾';
-  String get quitQuizTitle =>
-      isFrench ? 'Quitter le quiz ?' : 'Leave quiz?';
+  String get quitQuizTitle => isFrench ? 'Quitter le quiz ?' : 'Leave quiz?';
   String get quitQuizMessage => isFrench
       ? 'Ta progression sur ce quiz ne sera pas enregistrée.'
       : 'Your progress in this quiz will not be saved.';
@@ -209,8 +216,7 @@ class AppStrings {
   String get quit => isFrench ? 'Quitter' : 'Leave';
 
   // --- Résultats / Results ---
-  String get quizCompleted =>
-      isFrench ? 'Quiz Terminé !' : 'Quiz Completed!';
+  String get quizCompleted => isFrench ? 'Quiz Terminé !' : 'Quiz Completed!';
   String quizBravo(String name) =>
       isFrench ? 'Bravo $name !' : 'Well done $name!';
   String quizSummary(int score, int total) =>
@@ -230,6 +236,7 @@ class AppStrings {
           : 'Well done! Practice makes you stronger!';
     }
   }
+
   String get rewardsEarned =>
       isFrench ? 'Récompenses gagnées' : 'Earned rewards';
   String get goldenBones => isFrench ? 'Os dorés' : 'Golden bones';
@@ -240,75 +247,55 @@ class AppStrings {
       : 'Streak: $days day${days > 1 ? "s" : ""}';
   String get feedAndCare =>
       isFrench ? 'Nourrir & Soigner Pi' : 'Feed & Care for Pi';
-  String get backToHome =>
-      isFrench ? 'Retour au salon' : 'Back to living room';
+  String get backToHome => isFrench ? 'Retour au salon' : 'Back to living room';
 
   // --- Soins & Aire de Jeu (Care & Play) ---
-  String get careTitle =>
-      isFrench ? 'Prendre soin de Pi' : 'Care for Pi';
-  String get playArea =>
-      isFrench ? 'Aire de jeu' : 'Playground';
-  String get livingRoomEnv =>
-      isFrench ? 'Salon' : 'Living Room';
-  String get gardenEnv =>
-      isFrench ? 'Jardin' : 'Garden';
-  String get beachEnv =>
-      isFrench ? 'Plage' : 'Beach';
-  String get forestEnv =>
-      isFrench ? 'Forêt' : 'Forest';
-  String get feedAction =>
-      isFrench ? 'Nourrir' : 'Feed';
-  String get playAction =>
-      isFrench ? 'Jouer' : 'Play';
-  String get walkAction =>
-      isFrench ? 'Guider' : 'Guide';
-  String get sleepAction =>
-      isFrench ? 'Dodo' : 'Sleep';
-  String available(int count) =>
-      isFrench ? '$count dispo' : '$count left';
-  String get unlimited =>
-      isFrench ? 'Illimité' : 'Unlimited';
+  String get careTitle => isFrench ? 'Prendre soin de Pi' : 'Care for Pi';
+  String get playArea => isFrench ? 'Aire de jeu' : 'Playground';
+  String get livingRoomEnv => isFrench ? 'Salon' : 'Living Room';
+  String get gardenEnv => isFrench ? 'Jardin' : 'Garden';
+  String get beachEnv => isFrench ? 'Plage' : 'Beach';
+  String get forestEnv => isFrench ? 'Forêt' : 'Forest';
+  String get feedAction => isFrench ? 'Nourrir' : 'Feed';
+  String get playAction => isFrench ? 'Jouer' : 'Play';
+  String get walkAction => isFrench ? 'Guider' : 'Guide';
+  String get sleepAction => isFrench ? 'Dodo' : 'Sleep';
+  String available(int count) => isFrench ? '$count dispo' : '$count left';
+  String get unlimited => isFrench ? 'Illimité' : 'Unlimited';
   String get tapToPlay => isFrench
       ? 'Touche le terrain pour diriger Pi !'
       : 'Tap the ground to guide Pi!';
-  String get throwBallAction =>
-      isFrench ? 'Lancer la balle' : 'Throw the ball';
+  String get throwBallAction => isFrench ? 'Lancer la balle' : 'Throw the ball';
   String get piChasingBall =>
       isFrench ? 'Pi court après la balle !' : 'Pi is running after the ball!';
-  String get piFetchedBall =>
-      isFrench ? 'Wouf ! Balle rapportée ! (+25% Joie)' : 'Woof! Ball fetched! (+25% Joy)';
+  String get piFetchedBall => isFrench
+      ? 'Wouf ! Balle rapportée ! (+25% Joie)'
+      : 'Woof! Ball fetched! (+25% Joy)';
   String get ballInPlay => isFrench
       ? 'Une balle est déjà en jeu ! Touche le terrain pour guider Pi.'
       : 'A ball is already in play! Tap the screen to guide Pi.';
   String get noBallsLeft => isFrench
       ? 'Plus de balle ! Réussis un quiz pour en gagner.'
       : 'No balls left! Complete a quiz to get more.';
-  String get serveAction =>
-      isFrench ? 'Servir' : 'Serve';
-  String get comeEatAction =>
-      isFrench ? 'Viens manger !' : 'Come eat!';
+  String get serveAction => isFrench ? 'Servir' : 'Serve';
+  String get comeEatAction => isFrench ? 'Viens manger !' : 'Come eat!';
   String get bowlFilled => isFrench
       ? 'Croquette servie dans la gamelle !'
       : 'Kibble served in the bowl!';
-  String get bowlFull => isFrench
-      ? 'La gamelle est pleine !'
-      : 'The bowl is full!';
-  String get piEating => isFrench
-      ? 'Miam miam miam...'
-      : 'Yum yum yum...';
+  String get bowlFull =>
+      isFrench ? 'La gamelle est pleine !' : 'The bowl is full!';
+  String get piEating => isFrench ? 'Miam miam miam...' : 'Yum yum yum...';
   String get piFinishedEating => isFrench
       ? 'Miam ! Délicieux repas, merci ! (+Faim)'
       : 'Yum! Delicious meal, thank you! (+Hunger)';
   String get noFoodLeft => isFrench
       ? 'Plus de croquettes ! Réussis un quiz pour en gagner.'
       : 'No kibbles left! Complete a quiz to get more.';
-  String get cleanAction =>
-      isFrench ? 'Laver' : 'Wash';
+  String get cleanAction => isFrench ? 'Laver' : 'Wash';
   String get piCleaned => isFrench
       ? 'Tout propre et tout frais ! (+15% Joie)'
       : 'All clean and fresh! (+15% Joy)';
-  String get cleanliness =>
-      isFrench ? 'Propreté' : 'Cleanliness';
+  String get cleanliness => isFrench ? 'Propreté' : 'Cleanliness';
   String get piRested => isFrench
       ? 'Chut... Pi se repose bien (+30% Énergie)'
       : 'Shh... Pi is resting well (+30% Energy)';
@@ -318,12 +305,9 @@ class AppStrings {
   String get needMoreQuiz => isFrench
       ? 'Fais un quiz pour gagner plus de récompenses !'
       : 'Take a quiz to win more rewards!';
-  String get careDockLabel =>
-      isFrench ? 'Soigner' : 'Care';
-  String get salonDockLabel =>
-      isFrench ? 'Salon' : 'Home';
-  String get shopDockLabel =>
-      isFrench ? 'Boutique' : 'Shop';
+  String get careDockLabel => isFrench ? 'Soigner' : 'Care';
+  String get salonDockLabel => isFrench ? 'Salon' : 'Home';
+  String get shopDockLabel => isFrench ? 'Boutique' : 'Shop';
 
   // --- Boutique de Pi (Shop) ---
   String get shopTitle => isFrench ? 'Boutique de Pi' : 'Pi\'s Shop';
@@ -348,7 +332,8 @@ class AppStrings {
   // --- Garde-robe (Wardrobe) ---
   String get wardrobeTab => isFrench ? 'Garde-robe' : 'Wardrobe';
   String get shopTab => isFrench ? 'Boutique' : 'Shop';
-  String get wardrobeEmptyTitle => isFrench ? 'Garde-robe vide' : 'Empty Wardrobe';
+  String get wardrobeEmptyTitle =>
+      isFrench ? 'Garde-robe vide' : 'Empty Wardrobe';
   String get wardrobeEmptySubtitle => isFrench
       ? 'Tu n\'as pas encore d\'accessoires. Visite la boutique pour en acheter avec tes os dorés !'
       : 'You don\'t have any accessories yet. Visit the shop to buy some with your golden bones!';
@@ -361,16 +346,23 @@ class AppStrings {
   String get inWardrobe => isFrench ? 'Dans la garde-robe' : 'In wardrobe';
 
   // --- Alertes & Textes Soins/Dodo ---
-  String get piSleepingTitle => isFrench ? 'Pi dort paisiblement' : 'Pi is sleeping peacefully';
+  String get piSleepingTitle =>
+      isFrench ? 'Pi dort paisiblement' : 'Pi is sleeping peacefully';
   String get piSleepingDesc => isFrench
       ? 'Il se repose bien au chaud dans sa chambre étoilée. Réveille-le d\'abord dans l\'onglet Dodo pour pouvoir jouer ou prendre soin de lui !'
       : 'He is resting warmly in his starry bedroom. Wake him up first in the Sleep tab to play or care for him!';
-  String get piSleepingBanner => isFrench ? 'Pi dort paisiblement... Chut !' : 'Pi is sleeping peacefully... Shh!';
-  String get piNeedsSleep => isFrench ? 'Pi a besoin d\'un bon dodo' : 'Pi needs a good nap';
+  String get piSleepingBanner => isFrench
+      ? 'Pi dort paisiblement... Chut !'
+      : 'Pi is sleeping peacefully... Shh!';
+  String get piNeedsSleep =>
+      isFrench ? 'Pi a besoin d\'un bon dodo' : 'Pi needs a good nap';
   String get wakeUpAction => isFrench ? 'Réveiller' : 'Wake up';
   String get goToSleepAction => isFrench ? 'Faire dodo' : 'Put to sleep';
-  String get piNeedsBath => isFrench ? 'Pi a besoin d\'un bon bain !' : 'Pi needs a good bath!';
-  String get piAllClean => isFrench ? 'Pi est tout propre et brillant !' : 'Pi is all clean and fresh!';
+  String get piNeedsBath =>
+      isFrench ? 'Pi a besoin d\'un bon bain !' : 'Pi needs a good bath!';
+  String get piAllClean => isFrench
+      ? 'Pi est tout propre et brillant !'
+      : 'Pi is all clean and fresh!';
   String get eatingInProgress => isFrench ? 'Repas en cours...' : 'Eating...';
   String get fullStomach => isFrench ? 'Rassasié' : 'Full';
   String get sleepAlertPlay => isFrench
@@ -383,22 +375,27 @@ class AppStrings {
       ? 'Pi dort ! Réveille-le d\'abord dans Dodo pour le laver.'
       : 'Pi is sleeping! Wake him up first in Sleep mode to wash him.';
 
-  String get catchingBall => isFrench ? 'J\'attrape la balle !' : 'Catching the ball!';
+  String get catchingBall =>
+      isFrench ? 'J\'attrape la balle !' : 'Catching the ball!';
   String get ballFound => isFrench ? 'Balle trouvée !' : 'Ball found!';
   String get guideHelp => isFrench ? 'Aide' : 'Help';
-  String get guideEnvironmentsTitle => isFrench ? 'Décors immersifs' : 'Play Environments';
+  String get guideEnvironmentsTitle =>
+      isFrench ? 'Décors immersifs' : 'Play Environments';
   String get guideEnvironmentsDesc => isFrench
       ? 'Choisis l\'endroit où Pi va s\'amuser : Salon, Jardin, Plage ou Forêt.'
       : 'Choose where Pi plays: Living Room, Garden, Beach or Forest.';
-  String get guideVitalsTitle => isFrench ? 'Besoins vitaux de Pi' : 'Pi\'s Vital Gauges';
+  String get guideVitalsTitle =>
+      isFrench ? 'Besoins vitaux de Pi' : 'Pi\'s Vital Gauges';
   String get guideVitalsDesc => isFrench
       ? 'Surveille la faim, la joie, l\'énergie et la propreté de Pi !'
       : 'Monitor Pi\'s hunger, joy, energy, and cleanliness!';
-  String get guideInteractionTitle => isFrench ? 'Barre d\'interaction' : 'Interaction Bar';
+  String get guideInteractionTitle =>
+      isFrench ? 'Barre d\'interaction' : 'Interaction Bar';
   String get guideInteractionDesc => isFrench
       ? 'Lance la balle, sers les croquettes, lave Pi ou prépare sa sieste !'
       : 'Throw the ball, serve kibbles, wash Pi, or prepare for bedtime!';
-  String get guideActionsTitle => isFrench ? 'Actions de soin' : 'Care & Play Tray';
+  String get guideActionsTitle =>
+      isFrench ? 'Actions de soin' : 'Care & Play Tray';
   String get guideActionsDesc => isFrench
       ? 'Prends soin de Pi : Jouer à la balle, Nourrir, Laver dans la douche, Guider ou Dodo !'
       : 'Take care of Pi: Play fetch, Feed, Wash in dog shower, Guide, or Sleep!';
@@ -408,18 +405,19 @@ class AppStrings {
   String get dirtyStatus => isFrench ? 'Sale' : 'Dirty';
   String get cleanStatus => isFrench ? 'Propre' : 'Clean';
   String get defaultFriendName => isFrench ? 'Ami' : 'Friend';
-  String get languageActiveDescription => isFrench ? 'Français activé' : 'English active';
+  String get languageActiveDescription =>
+      isFrench ? 'Français activé' : 'English active';
   String get noItemsInCategory => isFrench
       ? 'Aucun accessoire possédé dans cette catégorie.'
       : 'No owned accessories in this category.';
-  String get dressingTitle => isFrench ? 'Dressing de Pi' : 'Pi\'s Dressing Room';
+  String get dressingTitle =>
+      isFrench ? 'Dressing de Pi' : 'Pi\'s Dressing Room';
 
   // --- Limite quotidienne 6/6 & Écran de repos bienveillant ---
   String get dailyQuotaTitle => isFrench ? 'Parties du jour' : 'Daily Quizzes';
   String get dailyLimitReachedTitle =>
       isFrench ? 'Limite quotidienne atteinte !' : 'Daily limit reached!';
-  String get quotaCompletedBadge =>
-      isFrench ? '6/6 complété' : '6/6 completed';
+  String get quotaCompletedBadge => isFrench ? '6/6 complété' : '6/6 completed';
   String piRestingTitle(String childName) => isFrench
       ? 'Bravo $childName ! Tu as bien travaillé !'
       : 'Bravo $childName! You worked great today!';
@@ -430,8 +428,9 @@ class AppStrings {
       isFrench ? 'Prochaine réinitialisation dans :' : 'Next reset in:';
   String resetCountdownFormatted(int hours, int minutes) =>
       '${hours.toString().padLeft(2, '0')}h : ${minutes.toString().padLeft(2, '0')}m';
-  String get offlineActivityHeader =>
-      isFrench ? 'L\'activité hors-écran du jour :' : 'Today\'s off-screen activity:';
+  String get offlineActivityHeader => isFrench
+      ? 'L\'activité hors-écran du jour :'
+      : 'Today\'s off-screen activity:';
   String get seePiRestAction =>
       isFrench ? 'Voir Pi se reposer (6/6)' : 'See Pi resting (6/6)';
   String get takeCareOfPiAction =>
@@ -457,19 +456,21 @@ class AppStrings {
   String get careDisabledWhenLimitReached => isFrench
       ? 'Pi dort · Soins désactivés'
       : 'Pi is sleeping · Care disabled';
-  String get shopClosedWhenLimitReached => isFrench
-      ? 'Pi dort · Boutique fermée'
-      : 'Pi is sleeping · Shop closed';
+  String get shopClosedWhenLimitReached =>
+      isFrench ? 'Pi dort · Boutique fermée' : 'Pi is sleeping · Shop closed';
   String get allActivitiesSleeping => isFrench
       ? 'Pi fait un gros dodo ! Les soins et la boutique rouvriront demain.'
       : 'Pi is having a good sleep! Care and shop will reopen tomorrow.';
 
   // --- Espace Parent & Parental Gate ---
-  String get parentGateTitle => isFrench ? 'Accès réservé aux parents' : 'Adult access only';
+  String get parentGateTitle =>
+      isFrench ? 'Accès réservé aux parents' : 'Adult access only';
   String get parentGateSubtitle => isFrench
       ? 'Résous ce calcul écrit en toutes lettres pour déverrouiller :'
       : 'Solve this written calculation to unlock:';
-  String get parentGateInstruction => isFrench ? 'Écris la réponse en chiffres :' : 'Write the answer in digits:';
+  String get parentGateInstruction => isFrench
+      ? 'Écris la réponse en chiffres :'
+      : 'Write the answer in digits:';
   String get parentGatePlaceholder => isFrench ? 'Ex. 8' : 'E.g. 8';
   String get parentGateValidate => isFrench ? 'Valider' : 'Verify';
   String get parentGateWrongAnswer => isFrench
@@ -481,77 +482,165 @@ class AppStrings {
   String parentGateLockout(int seconds) => isFrench
       ? 'Trop d\'essais. Réessaie dans $seconds s.'
       : 'Too many attempts. Try again in ${seconds}s.';
-  String get parentDashboardTitle => isFrench ? 'Espace Parents' : 'Parent Dashboard';
-  String get parentDashboardBadge => isFrench ? 'Supervision Bienveillante' : 'Mindful Supervision';
-  String get parentTabChildren => isFrench ? 'Enfants & Quotas' : 'Children & Quotas';
+  String get parentDashboardTitle =>
+      isFrench ? 'Espace Parents' : 'Parent Dashboard';
+  String get parentDashboardBadge =>
+      isFrench ? 'Supervision Bienveillante' : 'Mindful Supervision';
+  String get parentTabChildren =>
+      isFrench ? 'Enfants & Quotas' : 'Children & Quotas';
   String get parentTabStats => isFrench ? 'Statistiques' : 'Math Analytics';
   String get parentTabPrivacy => isFrench ? 'Données & RGPD' : 'Data & Privacy';
   String get parentSupervisionHeader => isFrench
       ? 'Recommandation Santé Publique : 6 sessions par jour sans addiction ni récompense manipulatoire.'
       : 'Public health recommendation: 6 daily quizzes maximum, free of manipulative retention loops.';
-  String get parentTimerFreeMode => isFrench ? 'Mode sans chrono' : 'Timer-free mode';
+  String get parentTimerFreeMode =>
+      isFrench ? 'Mode sans chrono' : 'Timer-free mode';
   String get parentTimerFreeDesc => isFrench
       ? 'Supprime le compte à rebours pour encourager la réflexion sereine et inclusive.'
       : 'Disables countdown timers during quizzes for stress-free, inclusive problem solving.';
-  String get parentBonusSession => isFrench ? '+1 session bonus' : '+1 bonus session';
+  String get parentBonusSession =>
+      isFrench ? '+1 session bonus' : '+1 bonus session';
   String get parentBonusSessionSuccess => isFrench
       ? '1 session supplémentaire a été débloquée pour aujourd\'hui !'
       : '1 bonus quiz session unlocked for today!';
-  String get parentAddChild => isFrench ? 'Ajouter un profil enfant' : 'Add child profile';
+  String get parentAddChild =>
+      isFrench ? 'Ajouter un profil enfant' : 'Add child profile';
   String get parentEditGrade => isFrench ? 'Modifier' : 'Edit';
-  String get parentEditGradeTitle => isFrench ? 'Modifier la classe' : 'Change grade';
-  String get parentDailyQuotaLabel => isFrench ? 'Quota du jour' : 'Today\'s quota';
-  String get parentDailyLimitSetting => isFrench ? 'Limite quotidienne de quiz' : 'Daily quiz limit';
+  String get parentEditGradeTitle =>
+      isFrench ? 'Modifier la classe' : 'Change grade';
+  String get parentDailyQuotaLabel =>
+      isFrench ? 'Quota du jour' : 'Today\'s quota';
+  String get parentDailyLimitSetting =>
+      isFrench ? 'Limite quotidienne de quiz' : 'Daily quiz limit';
   String get parentDailyLimitDesc => isFrench
       ? 'Ajuste le nombre maximal de quiz par jour selon vos règles familiales.'
       : 'Adjust the maximum daily quiz count according to family rules.';
-  String parentSessionsPerDay(int count) => isFrench
-      ? '$count / jour'
-      : '$count / day';
-  String get parentTodayProgress => isFrench ? 'Progression aujourd\'hui' : 'Today\'s progress';
-  String get parentResetQuotaToday => isFrench ? 'Remettre à zéro' : 'Reset today';
+  String parentSessionsPerDay(int count) =>
+      isFrench ? '$count / jour' : '$count / day';
+  String get parentTodayProgress =>
+      isFrench ? 'Progression aujourd\'hui' : 'Today\'s progress';
+  String get parentResetQuotaToday =>
+      isFrench ? 'Remettre à zéro' : 'Reset today';
   String get parentQuotaResetSuccess => isFrench
       ? 'Le quota d\'aujourd\'hui a été remis à zéro !'
       : 'Today\'s quota has been reset!';
-  String get parentMathDomainNumbers => isFrench ? 'Nombres & Calculs' : 'Numbers & Operations';
-  String get parentMathDomainGeometry => isFrench ? 'Géométrie & Espace' : 'Geometry & Shapes';
-  String get parentMathDomainMeasures => isFrench ? 'Grandeurs & Mesures' : 'Quantities & Measures';
-  String get parentMathDomainProblems => isFrench ? 'Résolution de Problèmes' : 'Problem Solving';
-  String get parentMasteryRate => isFrench ? 'Maîtrise estimée' : 'Estimated mastery';
-  String get parentQuizzesCompletedTotal => isFrench ? 'Quiz complétés au total' : 'Total quizzes completed';
-  String get parentAverageSuccessRate => isFrench ? 'Taux moyen de réussite' : 'Average accuracy rate';
+  String get parentMathDomainNumbers =>
+      isFrench ? 'Nombres & Calculs' : 'Numbers & Operations';
+  String get parentMathDomainGeometry =>
+      isFrench ? 'Géométrie & Espace' : 'Geometry & Shapes';
+  String get parentMathDomainMeasures =>
+      isFrench ? 'Grandeurs & Mesures' : 'Quantities & Measures';
+  String get parentMathDomainProblems =>
+      isFrench ? 'Résolution de Problèmes' : 'Problem Solving';
+  String get parentMasteryRate =>
+      isFrench ? 'Maîtrise estimée' : 'Estimated mastery';
+  String get parentQuizzesCompletedTotal =>
+      isFrench ? 'Quiz complétés au total' : 'Total quizzes completed';
+  String get parentAverageSuccessRate =>
+      isFrench ? 'Taux moyen de réussite' : 'Average accuracy rate';
   String get parentCurriculumNotice => isFrench
       ? 'Exercices conformes aux programmes officiels de l\'Éducation Nationale (Cycles 2, 3 et 4).'
       : 'Exercises fully compliant with official national elementary and middle school curricula.';
+  String get parentNoStatsYet => isFrench
+      ? 'Aucun quiz terminé pour le moment.\nDès les premières parties de votre enfant avec Pi, l\'analyse détaillée de sa progression apparaîtra ici !'
+      : 'No quiz completed yet.\nDetailed math progress analytics will appear here as soon as your child practices with Pi!';
   String get parentPrivacyPledgeTitle => isFrench
       ? '100% Hors-ligne, Sans Pub & Respectueux'
       : '100% Offline, Zero Ads & Privacy-First';
   String get parentPrivacyPledgePoints => isFrench
       ? '• Zéro publicité & zéro tracking tiers\n• Données éducatives stockées exclusivement sur cet appareil\n• Conforme aux standards Google Play Familles & RGPD'
       : '• Zero ads & zero third-party trackers\n• Educational progress stored exclusively on this device\n• Fully compliant with Google Play Families & GDPR policies';
-  String get parentExportTitle => isFrench ? 'Portabilité des données (Art. 20 RGPD)' : 'Data Portability (GDPR Art. 20)';
+  String get parentExportTitle => isFrench
+      ? 'Portabilité des données (Art. 20 RGPD)'
+      : 'Data Portability (GDPR Art. 20)';
   String get parentExportDesc => isFrench
       ? 'Consultez et sauvegardez l\'ensemble des profils, scores et inventaires du foyer au format standard JSON.'
       : 'View and export all household child profiles, quiz scores, and wardrobes in standard JSON format.';
-  String get parentExportButton => isFrench ? 'Télécharger mes données (JSON)' : 'Export household data (JSON)';
-  String get parentExportCopied => isFrench ? 'Données JSON copiées dans le presse-papier !' : 'JSON data copied to clipboard!';
-  String get parentDangerZoneTitle => isFrench ? 'Droit à l\'oubli (Art. 17 RGPD)' : 'Right to Erasure (GDPR Art. 17)';
+  String get parentExportButton => isFrench
+      ? 'Télécharger mes données (JSON)'
+      : 'Export household data (JSON)';
+  String get parentExportCopied => isFrench
+      ? 'Données JSON copiées dans le presse-papier !'
+      : 'JSON data copied to clipboard!';
+  String get parentDangerZoneTitle => isFrench
+      ? 'Droit à l\'oubli (Art. 17 RGPD)'
+      : 'Right to Erasure (GDPR Art. 17)';
   String get parentDangerZoneDesc => isFrench
       ? 'Suppression immédiate et définitive de tous les profils d\'enfants, os dorés, inventaires et historiques du foyer.'
       : 'Immediate and permanent deletion of all child profiles, golden bones, outfits, and stats from this device.';
-  String get parentDeleteHouseholdButton => isFrench ? 'Supprimer tout le foyer et mes données' : 'Delete all household data';
-  String get parentDeleteDialogTitle => isFrench ? 'Confirmer la suppression définitive ?' : 'Confirm permanent deletion?';
+  String get parentDeleteHouseholdButton => isFrench
+      ? 'Supprimer tout le foyer et mes données'
+      : 'Delete all household data';
+  String get parentDeleteDialogTitle => isFrench
+      ? 'Confirmer la suppression définitive ?'
+      : 'Confirm permanent deletion?';
   String get parentDeleteDialogMessage => isFrench
       ? 'Cette opération effacera irrévocablement toutes les données du foyer sur cet appareil. Voulez-vous continuer ?'
       : 'This action will permanently wipe all household data on this device. Do you want to proceed?';
-  String get parentDeleteDialogConfirm => isFrench ? 'Oui, tout supprimer' : 'Yes, delete everything';
+  String get parentDeleteDialogConfirm =>
+      isFrench ? 'Oui, tout supprimer' : 'Yes, delete everything';
   String get parentDeleteDialogCancel => isFrench ? 'Annuler' : 'Cancel';
-  String get parentSettingsEntryTitle => isFrench ? 'Espace Parents' : 'Parent Dashboard';
-  String get parentSettingsEntrySubtitle => isFrench ? 'Supervision, quotas & vie privée' : 'Supervision, quotas & privacy';
-  String get nameLabel => isFrench ? 'Prénom de l\'enfant' : 'Child\'s first name';
-  String get selectGrade => isFrench ? 'Sélectionner la classe' : 'Select grade';
+  String get parentSettingsEntryTitle =>
+      isFrench ? 'Espace Parents' : 'Parent Dashboard';
+  String get parentSettingsEntrySubtitle => isFrench
+      ? 'Supervision, quotas & vie privée'
+      : 'Supervision, quotas & privacy';
+  String get nameLabel =>
+      isFrench ? 'Prénom de l\'enfant' : 'Child\'s first name';
+  String get selectGrade =>
+      isFrench ? 'Sélectionner la classe' : 'Select grade';
   String get save => isFrench ? 'Enregistrer' : 'Save';
-  String get noProfiles => isFrench ? 'Aucun profil trouvé' : 'No profiles found';
+  String get noProfiles =>
+      isFrench ? 'Aucun profil trouvé' : 'No profiles found';
+
+  // --- À propos (About) ---
+  String get aboutTitle =>
+      isFrench ? 'À propos de MathPup' : 'About MathPup';
+  String get aboutSubtitle =>
+      isFrench ? 'Créateur, pédagogie & contact' : 'Creator, pedagogy & contact';
+  String get aboutTagline => isFrench
+      ? 'L\'apprentissage bienveillant des mathématiques'
+      : 'Friendly, stress-free math learning';
+  String get aboutMissionTitle =>
+      isFrench ? 'Notre Mission' : 'Our Mission';
+  String get aboutMissionText => isFrench
+      ? 'MathPup a été conçu pour donner le goût des mathématiques aux élèves du CP à la 3e (6 à 15 ans). Grâce à Pi, un chiot virtuel affectueux et joueur, l\'enfant apprend par le jeu et consolide ses compétences au rythme des programmes scolaires officiels, sans anxiété ni écran addictif.'
+      : 'MathPup was designed to spark a love for mathematics in children from Grade 1 to Grade 9 (ages 6 to 15). Together with Pi, an affectionate virtual puppy, children learn through play and reinforce their math curriculum stress-free.';
+  String get aboutPillOffline => isFrench ? '100% Hors-ligne' : '100% Offline';
+  String get aboutPillNoAds => isFrench ? 'Zéro Publicité' : 'Zero Ads';
+  String get aboutPillPrivacy =>
+      isFrench ? 'RGPD & Données locales' : 'GDPR & Local data';
+  String get aboutPillCurriculum =>
+      isFrench ? 'Cycles 2, 3 & 4' : 'Grades 1 to 9';
+  String get aboutDeveloperSectionTitle =>
+      isFrench ? 'Auteur & Développeur' : 'Author & Developer';
+  String get aboutDeveloperName => 'Dan Bizwa';
+  String get aboutDeveloperRole =>
+      isFrench ? 'Concepteur & Développeur Mobile' : 'Creator & Mobile Developer';
+  String get aboutDeveloperBio => isFrench
+      ? 'Conçu et développé avec passion par Dan Bizwa, ingénieur logiciel attaché à la pédagogie positive, l\'élégance du design et le respect absolu de la vie privée des enfants.'
+      : 'Designed and crafted with care by Dan Bizwa, software engineer dedicated to positive pedagogy, refined design, and complete child privacy.';
+  String get aboutContactSectionTitle =>
+      isFrench ? 'Contact & Réseaux' : 'Contact & Social';
+  String get aboutEmailLabel =>
+      isFrench ? 'Envoyer un email' : 'Send an email';
+  String get aboutEmailValue => 'bizwadan@gmail.com';
+  String get aboutLinkedInLabel =>
+      isFrench ? 'Profil LinkedIn' : 'LinkedIn Profile';
+  String get aboutLinkedInValue => 'https://www.linkedin.com/in/dan-bizwa/';
+  String get aboutParentalGateNotice => isFrench
+      ? 'L\'ouverture de liens externes et de la messagerie est protégée par un contrôle parental pour la sécurité des enfants.'
+      : 'External links and email dispatch are protected by a parental gate for child safety.';
+  String get aboutCopyAction => isFrench ? 'Copier' : 'Copy';
+  String get aboutCopiedFeedback =>
+      isFrench ? 'Copié dans le presse-papier !' : 'Copied to clipboard!';
+  String get aboutOpenLinkFailed =>
+      isFrench ? 'Impossible d\'ouvrir l\'application' : 'Could not open application';
+  String versionLabel(String version, String buildNumber) =>
+      'Version $version (Build $buildNumber)';
+  String get aboutVersionLabel =>
+      'Version 1.0.1 (Build 3)';
+  String get aboutCopyright => isFrench
+      ? '© 2026 Dan Bizwa. Tous droits réservés.'
+      : '© 2026 Dan Bizwa. All rights reserved.';
 }
-
-

@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pi_et_moi/features/profile/domain/school_grade.dart';
 import 'package:pi_et_moi/features/quiz/domain/math_question.dart';
@@ -11,13 +12,25 @@ void main() {
 
       for (final grade in SchoolGrade.values) {
         final session = generator.generateSession(grade: grade);
-        expect(session.length, equals(6), reason: 'Grade ${grade.label} must have 6 questions');
+        expect(
+          session.length,
+          equals(6),
+          reason: 'Grade ${grade.label} must have 6 questions',
+        );
 
         for (final q in session) {
           expect(q.grade, equals(grade));
-          expect(q.options.length, equals(4), reason: 'Each question must have 4 options');
+          expect(
+            q.options.length,
+            equals(4),
+            reason: 'Each question must have 4 options',
+          );
           // 4 options distinctes
-          expect(q.options.toSet().length, equals(4), reason: 'All 4 options must be distinct: ${q.options}');
+          expect(
+            q.options.toSet().length,
+            equals(4),
+            reason: 'All 4 options must be distinct: ${q.options}',
+          );
           expect(q.correctIndex, inInclusiveRange(0, 3));
           expect(q.options[q.correctIndex], equals(q.correctAnswer));
           expect(q.mathExpression.isNotEmpty, isTrue);
@@ -52,7 +65,10 @@ void main() {
 
       // Français
       expect(question.getCategory(true), equals('CM1 • Fractions Décimales'));
-      expect(question.getPrompt(true), equals('Quelle écriture correspond à :'));
+      expect(
+        question.getPrompt(true),
+        equals('Quelle écriture correspond à :'),
+      );
       expect(question.getHint(true), equals('3 unités et 7 dixièmes !'));
       expect(question.getExplanation(true), equals('3 + 7/10 = 3,7'));
       expect(question.correctAnswer, equals('3,7'));
@@ -60,7 +76,10 @@ void main() {
       expect(question.isAnswerCorrect(0), isFalse);
 
       // Anglais
-      expect(question.getCategory(false), equals('Grade 4 • Decimal Fractions'));
+      expect(
+        question.getCategory(false),
+        equals('Grade 4 • Decimal Fractions'),
+      );
       expect(question.getPrompt(false), equals('Which expression matches:'));
       expect(question.getHint(false), equals('3 units and 7 tenths!'));
       expect(question.getExplanation(false), equals('3 + 7/10 = 3.7'));

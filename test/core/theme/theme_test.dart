@@ -36,17 +36,20 @@ void main() {
   });
 
   group('Design System - AppText', () {
-    test('Typography scales are defined with Abril Fatface, ABeeZee and Lexend', () {
-      expect(AppText.display.fontSize, 44);
-      expect(AppText.h1.fontSize, 30);
-      expect(AppText.mathXL.fontSize, 44);
-      expect(AppText.mathL.fontSize, 28);
-      expect(AppText.display.fontWeight, FontWeight.w700);
-      expect(AppText.h1.fontWeight, FontWeight.w700);
-      expect(AppText.display.fontFamily, contains('AbrilFatface'));
-      expect(AppText.body.fontFamily, contains('ABeeZee'));
-      expect(AppText.mathXL.fontFamily, contains('Lexend'));
-    });
+    test(
+      'Typography scales are defined with Abril Fatface, ABeeZee and Lexend',
+      () {
+        expect(AppText.display.fontSize, 44);
+        expect(AppText.h1.fontSize, 30);
+        expect(AppText.mathXL.fontSize, 44);
+        expect(AppText.mathL.fontSize, 28);
+        expect(AppText.display.fontWeight, FontWeight.w700);
+        expect(AppText.h1.fontWeight, FontWeight.w700);
+        expect(AppText.display.fontFamily, contains('AbrilFatface'));
+        expect(AppText.body.fontFamily, contains('ABeeZee'));
+        expect(AppText.mathXL.fontFamily, contains('Lexend'));
+      },
+    );
   });
 
   group('Design System - AppTheme', () {

@@ -1,7 +1,9 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
 import 'core/theme/util.dart';
@@ -16,9 +18,7 @@ void main() async {
 
   // 2. Pré-initialise le stockage local (SharedPreferences) pour sauvegarder les données
   try {
-    await SharedPreferences.getInstance().timeout(
-      const Duration(seconds: 3),
-    );
+    await SharedPreferences.getInstance().timeout(const Duration(seconds: 3));
   } catch (e) {
     debugPrint('[Bootstrap] SharedPreferences init warning: $e');
   }
@@ -39,9 +39,7 @@ void main() async {
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return const Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: AppErrorView(),
-      ),
+      body: SafeArea(child: AppErrorView()),
     );
   };
 
@@ -145,4 +143,3 @@ class _MathPupAppState extends ConsumerState<MathPupApp>
     );
   }
 }
-

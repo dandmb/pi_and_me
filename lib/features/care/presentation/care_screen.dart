@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -161,11 +163,11 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     // 6 zones d'atterrissage réparties sur toute la surface de jeu
     final zones = [
       const [-0.65, -0.30, -0.38, -0.15], // 0: Haut gauche
-      const [0.30, 0.65, -0.38, -0.15],  // 1: Haut droite
-      const [-0.75, -0.40, 0.05, 0.28],  // 2: Milieu gauche
-      const [0.40, 0.75, 0.05, 0.28],   // 3: Milieu droite
-      const [-0.55, -0.15, 0.35, 0.58],  // 4: Bas gauche
-      const [0.15, 0.55, 0.35, 0.58],   // 5: Bas droite
+      const [0.30, 0.65, -0.38, -0.15], // 1: Haut droite
+      const [-0.75, -0.40, 0.05, 0.28], // 2: Milieu gauche
+      const [0.40, 0.75, 0.05, 0.28], // 3: Milieu droite
+      const [-0.55, -0.15, 0.35, 0.58], // 4: Bas gauche
+      const [0.15, 0.55, 0.35, 0.58], // 5: Bas droite
     ];
 
     final random = math.Random();
@@ -188,11 +190,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
       final current = ref.read(careControllerProvider);
       if (!current.isBallActive) return;
 
-      notifier.moveTo(
-        targetX,
-        targetY,
-        message: strings.catchingBall,
-      );
+      notifier.moveTo(targetX, targetY, message: strings.catchingBall);
 
       _returnTimer = Timer(const Duration(milliseconds: 700), () {
         if (!mounted) return;
@@ -282,9 +280,6 @@ class _CareScreenState extends ConsumerState<CareScreen> {
 
     // Si Pi dort, il ne bouge pas
     if (companion.isSleeping) {
-      if (_activeMode == CareInteractionMode.sleep) {
-        notifier.rest(normX, normY, strings.piRested);
-      }
       return;
     }
 
@@ -307,11 +302,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             _fetchTimer?.cancel();
             _returnTimer?.cancel();
 
-            notifier.moveTo(
-              ballX,
-              ballY,
-              message: strings.ballFound,
-            );
+            notifier.moveTo(ballX, ballY, message: strings.ballFound);
 
             _returnTimer = Timer(const Duration(milliseconds: 600), () {
               if (!mounted) return;
@@ -334,7 +325,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         break;
 
       case CareInteractionMode.clean:
-        // Le lavage se déclenche uniquement via le bouton « Laver »
+        // En mode Douche/Laver, Pi se déplace simplement vers l'endroit cliqué
+        notifier.moveTo(normX, normY);
         break;
 
       case CareInteractionMode.walk:
@@ -342,7 +334,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         break;
 
       case CareInteractionMode.sleep:
-        notifier.rest(normX, normY, strings.piRested);
+        // En mode Dodo/Coucher, Pi se déplace vers l'endroit cliqué tant qu'il n'est pas couché.
+        // Le coucher et le gain d'énergie se font exclusivement via le bouton dédié "Faire dormir"
+        notifier.moveTo(normX, normY);
         break;
     }
   }
@@ -376,6 +370,81 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     final strings = ref.watch(stringsProvider);
     final shopState = ref.watch(shopControllerProvider);
 
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    if (isLandscape) {
+      return Scaffold(
+        backgroundColor: context.appBg,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s3,
+              vertical: AppSpace.s1,
+            ),
+            child: Row(
+              children: [
+                // Zone de jeu interactive principale (Gauche, flex: 62)
+                Expanded(
+                  flex: 62,
+                  child: Column(
+                    children: [
+                      // 1. Sélecteur de décor compact
+                      _buildEnvironmentSelector(companion, strings),
+                      const SizedBox(height: 4),
+                      // 2. Surface de jeu interactive & déplacement de Pi
+                      Expanded(
+                        child: InteractivePlayArea(
+                          companion: companion,
+                          activeMode: _activeMode,
+                          equippedAccessoryId:
+                              _activeMode == CareInteractionMode.clean
+                                  ? null
+                                  : shopState.equippedAccessoryId,
+                          equippedAccessoryIds:
+                              _activeMode == CareInteractionMode.clean
+                                  ? const []
+                                  : shopState.equippedAccessoryIds,
+                          onSurfaceTapped: _onSurfaceTapped,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // 3. Barre contextuelle selon le mode actif
+                      _buildModeControlBar(companion, strings),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpace.s2),
+                // Panneau latéral des soins et jauges (Droite, flex: 38)
+                Expanded(
+                  flex: 38,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        if (!widget.isEmbedded) ...[
+                          _buildHeader(context, companion, strings),
+                          const SizedBox(height: AppSpace.s1),
+                        ],
+                        // Jauges vitales compactes en 2x2
+                        _buildGaugesRow(companion, strings, isLandscape: true),
+                        const SizedBox(height: AppSpace.s2),
+                        // Plateau d'actions interactives en grille
+                        _buildActionTray(companion, strings, isLandscape: true),
+                        if (!widget.isEmbedded) ...[
+                          const SizedBox(height: AppSpace.s2),
+                          _buildBottomDock(context, strings),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: context.appBg,
       body: SafeArea(
@@ -397,20 +466,37 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     onTap: _startShowcase,
                     child: Container(
                       margin: const EdgeInsets.only(bottom: AppSpace.s1),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: context.appSurface,
                         borderRadius: BorderRadius.circular(AppRadius.pill),
-                        border: Border.all(color: context.appBorder, width: 1.5),
+                        border: Border.all(
+                          color: context.appBorder,
+                          width: 1.5,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.help_outline_rounded, size: 16, color: context.isDark ? AppColors.darkSky500 : AppColors.sky700),
+                          Icon(
+                            Icons.help_outline_rounded,
+                            size: 16,
+                            color: context.isDark
+                                ? AppColors.darkSky500
+                                : AppColors.sky700,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             strings.guideHelp,
-                            style: AppText.label.copyWith(fontSize: 12, color: context.isDark ? AppColors.darkSky500 : AppColors.sky800),
+                            style: AppText.label.copyWith(
+                              fontSize: 12,
+                              color: context.isDark
+                                  ? AppColors.darkSky500
+                                  : AppColors.sky800,
+                            ),
                           ),
                         ],
                       ),
@@ -426,12 +512,18 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 description: strings.guideEnvironmentsDesc,
                 titleTextStyle: AppText.h3.copyWith(
                   fontSize: 16,
-                  color: context.isDark ? AppColors.darkInk900 : AppColors.ink900,
+                  color: context.isDark
+                      ? AppColors.darkInk900
+                      : AppColors.ink900,
                 ),
                 descTextStyle: AppText.guideSubtitle.copyWith(
-                  color: context.isDark ? AppColors.darkInk600 : AppColors.ink600,
+                  color: context.isDark
+                      ? AppColors.darkInk600
+                      : AppColors.ink600,
                 ),
-                tooltipBackgroundColor: context.isDark ? AppColors.darkSurface : Colors.white,
+                tooltipBackgroundColor: context.isDark
+                    ? AppColors.darkSurface
+                    : Colors.white,
                 tooltipBorderRadius: BorderRadius.circular(16),
                 targetBorderRadius: BorderRadius.circular(20),
                 child: _buildEnvironmentSelector(companion, strings),
@@ -446,12 +538,18 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 description: strings.guideVitalsDesc,
                 titleTextStyle: AppText.h3.copyWith(
                   fontSize: 16,
-                  color: context.isDark ? AppColors.darkInk900 : AppColors.ink900,
+                  color: context.isDark
+                      ? AppColors.darkInk900
+                      : AppColors.ink900,
                 ),
                 descTextStyle: AppText.guideSubtitle.copyWith(
-                  color: context.isDark ? AppColors.darkInk600 : AppColors.ink600,
+                  color: context.isDark
+                      ? AppColors.darkInk600
+                      : AppColors.ink600,
                 ),
-                tooltipBackgroundColor: context.isDark ? AppColors.darkSurface : Colors.white,
+                tooltipBackgroundColor: context.isDark
+                    ? AppColors.darkSurface
+                    : Colors.white,
                 tooltipBorderRadius: BorderRadius.circular(16),
                 targetBorderRadius: BorderRadius.circular(16),
                 child: _buildGaugesRow(companion, strings),
@@ -483,12 +581,18 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 description: strings.guideInteractionDesc,
                 titleTextStyle: AppText.h3.copyWith(
                   fontSize: 16,
-                  color: context.isDark ? AppColors.darkInk900 : AppColors.ink900,
+                  color: context.isDark
+                      ? AppColors.darkInk900
+                      : AppColors.ink900,
                 ),
                 descTextStyle: AppText.guideSubtitle.copyWith(
-                  color: context.isDark ? AppColors.darkInk600 : AppColors.ink600,
+                  color: context.isDark
+                      ? AppColors.darkInk600
+                      : AppColors.ink600,
                 ),
-                tooltipBackgroundColor: context.isDark ? AppColors.darkSurface : Colors.white,
+                tooltipBackgroundColor: context.isDark
+                    ? AppColors.darkSurface
+                    : Colors.white,
                 tooltipBorderRadius: BorderRadius.circular(16),
                 targetBorderRadius: BorderRadius.circular(20),
                 child: _buildModeControlBar(companion, strings),
@@ -503,12 +607,18 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 description: strings.guideActionsDesc,
                 titleTextStyle: AppText.h3.copyWith(
                   fontSize: 16,
-                  color: context.isDark ? AppColors.darkInk900 : AppColors.ink900,
+                  color: context.isDark
+                      ? AppColors.darkInk900
+                      : AppColors.ink900,
                 ),
                 descTextStyle: AppText.guideSubtitle.copyWith(
-                  color: context.isDark ? AppColors.darkInk600 : AppColors.ink600,
+                  color: context.isDark
+                      ? AppColors.darkInk600
+                      : AppColors.ink600,
                 ),
-                tooltipBackgroundColor: context.isDark ? AppColors.darkSurface : Colors.white,
+                tooltipBackgroundColor: context.isDark
+                    ? AppColors.darkSurface
+                    : Colors.white,
                 tooltipBorderRadius: BorderRadius.circular(16),
                 targetBorderRadius: BorderRadius.circular(24),
                 child: _buildActionTray(companion, strings),
@@ -570,7 +680,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    isSleeping ? strings.piSleepingBanner : strings.piNeedsSleep,
+                    isSleeping
+                        ? strings.piSleepingBanner
+                        : strings.piNeedsSleep,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
@@ -588,13 +700,17 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             height: 38,
             width: 130,
             child: ChunkyButton(
-              label: isSleeping ? strings.wakeUpAction : strings.goToSleepAction,
+              label: isSleeping
+                  ? strings.wakeUpAction
+                  : strings.goToSleepAction,
               icon: Icon(
                 isSleeping ? Icons.wb_sunny_rounded : Icons.bedtime_rounded,
                 size: 15,
                 color: Colors.white,
               ),
-              variant: isSleeping ? ChunkyButtonVariant.secondary : ChunkyButtonVariant.primary,
+              variant: isSleeping
+                  ? ChunkyButtonVariant.secondary
+                  : ChunkyButtonVariant.primary,
               height: 38,
               width: 130,
               isFullWidth: false,
@@ -623,7 +739,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         GestureDetector(
           onTap: () {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
+              MaterialPageRoute(
+                builder: (_) => const MainShellScreen(initialIndex: 0),
+              ),
               (route) => false,
             );
           },
@@ -675,25 +793,38 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             ),
             const SizedBox(width: AppSpace.s2),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s3,
+                vertical: 4,
+              ),
               decoration: BoxDecoration(
-                color: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
+                color: context.isDark
+                    ? const Color(0xFF451A03)
+                    : AppColors.amber50,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 border: Border.all(
-                  color: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+                  color: context.isDark
+                      ? const Color(0xFFD97706)
+                      : const Color(0xFFFDE68A),
                   width: 1.5,
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.stars_rounded, size: 16, color: AppColors.gold600),
+                  const Icon(
+                    Icons.stars_rounded,
+                    size: 16,
+                    color: AppColors.gold600,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '${companion.bones}',
                     style: AppText.bodyS.copyWith(
                       fontWeight: FontWeight.w900,
-                      color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
+                      color: context.isDark
+                          ? const Color(0xFFFDE68A)
+                          : AppColors.amber900,
                     ),
                   ),
                 ],
@@ -750,17 +881,22 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                       env.icon,
                       size: 16,
                       color: isSelected
-                          ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                          ? (context.isDark
+                                ? AppColors.darkSky500
+                                : AppColors.sky700)
                           : context.appSubText,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       env.getLabel(strings.isFrench),
                       style: AppText.bodyS.copyWith(
-                        fontWeight:
-                            isSelected ? FontWeight.w900 : FontWeight.w700,
+                        fontWeight: isSelected
+                            ? FontWeight.w900
+                            : FontWeight.w700,
                         color: isSelected
-                            ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                            ? (context.isDark
+                                  ? AppColors.darkSky500
+                                  : AppColors.sky700)
                             : context.appSubText,
                         fontSize: 12,
                       ),
@@ -775,12 +911,79 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     );
   }
 
-  Widget _buildGaugesRow(PiCompanion companion, dynamic strings) {
+  Widget _buildGaugesRow(
+    PiCompanion companion,
+    dynamic strings, {
+    bool isLandscape = false,
+  }) {
+    if (isLandscape) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpace.s2, vertical: 6),
+        decoration: BoxDecoration(
+          color: context.appSurface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: context.appBorder, width: 1.5),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _buildGaugeItem(
+                    icon: Icons.restaurant_rounded,
+                    label: strings.hunger,
+                    val: companion.hunger,
+                    color: context.isDark
+                        ? const Color(0xFFFB923C)
+                        : const Color(0xFFEA580C),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildGaugeItem(
+                    icon: Icons.sports_tennis_rounded,
+                    label: strings.joy,
+                    val: companion.joy,
+                    color: context.isDark
+                        ? const Color(0xFFFBBF24)
+                        : const Color(0xFFD97706),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildGaugeItem(
+                    icon: Icons.bedtime_rounded,
+                    label: strings.energy,
+                    val: companion.energy,
+                    color: context.isDark
+                        ? const Color(0xFF4ADE80)
+                        : const Color(0xFF16A34A),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildGaugeItem(
+                    icon: Icons.auto_awesome_rounded,
+                    label: strings.cleanliness,
+                    val: companion.cleanliness,
+                    color: context.isDark
+                        ? const Color(0xFF38BDF8)
+                        : const Color(0xFF0284C7),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpace.s2,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.s2, vertical: 6),
       decoration: BoxDecoration(
         color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -793,7 +996,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.restaurant_rounded,
               label: strings.hunger,
               val: companion.hunger,
-              color: context.isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+              color: context.isDark
+                  ? const Color(0xFFFB923C)
+                  : const Color(0xFFEA580C),
             ),
           ),
           const SizedBox(width: 6),
@@ -802,7 +1007,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.sports_tennis_rounded,
               label: strings.joy,
               val: companion.joy,
-              color: context.isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+              color: context.isDark
+                  ? const Color(0xFFFBBF24)
+                  : const Color(0xFFD97706),
             ),
           ),
           const SizedBox(width: 6),
@@ -811,7 +1018,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.bedtime_rounded,
               label: strings.energy,
               val: companion.energy,
-              color: context.isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A),
+              color: context.isDark
+                  ? const Color(0xFF4ADE80)
+                  : const Color(0xFF16A34A),
             ),
           ),
           const SizedBox(width: 6),
@@ -820,7 +1029,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.auto_awesome_rounded,
               label: strings.cleanliness,
               val: companion.cleanliness,
-              color: context.isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+              color: context.isDark
+                  ? const Color(0xFF38BDF8)
+                  : const Color(0xFF0284C7),
             ),
           ),
         ],
@@ -961,7 +1172,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                   ? strings.piAsleep
                   : strings.throwBallAction,
               icon: Icon(
-                companion.isSleeping ? Icons.bedtime_rounded : Icons.sports_tennis_rounded,
+                companion.isSleeping
+                    ? Icons.bedtime_rounded
+                    : Icons.sports_tennis_rounded,
                 size: 16,
                 color: Colors.white,
               ),
@@ -982,8 +1195,16 @@ class _CareScreenState extends ConsumerState<CareScreen> {
   Widget _buildFeedControlBar(PiCompanion companion, dynamic strings) {
     final hasCroquettes = companion.croquettes > 0;
     final isFull = companion.hunger >= 1.0;
-    final canServe = hasCroquettes && companion.bowlFoodCount < 3 && !companion.isEating && !isFull && !companion.isSleeping;
-    final canComeEat = companion.bowlFoodCount > 0 && !companion.isEating && !companion.isSleeping;
+    final canServe =
+        hasCroquettes &&
+        companion.bowlFoodCount < 3 &&
+        !companion.isEating &&
+        !isFull &&
+        !companion.isSleeping;
+    final canComeEat =
+        companion.bowlFoodCount > 0 &&
+        !companion.isEating &&
+        !companion.isSleeping;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 8),
@@ -1084,11 +1305,15 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     ? strings.sleepingStatus
                     : (isFull ? strings.fullStatus : strings.serveAction),
                 icon: Icon(
-                  isFull ? Icons.check_circle_rounded : Icons.soup_kitchen_rounded,
+                  isFull
+                      ? Icons.check_circle_rounded
+                      : Icons.soup_kitchen_rounded,
                   size: 15,
                   color: Colors.white,
                 ),
-                variant: isFull ? ChunkyButtonVariant.secondary : ChunkyButtonVariant.success,
+                variant: isFull
+                    ? ChunkyButtonVariant.secondary
+                    : ChunkyButtonVariant.success,
                 height: 38,
                 width: companion.bowlFoodCount > 0 ? 86 : 110,
                 isFullWidth: false,
@@ -1148,9 +1373,13 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             child: Row(
               children: [
                 Icon(
-                  companion.isDirty ? Icons.warning_amber_rounded : Icons.check_circle_rounded,
+                  companion.isDirty
+                      ? Icons.warning_amber_rounded
+                      : Icons.check_circle_rounded,
                   size: 18,
-                  color: companion.isDirty ? const Color(0xFFEA580C) : AppColors.green600,
+                  color: companion.isDirty
+                      ? const Color(0xFFEA580C)
+                      : AppColors.green600,
                 ),
                 const SizedBox(width: 6),
                 Expanded(
@@ -1158,8 +1387,8 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                     companion.isSleeping
                         ? strings.piSleepingBanner
                         : (companion.isDirty
-                            ? strings.piNeedsBath
-                            : strings.piAllClean),
+                              ? strings.piNeedsBath
+                              : strings.piAllClean),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyS.copyWith(
@@ -1195,7 +1424,106 @@ class _CareScreenState extends ConsumerState<CareScreen> {
     );
   }
 
-  Widget _buildActionTray(PiCompanion companion, dynamic strings) {
+  Widget _buildActionTray(
+    PiCompanion companion,
+    dynamic strings, {
+    bool isLandscape = false,
+  }) {
+    if (isLandscape) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpace.s2),
+        decoration: BoxDecoration(
+          color: context.appSurface,
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          border: Border.all(color: context.appBorder, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: context.appShadow,
+              offset: const Offset(0, 3),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionButton(
+                    mode: CareInteractionMode.play,
+                    icon: Icons.sports_tennis_rounded,
+                    label: strings.playAction,
+                    subtitle: strings.available(companion.balls),
+                    accentColor: context.isDark
+                        ? const Color(0xFFFBBF24)
+                        : const Color(0xFFD97706),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildActionButton(
+                    mode: CareInteractionMode.feed,
+                    icon: Icons.restaurant_rounded,
+                    label: strings.feedAction,
+                    subtitle: strings.available(companion.croquettes),
+                    accentColor: context.isDark
+                        ? const Color(0xFFFB923C)
+                        : const Color(0xFFEA580C),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionButton(
+                    mode: CareInteractionMode.clean,
+                    icon: Icons.shower_rounded,
+                    label: strings.cleanAction,
+                    subtitle: companion.isDirty
+                        ? strings.dirtyStatus
+                        : strings.cleanStatus,
+                    accentColor: context.isDark
+                        ? const Color(0xFF38BDF8)
+                        : const Color(0xFF0284C7),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildActionButton(
+                    mode: CareInteractionMode.walk,
+                    icon: Icons.navigation_rounded,
+                    label: strings.walkAction,
+                    subtitle: strings.unlimited,
+                    accentColor: context.isDark
+                        ? AppColors.darkSky500
+                        : AppColors.sky500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionButton(
+                    mode: CareInteractionMode.sleep,
+                    icon: Icons.bed_rounded,
+                    label: strings.sleepAction,
+                    subtitle: strings.unlimited,
+                    accentColor: context.isDark
+                        ? const Color(0xFF4ADE80)
+                        : const Color(0xFF16A34A),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(AppSpace.s2),
       decoration: BoxDecoration(
@@ -1218,7 +1546,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.sports_tennis_rounded,
               label: strings.playAction,
               subtitle: strings.available(companion.balls),
-              accentColor: context.isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+              accentColor: context.isDark
+                  ? const Color(0xFFFBBF24)
+                  : const Color(0xFFD97706),
             ),
           ),
           const SizedBox(width: 6),
@@ -1228,7 +1558,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.restaurant_rounded,
               label: strings.feedAction,
               subtitle: strings.available(companion.croquettes),
-              accentColor: context.isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+              accentColor: context.isDark
+                  ? const Color(0xFFFB923C)
+                  : const Color(0xFFEA580C),
             ),
           ),
           const SizedBox(width: 6),
@@ -1240,7 +1572,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               subtitle: companion.isDirty
                   ? strings.dirtyStatus
                   : strings.cleanStatus,
-              accentColor: context.isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+              accentColor: context.isDark
+                  ? const Color(0xFF38BDF8)
+                  : const Color(0xFF0284C7),
             ),
           ),
           const SizedBox(width: 6),
@@ -1250,7 +1584,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.navigation_rounded,
               label: strings.walkAction,
               subtitle: strings.unlimited,
-              accentColor: context.isDark ? AppColors.darkSky500 : AppColors.sky500,
+              accentColor: context.isDark
+                  ? AppColors.darkSky500
+                  : AppColors.sky500,
             ),
           ),
           const SizedBox(width: 6),
@@ -1260,7 +1596,9 @@ class _CareScreenState extends ConsumerState<CareScreen> {
               icon: Icons.bed_rounded,
               label: strings.sleepAction,
               subtitle: strings.unlimited,
-              accentColor: context.isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A),
+              accentColor: context.isDark
+                  ? const Color(0xFF4ADE80)
+                  : const Color(0xFF16A34A),
             ),
           ),
         ],
@@ -1306,9 +1644,7 @@ class _CareScreenState extends ConsumerState<CareScreen> {
             Icon(
               icon,
               size: 20,
-              color: isSelected
-                  ? accentColor
-                  : context.appSubText,
+              color: isSelected ? accentColor : context.appSubText,
             ),
             const SizedBox(height: 2),
             FittedBox(
@@ -1330,7 +1666,11 @@ class _CareScreenState extends ConsumerState<CareScreen> {
                 style: AppText.guideSubtitleM.copyWith(
                   fontSize: 8.5,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? accentColor : (context.isDark ? AppColors.darkInk500 : AppColors.ink500),
+                  color: isSelected
+                      ? accentColor
+                      : (context.isDark
+                            ? AppColors.darkInk500
+                            : AppColors.ink500),
                 ),
               ),
             ),
@@ -1353,7 +1693,10 @@ class _CareScreenState extends ConsumerState<CareScreen> {
         children: [
           // Soigner (actif)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s4,
+              vertical: 6,
+            ),
             decoration: BoxDecoration(
               color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
               borderRadius: BorderRadius.circular(AppRadius.md),
@@ -1382,12 +1725,17 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
+                MaterialPageRoute(
+                  builder: (_) => const MainShellScreen(initialIndex: 0),
+                ),
                 (route) => false,
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s3,
+                vertical: 6,
+              ),
               child: Row(
                 children: [
                   const Icon(
@@ -1412,12 +1760,17 @@ class _CareScreenState extends ConsumerState<CareScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 2)),
+                MaterialPageRoute(
+                  builder: (_) => const MainShellScreen(initialIndex: 2),
+                ),
                 (route) => false,
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s3,
+                vertical: 6,
+              ),
               child: Row(
                 children: [
                   const Icon(

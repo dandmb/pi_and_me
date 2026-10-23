@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 class TennisBallWidget extends StatelessWidget {
   final double size;
 
-  const TennisBallWidget({
-    super.key,
-    this.size = 28.0,
-  });
+  const TennisBallWidget({super.key, this.size = 28.0});
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +30,7 @@ class TennisBallWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: CustomPaint(
-        painter: _TennisSeamPainter(),
-      ),
+      child: CustomPaint(painter: _TennisSeamPainter()),
     );
   }
 }

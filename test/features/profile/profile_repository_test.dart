@@ -43,8 +43,20 @@ void main() {
     });
 
     test('Can switch active profile between multiple profiles', () async {
-      final p1 = ChildProfile(id: '1', name: 'Léa', avatar: 'dog', grade: SchoolGrade.cm1, createdAt: DateTime.now());
-      final p2 = ChildProfile(id: '2', name: 'Hugo', avatar: 'cat', grade: SchoolGrade.ce2, createdAt: DateTime.now());
+      final p1 = ChildProfile(
+        id: '1',
+        name: 'Léa',
+        avatar: 'dog',
+        grade: SchoolGrade.cm1,
+        createdAt: DateTime.now(),
+      );
+      final p2 = ChildProfile(
+        id: '2',
+        name: 'Hugo',
+        avatar: 'cat',
+        grade: SchoolGrade.ce2,
+        createdAt: DateTime.now(),
+      );
 
       await repository.saveProfile(p1);
       await repository.saveProfile(p2); // will be active
@@ -58,7 +70,13 @@ void main() {
     });
 
     test('Updates profile when ID already exists', () async {
-      final p1 = ChildProfile(id: '1', name: 'Léa', avatar: 'dog', grade: SchoolGrade.cm1, createdAt: DateTime.now());
+      final p1 = ChildProfile(
+        id: '1',
+        name: 'Léa',
+        avatar: 'dog',
+        grade: SchoolGrade.cm1,
+        createdAt: DateTime.now(),
+      );
       await repository.saveProfile(p1);
 
       final p1Updated = p1.copyWith(name: 'Léa M.', grade: SchoolGrade.cm2);
@@ -73,7 +91,13 @@ void main() {
     test('Enforces maximum 4 profiles limit', () async {
       for (int i = 1; i <= 4; i++) {
         await repository.saveProfile(
-          ChildProfile(id: '$i', name: 'Enfant $i', avatar: 'dog', grade: SchoolGrade.cp, createdAt: DateTime.now()),
+          ChildProfile(
+            id: '$i',
+            name: 'Enfant $i',
+            avatar: 'dog',
+            grade: SchoolGrade.cp,
+            createdAt: DateTime.now(),
+          ),
         );
       }
 
@@ -83,15 +107,33 @@ void main() {
       // 5th profile should throw exception
       expect(
         () => repository.saveProfile(
-          ChildProfile(id: '5', name: 'Enfant 5', avatar: 'dog', grade: SchoolGrade.cp, createdAt: DateTime.now()),
+          ChildProfile(
+            id: '5',
+            name: 'Enfant 5',
+            avatar: 'dog',
+            grade: SchoolGrade.cp,
+            createdAt: DateTime.now(),
+          ),
         ),
         throwsException,
       );
     });
 
     test('Deleting active profile sets another profile as active', () async {
-      final p1 = ChildProfile(id: '1', name: 'Léa', avatar: 'dog', grade: SchoolGrade.cm1, createdAt: DateTime.now());
-      final p2 = ChildProfile(id: '2', name: 'Hugo', avatar: 'cat', grade: SchoolGrade.ce2, createdAt: DateTime.now());
+      final p1 = ChildProfile(
+        id: '1',
+        name: 'Léa',
+        avatar: 'dog',
+        grade: SchoolGrade.cm1,
+        createdAt: DateTime.now(),
+      );
+      final p2 = ChildProfile(
+        id: '2',
+        name: 'Hugo',
+        avatar: 'cat',
+        grade: SchoolGrade.ce2,
+        createdAt: DateTime.now(),
+      );
 
       await repository.saveProfile(p1);
       await repository.saveProfile(p2);

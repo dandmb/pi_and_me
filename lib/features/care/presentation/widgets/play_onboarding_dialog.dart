@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_text.dart';
@@ -11,13 +12,13 @@ class PlayOnboardingDialog extends StatelessWidget {
   static const String prefKey = 'pi_play_onboarding_shown';
   final bool isFrench;
 
-  const PlayOnboardingDialog({
-    super.key,
-    required this.isFrench,
-  });
+  const PlayOnboardingDialog({super.key, required this.isFrench});
 
   /// Affiche le dialogue et persiste le choix dans SharedPreferences
-  static Future<void> show(BuildContext context, {required bool isFrench}) async {
+  static Future<void> show(
+    BuildContext context, {
+    required bool isFrench,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(prefKey, true);
 
@@ -55,7 +56,9 @@ class PlayOnboardingDialog extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(AppSpace.s2),
                   decoration: BoxDecoration(
-                    color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
+                    color: context.isDark
+                        ? AppColors.darkSky50
+                        : AppColors.sky50,
                     borderRadius: BorderRadius.circular(AppRadius.md),
                   ),
                   child: const Icon(
@@ -127,7 +130,11 @@ class PlayOnboardingDialog extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline_rounded, size: 18, color: context.appSubText),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 18,
+                    color: context.appSubText,
+                  ),
                   const SizedBox(width: AppSpace.s2),
                   Expanded(
                     child: Text(
@@ -175,7 +182,10 @@ class PlayOnboardingDialog extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(color: AppColors.sky500.withValues(alpha: 0.3), width: 1),
+            border: Border.all(
+              color: AppColors.sky500.withValues(alpha: 0.3),
+              width: 1,
+            ),
           ),
           child: Icon(icon, color: AppColors.sky600, size: 18),
         ),

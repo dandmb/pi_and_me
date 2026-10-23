@@ -7,9 +7,11 @@ class SoundModeNotifier extends StateNotifier<bool> {
   static const String _storageKey = 'mathpup_sound_enabled_v1';
   final SharedPreferences? _prefs;
 
-  SoundModeNotifier({SharedPreferences? prefsInstance, bool initialValue = true})
-      : _prefs = prefsInstance,
-        super(initialValue) {
+  SoundModeNotifier({
+    SharedPreferences? prefsInstance,
+    bool initialValue = true,
+  }) : _prefs = prefsInstance,
+       super(initialValue) {
     if (prefsInstance == null) {
       _loadFromPrefs();
     }
@@ -38,7 +40,8 @@ class SoundModeNotifier extends StateNotifier<bool> {
   Future<void> toggle() => setSoundEnabled(!state);
 }
 
-final soundEnabledProvider =
-    StateNotifierProvider<SoundModeNotifier, bool>((ref) {
+final soundEnabledProvider = StateNotifierProvider<SoundModeNotifier, bool>((
+  ref,
+) {
   return SoundModeNotifier();
 });

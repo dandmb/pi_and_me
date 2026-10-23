@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_text.dart';
 
 enum ChunkyButtonVariant {
-  primary,   // Bleu sky600, bord 6px sky700, texte blanc (Jouer, Valider, etc.)
+  primary, // Bleu sky600, bord 6px sky700, texte blanc (Jouer, Valider, etc.)
   secondary, // Blanc surface, bordure 2px, bord 4px ink300, texte ink900
-  success,   // Vert green600, bord 4px green700, texte blanc (Achat, Récompense)
-  danger,    // Blanc surface, bordure 2px corail, texte corail
+  success, // Vert green600, bord 4px green700, texte blanc (Achat, Récompense)
+  danger, // Blanc surface, bordure 2px corail, texte corail
 }
 
 /// Bouton tactile physique à rebord inférieur 3D (« Chunky »).
@@ -43,7 +44,9 @@ class _ChunkyButtonState extends State<ChunkyButton> {
 
   double get _edgeHeight {
     if (widget.onPressed == null) return 0;
-    return widget.variant == ChunkyButtonVariant.primary ? AppEdge.primary : AppEdge.standard;
+    return widget.variant == ChunkyButtonVariant.primary
+        ? AppEdge.primary
+        : AppEdge.standard;
   }
 
   Color _getFaceColor(bool isDark) {

@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../care/presentation/care_controller.dart';
 import '../domain/accessory_category.dart';
 import '../domain/accessory_item.dart';
@@ -14,8 +16,8 @@ class ShopController extends StateNotifier<ShopState> {
   Timer? _feedbackTimer;
 
   ShopController({SharedPreferences? prefsInstance, ShopState? initialState})
-      : _prefs = prefsInstance,
-        super(initialState ?? const ShopState()) {
+    : _prefs = prefsInstance,
+      super(initialState ?? const ShopState()) {
     if (initialState == null) {
       _loadFromStorage();
     }
@@ -63,7 +65,9 @@ class ShopController extends StateNotifier<ShopState> {
     if (id.isEmpty) {
       // Annule les essais non équipés et conserve uniquement les accessoires portés
       state = state.copyWith(
-        previewByCategory: Map<AccessoryCategory, String>.from(state.equippedByCategory),
+        previewByCategory: Map<AccessoryCategory, String>.from(
+          state.equippedByCategory,
+        ),
         clearFeedback: true,
       );
       return;
@@ -71,27 +75,25 @@ class ShopController extends StateNotifier<ShopState> {
 
     final item = ShopCatalog.findById(id);
     final category = item?.category ?? state.selectedCategory;
-    final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory);
+    final nextPreview = Map<AccessoryCategory, String>.from(
+      state.previewByCategory,
+    );
     nextPreview[category] = id;
 
-    state = state.copyWith(
-      previewByCategory: nextPreview,
-      clearFeedback: true,
-    );
+    state = state.copyWith(previewByCategory: nextPreview, clearFeedback: true);
   }
 
   void cancelCategoryPreview(AccessoryCategory category) {
-    final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory);
+    final nextPreview = Map<AccessoryCategory, String>.from(
+      state.previewByCategory,
+    );
     final equippedInCat = state.equippedByCategory[category];
     if (equippedInCat != null) {
       nextPreview[category] = equippedInCat;
     } else {
       nextPreview.remove(category);
     }
-    state = state.copyWith(
-      previewByCategory: nextPreview,
-      clearFeedback: true,
-    );
+    state = state.copyWith(previewByCategory: nextPreview, clearFeedback: true);
   }
 
   bool buyAccessory({
@@ -115,10 +117,12 @@ class ShopController extends StateNotifier<ShopState> {
 
     // Ajout à l'inventaire & équipement automatique dans sa catégorie (sans retirer les autres catégories)
     final newOwned = Set<String>.from(state.ownedAccessoryIds)..add(item.id);
-    final nextEquipped = Map<AccessoryCategory, String>.from(state.equippedByCategory)
-      ..[item.category] = item.id;
-    final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory)
-      ..[item.category] = item.id;
+    final nextEquipped = Map<AccessoryCategory, String>.from(
+      state.equippedByCategory,
+    )..[item.category] = item.id;
+    final nextPreview = Map<AccessoryCategory, String>.from(
+      state.previewByCategory,
+    )..[item.category] = item.id;
 
     state = state.copyWith(
       ownedAccessoryIds: newOwned,
@@ -137,10 +141,12 @@ class ShopController extends StateNotifier<ShopState> {
     if (!state.isOwned(id)) return;
     final item = ShopCatalog.findById(id);
     final category = item?.category ?? state.selectedCategory;
-    final nextEquipped = Map<AccessoryCategory, String>.from(state.equippedByCategory)
-      ..[category] = id;
-    final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory)
-      ..[category] = id;
+    final nextEquipped = Map<AccessoryCategory, String>.from(
+      state.equippedByCategory,
+    )..[category] = id;
+    final nextPreview = Map<AccessoryCategory, String>.from(
+      state.previewByCategory,
+    )..[category] = id;
 
     state = state.copyWith(
       equippedByCategory: nextEquipped,
@@ -157,8 +163,12 @@ class ShopController extends StateNotifier<ShopState> {
     if (id != null && id.isNotEmpty) {
       final item = ShopCatalog.findById(id);
       final category = item?.category ?? state.selectedCategory;
-      final nextEquipped = Map<AccessoryCategory, String>.from(state.equippedByCategory);
-      final nextPreview = Map<AccessoryCategory, String>.from(state.previewByCategory);
+      final nextEquipped = Map<AccessoryCategory, String>.from(
+        state.equippedByCategory,
+      );
+      final nextPreview = Map<AccessoryCategory, String>.from(
+        state.previewByCategory,
+      );
       if (nextEquipped[category] == id) {
         nextEquipped.remove(category);
       }
@@ -188,7 +198,8 @@ class ShopController extends StateNotifier<ShopState> {
 }
 
 /// Provider global de la boutique de Pi
-final shopControllerProvider =
-    StateNotifierProvider<ShopController, ShopState>((ref) {
-  return ShopController();
-});
+final shopControllerProvider = StateNotifierProvider<ShopController, ShopState>(
+  (ref) {
+    return ShopController();
+  },
+);

@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../domain/pi_companion.dart';
 import '../domain/play_environment.dart';
 
@@ -13,9 +15,11 @@ class CareController extends StateNotifier<PiCompanion> {
   Timer? _statusTimer;
   Set<String> _visitedEnvironments = {};
 
-  CareController({SharedPreferences? prefsInstance, PiCompanion? initialCompanion})
-      : _prefs = prefsInstance,
-        super(initialCompanion ?? PiCompanion.initial()) {
+  CareController({
+    SharedPreferences? prefsInstance,
+    PiCompanion? initialCompanion,
+  }) : _prefs = prefsInstance,
+       super(initialCompanion ?? PiCompanion.initial()) {
     if (initialCompanion == null) {
       _loadFromStorage();
     } else if (initialCompanion.statusMessage != null) {
@@ -127,16 +131,28 @@ class CareController extends StateNotifier<PiCompanion> {
     if (isFirstVisit) {
       _visitedEnvironments.add(newEnv.id);
       _saveVisitedEnvironments();
-      state = state.setEnvironment(newEnv, isFrench: isFrench, showWelcome: true);
+      state = state.setEnvironment(
+        newEnv,
+        isFrench: isFrench,
+        showWelcome: true,
+      );
       _startStatusDismissTimer(seconds: 4);
     } else {
-      state = state.setEnvironment(newEnv, isFrench: isFrench, showWelcome: false);
+      state = state.setEnvironment(
+        newEnv,
+        isFrench: isFrench,
+        showWelcome: false,
+      );
     }
     _saveToStorage();
   }
 
   /// Ajoute des récompenses remportées lors d'un quiz
-  void addRewards({required int bones, required int croquettes, required int balls}) {
+  void addRewards({
+    required int bones,
+    required int croquettes,
+    required int balls,
+  }) {
     state = state.addRewards(
       addedBones: bones,
       addedCroquettes: croquettes,
@@ -188,5 +204,5 @@ class CareController extends StateNotifier<PiCompanion> {
 /// Provider global de l'état du compagnon Pi
 final careControllerProvider =
     StateNotifierProvider<CareController, PiCompanion>((ref) {
-  return CareController();
-});
+      return CareController();
+    });

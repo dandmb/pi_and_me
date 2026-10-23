@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -72,37 +73,41 @@ class InteractivePlayArea extends ConsumerWidget {
               child: Stack(
                 children: [
                   // 1. Fond thématique selon le mode (Douche, Dodo étoilé ou décors classiques)
-                  Positioned.fill(
-                    child: _buildBackground(env, activeMode),
-                  ),
+                  Positioned.fill(child: _buildBackground(env, activeMode)),
 
                   // 2. L'assiette / gamelle posée dans le coin (uniquement en mode Nourrir ou si croquettes présentes)
-                  if (activeMode == CareInteractionMode.feed || companion.bowlFoodCount > 0)
+                  if (activeMode == CareInteractionMode.feed ||
+                      companion.bowlFoodCount > 0)
                     Align(
                       alignment: const Alignment(-0.68, 0.52),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // Tapis d'alimentation sous la gamelle
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.65),
-                            borderRadius: BorderRadius.circular(AppRadius.pill),
-                            border: Border.all(
-                              color: AppColors.ink200.withValues(alpha: 0.8),
-                              width: 1,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.65),
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.pill,
+                              ),
+                              border: Border.all(
+                                color: AppColors.ink200.withValues(alpha: 0.8),
+                                width: 1,
+                              ),
+                            ),
+                            child: FoodBowlWidget(
+                              foodCount: companion.bowlFoodCount,
+                              width: 60,
+                              height: 38,
                             ),
                           ),
-                          child: FoodBowlWidget(
-                            foodCount: companion.bowlFoodCount,
-                            width: 60,
-                            height: 38,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
                   // 3. Balle de tennis lancée sur le terrain
                   if (companion.isBallActive)
@@ -117,18 +122,30 @@ class InteractivePlayArea extends ConsumerWidget {
                     ),
 
                   // 4. Si Pi dort et qu'on n'est pas dans l'onglet Dodo : Pi n'apparaît pas
-                  if (companion.isSleeping && activeMode != CareInteractionMode.sleep)
+                  if (companion.isSleeping &&
+                      activeMode != CareInteractionMode.sleep)
                     Center(
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 24),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
                         decoration: BoxDecoration(
-                          color: (context.isDark ? AppColors.darkSurface : AppColors.surface).withValues(alpha: 0.95),
+                          color:
+                              (context.isDark
+                                      ? AppColors.darkSurface
+                                      : AppColors.surface)
+                                  .withValues(alpha: 0.95),
                           borderRadius: BorderRadius.circular(AppRadius.xl),
-                          border: Border.all(color: const Color(0xFF818CF8), width: 2),
+                          border: Border.all(
+                            color: const Color(0xFF818CF8),
+                            width: 2,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                              color: const Color(0xFF6366F1)
+                                  .withValues(alpha: 0.15),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             ),
@@ -140,7 +157,9 @@ class InteractivePlayArea extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: context.isDark ? const Color(0xFF312E81) : const Color(0xFFEEF2FF),
+                                color: context.isDark
+                                    ? const Color(0xFF312E81)
+                                    : const Color(0xFFEEF2FF),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -173,7 +192,8 @@ class InteractivePlayArea extends ConsumerWidget {
                     ),
 
                   // 5. Pi le chiot (uniquement s'il est éveillé ou s'il est dans sa chambre Dodo)
-                  if (!companion.isSleeping || activeMode == CareInteractionMode.sleep)
+                  if (!companion.isSleeping ||
+                      activeMode == CareInteractionMode.sleep)
                     AnimatedAlign(
                       alignment: Alignment(companion.piX, companion.piY),
                       duration: const Duration(milliseconds: 650),
@@ -196,7 +216,9 @@ class InteractivePlayArea extends ConsumerWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppColors.surface,
-                                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.lg,
+                                  ),
                                   border: Border.all(
                                     color: AppColors.ink200,
                                     width: 1.5,
@@ -248,12 +270,12 @@ class InteractivePlayArea extends ConsumerWidget {
                                   dirtCount: companion.dirtCount,
                                   equippedAccessoryId:
                                       activeMode == CareInteractionMode.clean
-                                          ? null
-                                          : equippedAccessoryId,
+                                      ? null
+                                      : equippedAccessoryId,
                                   equippedAccessoryIds:
                                       activeMode == CareInteractionMode.clean
-                                          ? const []
-                                          : equippedAccessoryIds,
+                                      ? const []
+                                      : equippedAccessoryIds,
                                   enableTapInteraction:
                                       activeMode != CareInteractionMode.clean,
                                   piSize: 96,
@@ -278,8 +300,6 @@ class InteractivePlayArea extends ConsumerWidget {
                         ],
                       ),
                     ),
-
-
                 ],
               ),
             ),
@@ -321,7 +341,10 @@ class InteractivePlayArea extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: List.generate(
                         4,
-                        (_) => Container(height: 1, color: const Color(0xFFBAE6FD).withValues(alpha: 0.7)),
+                        (_) => Container(
+                          height: 1,
+                          color: const Color(0xFFBAE6FD).withValues(alpha: 0.7),
+                        ),
                       ),
                     ),
                     // Joints verticaux du carrelage
@@ -329,15 +352,14 @@ class InteractivePlayArea extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: List.generate(
                         8,
-                        (_) => Container(width: 1, color: const Color(0xFFBAE6FD).withValues(alpha: 0.7)),
+                        (_) => Container(
+                          width: 1,
+                          color: const Color(0xFFBAE6FD).withValues(alpha: 0.7),
+                        ),
                       ),
                     ),
                     // Pommeau de douche chromé à gauche avec jet d'eau
-                    Positioned(
-                      left: 20,
-                      top: 10,
-                      child: _buildShowerFixture(),
-                    ),
+                    Positioned(left: 20, top: 10, child: _buildShowerFixture()),
                     // Étagère de toilettage à droite (shampoing canin et éponge)
                     Positioned(
                       right: 18,
@@ -366,9 +388,7 @@ class InteractivePlayArea extends ConsumerWidget {
                       child: _buildFloorDrain(),
                     ),
                     // Grande baignoire de lavage canin ergonomique au centre
-                    Center(
-                      child: _buildDogWashTub(),
-                    ),
+                    Center(child: _buildDogWashTub()),
                   ],
                 ),
               ),
@@ -399,17 +419,9 @@ class InteractivePlayArea extends ConsumerWidget {
                 child: Stack(
                   children: [
                     // Fenêtre en ogive montrant le croissant de lune et les étoiles
-                    Positioned(
-                      left: 24,
-                      top: 12,
-                      child: _buildNightWindow(),
-                    ),
+                    Positioned(left: 24, top: 12, child: _buildNightWindow()),
                     // Lampe de chevet diffusant une lueur dorée apaisante
-                    Positioned(
-                      right: 22,
-                      top: 16,
-                      child: _buildNightLamp(),
-                    ),
+                    Positioned(right: 22, top: 16, child: _buildNightLamp()),
                   ],
                 ),
               ),
@@ -426,9 +438,7 @@ class InteractivePlayArea extends ConsumerWidget {
                 child: Stack(
                   children: [
                     // Grand panier douillet pour chien au centre
-                    Center(
-                      child: _buildPlushDogBed(),
-                    ),
+                    Center(child: _buildPlushDogBed()),
                   ],
                 ),
               ),
@@ -456,8 +466,13 @@ class InteractivePlayArea extends ConsumerWidget {
                 height: 14,
                 decoration: BoxDecoration(
                   color: const Color(0xFFCBD5E1),
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(8)),
-                  border: Border.all(color: const Color(0xFF64748B), width: 1.5),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(8),
+                  ),
+                  border: Border.all(
+                    color: const Color(0xFF64748B),
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -614,7 +629,10 @@ class InteractivePlayArea extends ConsumerWidget {
       height: 68,
       decoration: BoxDecoration(
         color: const Color(0xFF020617),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(30), bottom: Radius.circular(8)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(30),
+          bottom: Radius.circular(8),
+        ),
         border: Border.all(color: const Color(0xFF475569), width: 3),
       ),
       child: Stack(
@@ -644,9 +662,21 @@ class InteractivePlayArea extends ConsumerWidget {
             ),
           ),
           // Étoiles scintillantes
-          const Positioned(left: 10, top: 16, child: Icon(Icons.star, size: 8, color: Colors.white)),
-          const Positioned(left: 20, top: 38, child: Icon(Icons.star, size: 6, color: Colors.white70)),
-          const Positioned(right: 16, top: 46, child: Icon(Icons.star, size: 7, color: Colors.white)),
+          const Positioned(
+            left: 10,
+            top: 16,
+            child: Icon(Icons.star, size: 8, color: Colors.white),
+          ),
+          const Positioned(
+            left: 20,
+            top: 38,
+            child: Icon(Icons.star, size: 6, color: Colors.white70),
+          ),
+          const Positioned(
+            right: 16,
+            top: 46,
+            child: Icon(Icons.star, size: 7, color: Colors.white),
+          ),
         ],
       ),
     );
@@ -677,7 +707,14 @@ class InteractivePlayArea extends ConsumerWidget {
         // Pied de lampe
         Container(width: 4, height: 16, color: const Color(0xFFD97706)),
         // Socle
-        Container(width: 18, height: 4, decoration: BoxDecoration(color: const Color(0xFFB45309), borderRadius: BorderRadius.circular(2))),
+        Container(
+          width: 18,
+          height: 4,
+          decoration: BoxDecoration(
+            color: const Color(0xFFB45309),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
       ],
     );
   }
@@ -732,7 +769,10 @@ class InteractivePlayArea extends ConsumerWidget {
                           top: 18,
                           left: 0,
                           right: 0,
-                          child: Container(height: 2, color: const Color(0xFFE2E8F0)),
+                          child: Container(
+                            height: 2,
+                            color: const Color(0xFFE2E8F0),
+                          ),
                         ),
                         // Horloge murale circulaire
                         Positioned(
@@ -744,7 +784,10 @@ class InteractivePlayArea extends ConsumerWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white,
-                              border: Border.all(color: const Color(0xFFCBD5E1), width: 2),
+                              border: Border.all(
+                                color: const Color(0xFFCBD5E1),
+                                width: 2,
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.05),
@@ -754,7 +797,11 @@ class InteractivePlayArea extends ConsumerWidget {
                               ],
                             ),
                             child: const Center(
-                              child: Icon(Icons.access_time_rounded, size: 16, color: AppColors.ink500),
+                              child: Icon(
+                                Icons.access_time_rounded,
+                                size: 16,
+                                color: AppColors.ink500,
+                              ),
                             ),
                           ),
                         ),
@@ -766,7 +813,10 @@ class InteractivePlayArea extends ConsumerWidget {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFCBD5E1), width: 3),
+                              border: Border.all(
+                                color: const Color(0xFFCBD5E1),
+                                width: 3,
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.06),
@@ -780,7 +830,10 @@ class InteractivePlayArea extends ConsumerWidget {
                               child: Container(
                                 decoration: const BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [Color(0xFFE0F2FE), Color(0xFFBAE6FD)],
+                                    colors: [
+                                      Color(0xFFE0F2FE),
+                                      Color(0xFFBAE6FD),
+                                    ],
                                   ),
                                 ),
                                 child: Center(
@@ -825,7 +878,8 @@ class InteractivePlayArea extends ConsumerWidget {
                             4,
                             (_) => Container(
                               height: 1,
-                              color: const Color(0xFFFDE68A).withValues(alpha: 0.6),
+                              color: const Color(0xFFFDE68A)
+                                  .withValues(alpha: 0.6),
                             ),
                           ),
                         ),
@@ -839,16 +893,15 @@ class InteractivePlayArea extends ConsumerWidget {
                               borderRadius: const BorderRadius.all(
                                 Radius.elliptical(230, 80),
                               ),
-                              border: Border.all(color: const Color(0xFFF59E0B), width: 2),
+                              border: Border.all(
+                                color: const Color(0xFFF59E0B),
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
                         // Canapé douillet sur le côté droit
-                        Positioned(
-                          right: 8,
-                          top: 10,
-                          child: _buildSofa(),
-                        ),
+                        Positioned(right: 8, top: 10, child: _buildSofa()),
                       ],
                     ),
                   ),
@@ -888,7 +941,8 @@ class InteractivePlayArea extends ConsumerWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFFDE047).withValues(alpha: 0.5),
+                                  color: const Color(0xFFFDE047)
+                                      .withValues(alpha: 0.5),
                                   blurRadius: 12,
                                   spreadRadius: 3,
                                 ),
@@ -897,8 +951,16 @@ class InteractivePlayArea extends ConsumerWidget {
                           ),
                         ),
                         // Nuages vectoriels légers
-                        Positioned(left: 30, top: 18, child: _buildCloud(44, 18)),
-                        Positioned(left: 140, top: 28, child: _buildCloud(36, 14)),
+                        Positioned(
+                          left: 30,
+                          top: 18,
+                          child: _buildCloud(44, 18),
+                        ),
+                        Positioned(
+                          left: 140,
+                          top: 28,
+                          child: _buildCloud(36, 14),
+                        ),
                       ],
                     ),
                   ),
@@ -917,8 +979,13 @@ class InteractivePlayArea extends ConsumerWidget {
                         height: 18,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                          border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4),
+                          ),
+                          border: Border.all(
+                            color: const Color(0xFFCBD5E1),
+                            width: 1,
+                          ),
                         ),
                       ),
                     ),
@@ -939,13 +1006,37 @@ class InteractivePlayArea extends ConsumerWidget {
                           child: _buildGardenHedge(),
                         ),
                         // Pas japonais / pierres du chemin
-                        Positioned(left: 55, top: 22, child: _buildPathStone(24, 14)),
-                        Positioned(left: 80, top: 54, child: _buildPathStone(28, 16)),
+                        Positioned(
+                          left: 55,
+                          top: 22,
+                          child: _buildPathStone(24, 14),
+                        ),
+                        Positioned(
+                          left: 80,
+                          top: 54,
+                          child: _buildPathStone(28, 16),
+                        ),
                         // Fleurs stylisées
-                        Positioned(left: 20, top: 16, child: _VectorFloralDot(color: Color(0xFFF472B6))),
-                        Positioned(right: 70, top: 28, child: _VectorFloralDot(color: Color(0xFFFBBF24))),
-                        Positioned(left: 40, bottom: 20, child: _VectorFloralDot(color: Color(0xFF38BDF8))),
-                        Positioned(right: 90, bottom: 25, child: _VectorFloralDot(color: Color(0xFFFB7185))),
+                        Positioned(
+                          left: 20,
+                          top: 16,
+                          child: _VectorFloralDot(color: Color(0xFFF472B6)),
+                        ),
+                        Positioned(
+                          right: 70,
+                          top: 28,
+                          child: _VectorFloralDot(color: Color(0xFFFBBF24)),
+                        ),
+                        Positioned(
+                          left: 40,
+                          bottom: 20,
+                          child: _VectorFloralDot(color: Color(0xFF38BDF8)),
+                        ),
+                        Positioned(
+                          right: 90,
+                          bottom: 25,
+                          child: _VectorFloralDot(color: Color(0xFFFB7185)),
+                        ),
                       ],
                     ),
                   ),
@@ -967,7 +1058,11 @@ class InteractivePlayArea extends ConsumerWidget {
                     color: const Color(0xFF7DD3FC),
                     child: Stack(
                       children: [
-                        Positioned(right: 40, top: 15, child: _buildCloud(40, 16)),
+                        Positioned(
+                          right: 40,
+                          top: 15,
+                          child: _buildCloud(40, 16),
+                        ),
                         // Petite mouette stylisée
                         Positioned(
                           left: 45,
@@ -1024,13 +1119,24 @@ class InteractivePlayArea extends ConsumerWidget {
                             decoration: BoxDecoration(
                               color: const Color(0xFFF43F5E),
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.white, width: 1.5),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
                             ),
                           ),
                         ),
                         // Galets et étoile de mer vectoriels
-                        Positioned(left: 40, top: 20, child: _VectorPebble(width: 14, height: 8)),
-                        Positioned(right: 55, bottom: 22, child: _VectorPebble(width: 18, height: 10)),
+                        Positioned(
+                          left: 40,
+                          top: 20,
+                          child: _VectorPebble(width: 14, height: 8),
+                        ),
+                        Positioned(
+                          right: 55,
+                          bottom: 22,
+                          child: _VectorPebble(width: 18, height: 10),
+                        ),
                         Positioned(
                           left: 75,
                           bottom: 26,
@@ -1077,7 +1183,9 @@ class InteractivePlayArea extends ConsumerWidget {
                             height: 30,
                             decoration: const BoxDecoration(
                               color: Color(0xFF818CF8),
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(50),
+                              ),
                             ),
                           ),
                         ),
@@ -1088,10 +1196,22 @@ class InteractivePlayArea extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: const [
-                              _VectorPineTree(height: 42, color: Color(0xFF065F46)),
-                              _VectorPineTree(height: 56, color: Color(0xFF047857)),
-                              _VectorPineTree(height: 46, color: Color(0xFF065F46)),
-                              _VectorPineTree(height: 60, color: Color(0xFF064E3B)),
+                              _VectorPineTree(
+                                height: 42,
+                                color: Color(0xFF065F46),
+                              ),
+                              _VectorPineTree(
+                                height: 56,
+                                color: Color(0xFF047857),
+                              ),
+                              _VectorPineTree(
+                                height: 46,
+                                color: Color(0xFF065F46),
+                              ),
+                              _VectorPineTree(
+                                height: 60,
+                                color: Color(0xFF064E3B),
+                              ),
                             ],
                           ),
                         ),
@@ -1114,15 +1234,15 @@ class InteractivePlayArea extends ConsumerWidget {
                           child: _buildTreeStump(),
                         ),
                         // Champignons des bois vectoriels
-                        Positioned(
-                          right: 70,
-                          top: 24,
-                          child: _buildMushroom(),
-                        ),
+                        Positioned(right: 70, top: 24, child: _buildMushroom()),
                         // Végétation stylisée
                         Positioned(left: 35, top: 18, child: _VectorLeafDot()),
                         Positioned(right: 85, top: 40, child: _VectorLeafDot()),
-                        Positioned(left: 75, bottom: 22, child: _VectorLeafDot()),
+                        Positioned(
+                          left: 75,
+                          bottom: 22,
+                          child: _VectorLeafDot(),
+                        ),
                       ],
                     ),
                   ),
@@ -1168,7 +1288,9 @@ class InteractivePlayArea extends ConsumerWidget {
           height: 16,
           decoration: BoxDecoration(
             color: const Color(0xFFEA580C),
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(5)),
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(5),
+            ),
             border: Border.all(color: const Color(0xFFC2410C), width: 1.5),
           ),
         ),
@@ -1348,9 +1470,7 @@ class _ActiveBallTarget extends StatelessWidget {
               height: 6,
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.18),
-                borderRadius: const BorderRadius.all(
-                  Radius.elliptical(24, 6),
-                ),
+                borderRadius: const BorderRadius.all(Radius.elliptical(24, 6)),
               ),
             ),
           ),
@@ -1427,7 +1547,10 @@ class _VectorPebble extends StatelessWidget {
 class _VectorPineTree extends StatelessWidget {
   final double height;
   final Color color;
-  const _VectorPineTree({required this.height, this.color = const Color(0xFF065F46)});
+  const _VectorPineTree({
+    required this.height,
+    this.color = const Color(0xFF065F46),
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1525,9 +1648,7 @@ class _SleepingZzzWidget extends StatelessWidget {
             fontSize: 16,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
-            shadows: [
-              Shadow(color: Color(0xFF0284C7), blurRadius: 4),
-            ],
+            shadows: [Shadow(color: Color(0xFF0284C7), blurRadius: 4)],
           ),
         ),
         Text(
@@ -1536,9 +1657,7 @@ class _SleepingZzzWidget extends StatelessWidget {
             color: Color(0xFF38BDF8),
             fontSize: 13,
             fontWeight: FontWeight.w800,
-            shadows: [
-              Shadow(color: Color(0xFF0284C7), blurRadius: 3),
-            ],
+            shadows: [Shadow(color: Color(0xFF0284C7), blurRadius: 3)],
           ),
         ),
         Text(
@@ -1563,36 +1682,12 @@ class _SoapBubblesWidget extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Positioned(
-          left: 6,
-          bottom: 22,
-          child: _buildBubble(14),
-        ),
-        Positioned(
-          left: 18,
-          bottom: 40,
-          child: _buildBubble(10),
-        ),
-        Positioned(
-          right: 8,
-          bottom: 28,
-          child: _buildBubble(16),
-        ),
-        Positioned(
-          right: 22,
-          bottom: 48,
-          child: _buildBubble(11),
-        ),
-        Positioned(
-          left: 42,
-          bottom: 8,
-          child: _buildBubble(12),
-        ),
-        Positioned(
-          right: 44,
-          bottom: 12,
-          child: _buildBubble(13),
-        ),
+        Positioned(left: 6, bottom: 22, child: _buildBubble(14)),
+        Positioned(left: 18, bottom: 40, child: _buildBubble(10)),
+        Positioned(right: 8, bottom: 28, child: _buildBubble(16)),
+        Positioned(right: 22, bottom: 48, child: _buildBubble(11)),
+        Positioned(left: 42, bottom: 8, child: _buildBubble(12)),
+        Positioned(right: 44, bottom: 12, child: _buildBubble(13)),
       ],
     );
   }

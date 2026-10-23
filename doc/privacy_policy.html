@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politique de Confidentialité — MathPup</title>
+  <style>
+    :root {
+      --primary: #006879;
+      --primary-light: #e0f2fe;
+      --accent: #d97706;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --success: #16a34a;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 840px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border);
+      padding: 40px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #004d5a, #008ba3);
+      color: white;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 800;
+    }
+    .brand-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .brand-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .lang-switcher {
+      display: flex;
+      gap: 6px;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .lang-btn {
+      padding: 6px 14px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+    .lang-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 6px rgba(0, 104, 121, 0.3);
+    }
+    .badge-box {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 20px 0 30px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .badge.success {
+      background: #dcfce7;
+      color: var(--success);
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    h2 {
+      font-size: 20px;
+      margin: 32px 0 12px;
+      color: var(--primary);
+      border-left: 4px solid var(--primary);
+      padding-left: 12px;
+    }
+    h3 {
+      font-size: 16px;
+      margin: 18px 0 8px;
+      color: var(--text);
+    }
+    p, ul {
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    ul {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .callout {
+      background: #eff6ff;
+      border: 1.5px solid #bfdbfe;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    .callout strong {
+      color: #1e40af;
+    }
+    .contact-card {
+      margin-top: 36px;
+      padding: 24px;
+      background: var(--bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .contact-card a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .contact-card a:hover {
+      text-decoration: underline;
+    }
+    .lang-section {
+      display: none;
+    }
+    .lang-section.visible {
+      display: block;
+    }
+    footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    @media (max-width: 640px) {
+      .container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <div class="brand-icon">π</div>
+        <div>
+          <div class="brand-title">MathPup</div>
+          <div class="brand-subtitle">Application éducative de mathématiques pour enfants</div>
+        </div>
+      </div>
+      <div class="lang-switcher">
+        <button id="btn-fr" class="lang-btn active" onclick="switchLanguage('fr')">🇫🇷 Français</button>
+        <button id="btn-en" class="lang-btn" onclick="switchLanguage('en')">🇬🇧 English</button>
+      </div>
+    </div>
+
+    <!-- BADGES DE CONFORMITÉ -->
+    <div class="badge-box">
+      <span class="badge success">✓ 100% Hors-ligne</span>
+      <span class="badge success">✓ Zéro Publicité</span>
+      <span class="badge success">✓ Zéro Traqueur</span>
+      <span class="badge">Google Play Families</span>
+      <span class="badge">Conforme RGPD & COPPA</span>
+    </div>
+
+    <!-- VERSION FRANÇAISE -->
+    <div id="section-fr" class="lang-section visible">
+      <h1>Politique de Confidentialité</h1>
+      <p style="color: var(--text-muted); font-size: 14px;">
+        <strong>Date d'entrée en vigueur :</strong> 18 octobre 2026 | 
+        <strong>Dernière mise à jour :</strong> 18 octobre 2026
+      </p>
+
+      <h2>1. Introduction & Engagement de Confidentialité</h2>
+      <p>
+        L'application <strong>MathPup</strong> est conçue spécifiquement pour les enfants du CP à la 3e (âgés de 6 à 15 ans) et leurs familles, mettant en scène « Pi », un chiot compagnon virtuel.
+        La protection de la vie privée des enfants et la sérénité des parents sont au cœur de nos engagements.
+      </p>
+      <p>
+        <strong>MathPup applique le principe fondamental de « Confidentialité dès la conception » (Privacy by Design)</strong> : 
+        l'application fonctionne à 100% hors-ligne. Aucune donnée personnelle n'est collectée, stockée ou transmise à des serveurs tiers.
+      </p>
+
+      <h2>2. Données Utilisées et Stockage Exclusivement Local</h2>
+      <p>
+        Toutes les informations nécessaires à la progression de l'enfant sont conservées <strong>uniquement en local sur votre appareil</strong>.
+        Aucune donnée ne quitte le téléphone ou la tablette.
+      </p>
+      <ul>
+        <li><strong>Profils Enfants :</strong> Prénom ou pseudonyme saisi par le parent/l'enfant, niveau scolaire sélectionné (de CP à 3e), avatar choisi.</li>
+        <li><strong>Progression Pédagogique :</strong> Historique des quiz résolus, taux de réussite et statistiques par domaine mathématique (Nombres & Calculs, Géométrie, Mesures, Problèmes).</li>
+        <li><strong>Vie du Compagnon (Pi le chiot) :</strong> Jauges de soins (Faim, Joie, Énergie, Propreté), solde d'Os dorés gagnés, croquettes et accessoires du dressing.</li>
+        <li><strong>Paramètres Parentaux :</strong> Limite bienveillante de temps d'écran quotidien (sessions autorisées), langue et thème visuel.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Aucun compte requis :</strong> Vous n'avez pas besoin de créer de compte. Aucun mot de passe, adresse email, numéro de téléphone, nom de famille ou géolocalisation n'est jamais demandé ni stocké.
+      </div>
+
+      <h2>3. Aucune Publicité, Aucun Traqueur</h2>
+      <ul>
+        <li><strong>Zéro Publicité :</strong> Aucune bannière publicitaire, publicité interstitielle ou vidéo promotionnelle.</li>
+        <li><strong>Zéro Outil d'Analyse Tiers :</strong> Aucun SDK de suivi comportemental externe (pas de Google Analytics, Firebase, Facebook SDK, etc.).</li>
+        <li><strong>Zéro Identifiant Publicitaire :</strong> Aucun accès à l'identifiant publicitaire Android (AAID) ni aux identifiants matériels.</li>
+        <li><strong>Aucune Autorisation Sensible :</strong> Aucun accès demandé à la caméra, au microphone, au GPS, aux contacts ou à la galerie photo.</li>
+      </ul>
+
+      <h2>4. Droits des Parents & Contrôle Parental (RGPD & COPPA)</h2>
+      <p>Conformément au RGPD européen et à la loi américaine COPPA, les parents gardent le contrôle total :</p>
+      <ul>
+        <li><strong>Portail Parental Sécurisé (Parental Gate) :</strong> L'accès à la gestion des données, au temps d'écran et aux réglages est verrouillé par un calcul écrit en toutes lettres pour empêcher tout accès non surveillé par l'enfant.</li>
+        <li><strong>Droit d'Accès :</strong> Les parents peuvent consulter en clair toutes les statistiques et profils enregistrés dans l'Espace Parents.</li>
+        <li><strong>Droit à la Portabilité (Export JSON) :</strong> Un bouton dans l'Espace Parents permet d'exporter l'intégralité des données locales dans un fichier JSON standard.</li>
+        <li><strong>Droit à l'Effacement (Suppression Totale) :</strong> Un bouton dédié permet d'effacer instantanément et définitivement toutes les données de l'application sur l'appareil. La désinstallation de l'application supprime également toutes les données locales.</li>
+      </ul>
+
+      <h2>5. Sécurité des Données</h2>
+      <p>
+        Puisque l'application ne transmet aucune donnée sur Internet et ne dispose d'aucun serveur distant, le risque d'interception ou de fuite de données en ligne est nul. Les données stockées localement sont protégées par le bac à sable de sécurité (sandboxing) propre au système d'exploitation Android.
+      </p>
+
+      <div class="contact-card">
+        <h3>Une question ou une demande parentale ?</h3>
+        <p>Le développeur (<strong>Dan Bizwa</strong>) est à votre écoute pour toute question relative à la protection de la vie privée :</p>
+        <p style="margin-top: 10px;">
+          📧 <a href="mailto:bizwadan@gmail.com">bizwadan@gmail.com</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- ENGLISH VERSION -->
+    <div id="section-en" class="lang-section">
+      <h1>Privacy Policy</h1>
+      <p style="color: var(--text-muted); font-size: 14px;">
+        <strong>Effective Date:</strong> October 18, 2026 | 
+        <strong>Last Updated:</strong> October 18, 2026
+      </p>
+
+      <h2>1. Introduction & Privacy Commitment</h2>
+      <p>
+        The <strong>MathPup</strong> educational application is built specifically for children (grades 1 to 9, ages 6 to 15) and their families, featuring "Pi", a playful virtual puppy companion.
+        Protecting children's privacy and providing parents with complete peace of mind is our absolute priority.
+      </p>
+      <p>
+        <strong>MathPup operates under a strict "Privacy by Design" principle</strong>: the application runs 100% offline. 
+        No personal data is collected, stored, or transmitted to any external server or third party.
+      </p>
+
+      <h2>2. Data Handled & On-Device Local Storage</h2>
+      <p>
+        All data necessary for the app to function is kept <strong>exclusively on the user's local device</strong>. 
+        No data ever leaves your smartphone or tablet.
+      </p>
+      <ul>
+        <li><strong>Child Profiles:</strong> Child's first name or nickname, selected school grade, chosen avatar.</li>
+        <li><strong>Learning Progress:</strong> Quiz session history, accuracy rates, and mastery across math domains (Numbers, Geometry, Measurements, Word Problems).</li>
+        <li><strong>Companion State (Pi):</strong> Care gauges (Hunger, Joy, Energy, Cleanliness), Golden Bones balance, and unlocked wardrobe accessories.</li>
+        <li><strong>Parental Controls:</strong> Benevolent daily session limits, language preference, and visual theme.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>No account required:</strong> You never need to create an account. No email, password, phone number, last name, or location data is ever requested or stored.
+      </div>
+
+      <h2>3. No Ads, No Third-Party Trackers</h2>
+      <ul>
+        <li><strong>Zero Ads:</strong> No banner ads, interstitial ads, or rewarded video advertisements.</li>
+        <li><strong>Zero Third-Party Analytics:</strong> No tracking SDKs (no Google Analytics, Firebase, Facebook SDK, or equivalent).</li>
+        <li><strong>Zero Ad Identifiers:</strong> No access to Android Advertising ID (AAID) or persistent hardware identifiers.</li>
+        <li><strong>No Sensitive Permissions:</strong> No permission requested for camera, microphone, GPS location, contacts, or photo library.</li>
+      </ul>
+
+      <h2>4. Parental Rights & Controls (GDPR & COPPA)</h2>
+      <p>In full compliance with European GDPR and US COPPA standards, parents remain in total control:</p>
+      <ul>
+        <li><strong>Secure Parental Gate:</strong> Access to settings, screen time, and data management is protected by a written math challenge.</li>
+        <li><strong>Right to Access:</strong> Parents can view all pedagogical statistics and child profiles inside the Parent Space.</li>
+        <li><strong>Right to Portability (JSON Export):</strong> Parents can export all local records into a standard JSON file directly from the app.</li>
+        <li><strong>Right to Erasure:</strong> A single tap in the Parent Space completely and irreversibly deletes all profiles and quiz records from the device. Uninstalling the app also purges all stored data.</li>
+      </ul>
+
+      <h2>5. Data Security</h2>
+      <p>
+        Because the application makes no internet connections and communicates with no remote servers, the risk of data interception or leaks is non-existent. Local storage is protected by Android's operating system sandboxing.
+      </p>
+
+      <div class="contact-card">
+        <h3>Questions or Privacy Inquiries?</h3>
+        <p>The developer (<strong>Dan Bizwa</strong>) is available for any questions regarding children's privacy in MathPup:</p>
+        <p style="margin-top: 10px;">
+          📧 <a href="mailto:bizwadan@gmail.com">bizwadan@gmail.com</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 Dan Bizwa — MathPup. Tous droits réservés / All rights reserved.</p>
+    <p style="font-size: 11px; color: #94a3b8; margin-top: 6px;">Application Android : MathPup (Package : <code>com.danbizwa.mathpup</code>)</p>
+  </footer>
+
+  <script>
+    function switchLanguage(lang) {
+      const sectionFr = document.getElementById('section-fr');
+      const sectionEn = document.getElementById('section-en');
+      const btnFr = document.getElementById('btn-fr');
+      const btnEn = document.getElementById('btn-en');
+
+      if (lang === 'fr') {
+        sectionFr.classList.add('visible');
+        sectionEn.classList.remove('visible');
+        btnFr.classList.add('active');
+        btnEn.classList.remove('active');
+        document.documentElement.lang = 'fr';
+      } else {
+        sectionFr.classList.remove('visible');
+        sectionEn.classList.add('visible');
+        btnFr.classList.remove('active');
+        btnEn.classList.add('active');
+        document.documentElement.lang = 'en';
+      }
+    }
+  </script>
+</body>
+</html>

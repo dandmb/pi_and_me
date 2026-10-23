@@ -53,26 +53,29 @@ void main() {
       expect(eating.statusMessage, equals('Miam miam...'));
     });
 
-    test('finishEating restores hunger, empties bowl, and returns Pi to center', () {
-      final pi = const PiCompanion(
-        hunger: 0.40,
-        joy: 0.50,
-        bowlFoodCount: 2,
-        isEating: true,
-        piX: -0.68,
-        piY: 0.48,
-      );
+    test(
+      'finishEating restores hunger, empties bowl, and returns Pi to center',
+      () {
+        final pi = const PiCompanion(
+          hunger: 0.40,
+          joy: 0.50,
+          bowlFoodCount: 2,
+          isEating: true,
+          piX: -0.68,
+          piY: 0.48,
+        );
 
-      final finished = pi.finishEating('Délicieux repas !');
+        final finished = pi.finishEating('Délicieux repas !');
 
-      expect(finished.isEating, isFalse);
-      expect(finished.bowlFoodCount, equals(0));
-      expect(finished.hunger, greaterThan(0.40));
-      expect(finished.joy, greaterThan(0.50));
-      expect(finished.piX, equals(0.0));
-      expect(finished.piY, equals(0.2));
-      expect(finished.statusMessage, equals('Délicieux repas !'));
-    });
+        expect(finished.isEating, isFalse);
+        expect(finished.bowlFoodCount, equals(0));
+        expect(finished.hunger, greaterThan(0.40));
+        expect(finished.joy, greaterThan(0.50));
+        expect(finished.piX, equals(0.0));
+        expect(finished.piY, equals(0.2));
+        expect(finished.statusMessage, equals('Délicieux repas !'));
+      },
+    );
 
     test('collectAndReturnBall accumulates dirt on Pi', () {
       final pi = PiCompanion.initial().throwBall(0.6, -0.1, 'Go !');
@@ -85,7 +88,11 @@ void main() {
     });
 
     test('clean restores cleanliness and resets dirtCount', () {
-      final dirtyPi = const PiCompanion(dirtCount: 3, cleanliness: 0.25, joy: 0.50);
+      final dirtyPi = const PiCompanion(
+        dirtCount: 3,
+        cleanliness: 0.25,
+        joy: 0.50,
+      );
       final cleaned = dirtyPi.clean('Tout propre !');
 
       expect(cleaned.dirtCount, equals(0));
@@ -119,19 +126,29 @@ void main() {
       expect(movedRight.isFacingLeft, isFalse);
     });
 
-    test('setEnvironment switches environment and sets correct French grammar', () {
-      final pi = PiCompanion.initial();
+    test(
+      'setEnvironment switches environment and sets correct French grammar',
+      () {
+        final pi = PiCompanion.initial();
 
-      final salon = pi.setEnvironment(PlayEnvironment.livingRoom, isFrench: true);
-      expect(salon.statusMessage, equals('Bienvenue dans le salon !'));
+        final salon = pi.setEnvironment(
+          PlayEnvironment.livingRoom,
+          isFrench: true,
+        );
+        expect(salon.statusMessage, equals('Bienvenue dans le salon !'));
 
-      final beach = pi.setEnvironment(PlayEnvironment.beach, isFrench: true);
-      expect(beach.statusMessage, equals('Bienvenue à la plage !'));
-    });
+        final beach = pi.setEnvironment(PlayEnvironment.beach, isFrench: true);
+        expect(beach.statusMessage, equals('Bienvenue à la plage !'));
+      },
+    );
 
     test('addRewards credits quiz earnings', () {
       final pi = PiCompanion.initial();
-      final rewarded = pi.addRewards(addedBones: 30, addedCroquettes: 3, addedBalls: 2);
+      final rewarded = pi.addRewards(
+        addedBones: 30,
+        addedCroquettes: 3,
+        addedBalls: 2,
+      );
 
       expect(rewarded.bones, equals(80));
       expect(rewarded.croquettes, equals(6));
@@ -175,19 +192,33 @@ void main() {
     });
 
     test('serveBowl does not serve if hunger >= 1.0 or if sleeping', () {
-      final fullPi = const PiCompanion(hunger: 1.0, croquettes: 5, bowlFoodCount: 0);
+      final fullPi = const PiCompanion(
+        hunger: 1.0,
+        croquettes: 5,
+        bowlFoodCount: 0,
+      );
       final s1 = fullPi.serveBowl();
       expect(s1.bowlFoodCount, equals(0));
       expect(s1.croquettes, equals(5));
 
-      final sleepingPi = const PiCompanion(hunger: 0.5, croquettes: 5, bowlFoodCount: 0, isSleeping: true);
+      final sleepingPi = const PiCompanion(
+        hunger: 0.5,
+        croquettes: 5,
+        bowlFoodCount: 0,
+        isSleeping: true,
+      );
       final s2 = sleepingPi.serveBowl();
       expect(s2.bowlFoodCount, equals(0));
       expect(s2.croquettes, equals(5));
     });
 
     test('throwBall and moveTo do not execute when isSleeping is true', () {
-      final sleepingPi = const PiCompanion(balls: 3, isSleeping: true, piX: 0.0, piY: 0.2);
+      final sleepingPi = const PiCompanion(
+        balls: 3,
+        isSleeping: true,
+        piX: 0.0,
+        piY: 0.2,
+      );
       final thrown = sleepingPi.throwBall(0.5, 0.5, 'Go');
       expect(thrown.isBallActive, isFalse);
 
@@ -209,7 +240,10 @@ void main() {
       expect(PlayEnvironment.fromId('garden'), equals(PlayEnvironment.garden));
       expect(PlayEnvironment.fromId('beach'), equals(PlayEnvironment.beach));
       expect(PlayEnvironment.fromId('forest'), equals(PlayEnvironment.forest));
-      expect(PlayEnvironment.fromId('unknown'), equals(PlayEnvironment.livingRoom));
+      expect(
+        PlayEnvironment.fromId('unknown'),
+        equals(PlayEnvironment.livingRoom),
+      );
     });
   });
 }

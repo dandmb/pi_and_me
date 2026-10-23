@@ -6,7 +6,7 @@ import 'dart:math';
 class ParentalGateChallenge {
   final String questionFr;
   final String questionEn;
-  final int expectedAnswer;
+  final num expectedAnswer;
 
   const ParentalGateChallenge({
     required this.questionFr,
@@ -18,11 +18,13 @@ class ParentalGateChallenge {
   String getQuestion(bool isFrench) => isFrench ? questionFr : questionEn;
 
   /// Vérifie si la réponse saisie par l'adulte en chiffres correspond au résultat attendu.
+  /// Accepte les virgules ',' et les points '.' pour les saisies décimales.
   bool verify(String input) {
-    final cleaned = input.trim();
+    final cleaned = input.trim().replaceAll(',', '.');
     if (cleaned.isEmpty) return false;
-    final parsed = int.tryParse(cleaned);
-    return parsed == expectedAnswer;
+    final parsed = double.tryParse(cleaned);
+    if (parsed == null) return false;
+    return (parsed - expectedAnswer).abs() < 0.001;
   }
 }
 
@@ -133,11 +135,14 @@ class NumberWordsConverter {
 class ParentalGateChallengeGenerator {
   final Random _random;
 
-  ParentalGateChallengeGenerator([Random? random]) : _random = random ?? Random();
+  ParentalGateChallengeGenerator([Random? random])
+    : _random = random ?? Random();
 
   /// Génère un nouveau défi mathématique textuel.
   ParentalGateChallenge generate() {
-    final type = _random.nextInt(4); // 0: multiplication, 1: division, 2: addition, 3: soustraction
+    final type = _random.nextInt(
+      4,
+    ); // 0: multiplication, 1: division, 2: addition, 3: soustraction
     switch (type) {
       case 0:
         return _generateMultiplication();
@@ -235,7 +240,9 @@ class ParentalGateLockoutManager {
   int _failedAttempts = 0;
   DateTime? _lockedUntil;
 
-  ParentalGateLockoutManager({this.lockoutDurationSeconds = defaultLockoutSeconds});
+  ParentalGateLockoutManager({
+    this.lockoutDurationSeconds = defaultLockoutSeconds,
+  });
 
   int get failedAttempts => _failedAttempts;
 
@@ -250,14 +257,17 @@ class ParentalGateLockoutManager {
     return diff > 0 ? diff : 0;
   }
 
-  int get remainingAttempts => (maxAttempts - _failedAttempts).clamp(0, maxAttempts);
+  int get remainingAttempts =>
+      (maxAttempts - _failedAttempts).clamp(0, maxAttempts);
 
   /// Enregistre une tentative erronée.
   /// Renvoie `true` si le système vient de passer en état verrouillé.
   bool recordFailure() {
     _failedAttempts++;
     if (_failedAttempts >= maxAttempts) {
-      _lockedUntil = DateTime.now().add(Duration(seconds: lockoutDurationSeconds));
+      _lockedUntil = DateTime.now().add(
+        Duration(seconds: lockoutDurationSeconds),
+      );
       return true;
     }
     return false;

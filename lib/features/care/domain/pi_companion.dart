@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'play_environment.dart';
 
 /// Modèle représentant l'état du chiot Pi, ses jauges vitales,
@@ -12,7 +13,8 @@ class PiCompanion {
   final int croquettes; // Friandises gagnées via le quiz
   final int balls; // Balles de jeu gagnées via le quiz
   final int bones; // Solde total d'os dorés
-  final int bowlFoodCount; // 0 .. 3 (Nombre de croquettes servies dans l'assiette)
+  final int
+  bowlFoodCount; // 0 .. 3 (Nombre de croquettes servies dans l'assiette)
   final bool isEating; // Vrai pendant la séquence de repas (5 secondes)
   final PlayEnvironment environment;
   final double piX; // Coordonnée X de Pi (-0.8 à 0.8)
@@ -134,7 +136,9 @@ class PiCompanion {
 
   /// Sert des croquettes dans l'assiette une à une (jusqu'à 3, seulement si Pi a faim et ne dort pas)
   PiCompanion serveBowl({String? message}) {
-    if (hunger >= 1.0 || croquettes <= 0 || bowlFoodCount >= 3 || isSleeping) return this;
+    if (hunger >= 1.0 || croquettes <= 0 || bowlFoodCount >= 3 || isSleeping) {
+      return this;
+    }
     return copyWith(
       croquettes: croquettes - 1,
       bowlFoodCount: bowlFoodCount + 1,
@@ -157,7 +161,8 @@ class PiCompanion {
   /// Termine le repas de 5 secondes : jauge Faim restaurée, assiette vide,
   /// et Pi revient au centre de la pièce
   PiCompanion finishEating(String successMessage) {
-    final foodGained = bowlFoodCount * 0.20 + 0.15; // 1 croquette: +35%, 2: +55%, 3: +75%
+    final foodGained =
+        bowlFoodCount * 0.20 + 0.15; // 1 croquette: +35%, 2: +55%, 3: +75%
     final newHunger = _roundGauge((hunger + foodGained).clamp(0.0, 1.0));
     final newJoy = _roundGauge((joy + 0.15).clamp(0.0, 1.0));
 
@@ -214,7 +219,11 @@ class PiCompanion {
   }
 
   /// Change de cadre / décor de jeu avec message grammaticalement correct (affiché seulement à la 1re découverte)
-  PiCompanion setEnvironment(PlayEnvironment newEnv, {required bool isFrench, bool showWelcome = true}) {
+  PiCompanion setEnvironment(
+    PlayEnvironment newEnv, {
+    required bool isFrench,
+    bool showWelcome = true,
+  }) {
     return copyWith(
       environment: newEnv,
       statusMessage: showWelcome ? newEnv.getWelcome(isFrench) : null,
@@ -322,7 +331,9 @@ class PiCompanion {
       balls: (map['balls'] as num?)?.toInt() ?? 2,
       bones: (map['bones'] as num?)?.toInt() ?? 50,
       bowlFoodCount: (map['bowlFoodCount'] as num?)?.toInt() ?? 0,
-      environment: PlayEnvironment.fromId(map['environment'] as String? ?? 'living_room'),
+      environment: PlayEnvironment.fromId(
+        map['environment'] as String? ?? 'living_room',
+      ),
       piX: (map['piX'] as num?)?.toDouble() ?? 0.0,
       piY: (map['piY'] as num?)?.toDouble() ?? 0.2,
       initialPiX: (map['initialPiX'] as num?)?.toDouble() ?? 0.0,

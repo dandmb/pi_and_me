@@ -13,7 +13,9 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
-        languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
+        languageProvider.overrideWith(
+          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+        ),
       ],
       child: MaterialApp(
         home: Scaffold(
@@ -35,78 +37,126 @@ void main() {
     );
   }
 
-  testWidgets('ParentalGateDialog displays challenge and triggers onSuccess upon correct input',
-      (tester) async {
-    bool successCalled = false;
-    const testChallenge = ParentalGateChallenge(
-      questionFr: 'Quarante-huit divisé par six',
-      questionEn: 'Forty-eight divided by six',
-      expectedAnswer: 8,
-    );
+  testWidgets(
+    'ParentalGateDialog displays challenge and triggers onSuccess upon correct input',
+    (tester) async {
+      bool successCalled = false;
+      const testChallenge = ParentalGateChallenge(
+        questionFr: 'Quarante-huit divisé par six',
+        questionEn: 'Forty-eight divided by six',
+        expectedAnswer: 8,
+      );
 
-    await tester.pumpWidget(createDialogWidget(
-      onSuccess: () => successCalled = true,
-      challenge: testChallenge,
-    ));
+      await tester.pumpWidget(
+        createDialogWidget(
+          onSuccess: () => successCalled = true,
+          challenge: testChallenge,
+        ),
+      );
 
-    // Open dialog
-    await tester.tap(find.text('Open Gate'));
-    await tester.pumpAndSettle();
+      // Open dialog
+      await tester.tap(find.text('Open Gate'));
+      await tester.pumpAndSettle();
 
-    // Check challenge rendered
-    expect(find.text('Quarante-huit divisé par six'), findsOneWidget);
-    expect(find.byKey(const Key('parental_gate_input')), findsOneWidget);
+      // Check challenge rendered
+      expect(find.text('Quarante-huit divisé par six'), findsOneWidget);
+      expect(find.byKey(const Key('parental_gate_input')), findsOneWidget);
 
-    // Enter correct answer '8'
-    await tester.enterText(find.byKey(const Key('parental_gate_input')), '8');
-    await tester.pump();
+      // Enter correct answer '8'
+      await tester.enterText(find.byKey(const Key('parental_gate_input')), '8');
+      await tester.pump();
 
-    // Submit
-    await tester.tap(find.byKey(const Key('parental_gate_submit_button')));
-    await tester.pumpAndSettle();
+      // Submit
+      await tester.tap(find.byKey(const Key('parental_gate_submit_button')));
+      await tester.pumpAndSettle();
 
-    expect(successCalled, isTrue);
-    expect(find.byType(ParentalGateDialog), findsNothing);
-  });
+      expect(successCalled, isTrue);
+      expect(find.byType(ParentalGateDialog), findsNothing);
+    },
+  );
 
-  testWidgets('ParentalGateDialog shows error and remaining attempts on incorrect answer',
-      (tester) async {
-    bool successCalled = false;
+  testWidgets(
+    'ParentalGateDialog accepts answers with comma notation (e.g. 8,0)',
+    (tester) async {
+      bool successCalled = false;
+      const testChallenge = ParentalGateChallenge(
+        questionFr: 'Quarante-huit divisé par six',
+        questionEn: 'Forty-eight divided by six',
+        expectedAnswer: 8,
+      );
+
+      await tester.pumpWidget(
+        createDialogWidget(
+          onSuccess: () => successCalled = true,
+          challenge: testChallenge,
+        ),
+      );
+
+      await tester.tap(find.text('Open Gate'));
+      await tester.pumpAndSettle();
+
+      // Enter answer with a comma '8,0'
+      await tester.enterText(
+        find.byKey(const Key('parental_gate_input')),
+        '8,0',
+      );
+      await tester.pump();
+
+      // Submit
+      await tester.tap(find.byKey(const Key('parental_gate_submit_button')));
+      await tester.pumpAndSettle();
+
+      expect(successCalled, isTrue);
+      expect(find.byType(ParentalGateDialog), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'ParentalGateDialog shows error and remaining attempts on incorrect answer',
+    (tester) async {
+      bool successCalled = false;
+      const testChallenge = ParentalGateChallenge(
+        questionFr: 'Sept multiplié par huit',
+        questionEn: 'Seven multiplied by eight',
+        expectedAnswer: 56,
+      );
+
+      await tester.pumpWidget(
+        createDialogWidget(
+          onSuccess: () => successCalled = true,
+          challenge: testChallenge,
+        ),
+      );
+
+      await tester.tap(find.text('Open Gate'));
+      await tester.pumpAndSettle();
+
+      // Enter wrong answer '12'
+      await tester.enterText(
+        find.byKey(const Key('parental_gate_input')),
+        '12',
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('parental_gate_submit_button')));
+      await tester.pumpAndSettle();
+
+      expect(successCalled, isFalse);
+      expect(find.textContaining('2 essais restants'), findsOneWidget);
+    },
+  );
+
+  testWidgets('ParentalGateDialog locks out after 3 failed attempts', (
+    tester,
+  ) async {
     const testChallenge = ParentalGateChallenge(
       questionFr: 'Sept multiplié par huit',
       questionEn: 'Seven multiplied by eight',
       expectedAnswer: 56,
     );
 
-    await tester.pumpWidget(createDialogWidget(
-      onSuccess: () => successCalled = true,
-      challenge: testChallenge,
-    ));
-
-    await tester.tap(find.text('Open Gate'));
-    await tester.pumpAndSettle();
-
-    // Enter wrong answer '12'
-    await tester.enterText(find.byKey(const Key('parental_gate_input')), '12');
-    await tester.pump();
-    await tester.tap(find.byKey(const Key('parental_gate_submit_button')));
-    await tester.pumpAndSettle();
-
-    expect(successCalled, isFalse);
-    expect(find.textContaining('2 essais restants'), findsOneWidget);
-  });
-
-  testWidgets('ParentalGateDialog locks out after 3 failed attempts', (tester) async {
-    const testChallenge = ParentalGateChallenge(
-      questionFr: 'Sept multiplié par huit',
-      questionEn: 'Seven multiplied by eight',
-      expectedAnswer: 56,
+    await tester.pumpWidget(
+      createDialogWidget(onSuccess: () {}, challenge: testChallenge),
     );
-
-    await tester.pumpWidget(createDialogWidget(
-      onSuccess: () {},
-      challenge: testChallenge,
-    ));
 
     await tester.tap(find.text('Open Gate'));
     await tester.pumpAndSettle();

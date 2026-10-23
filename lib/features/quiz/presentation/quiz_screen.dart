@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -93,6 +94,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     final isFrench = strings.isFrench;
     final currentNumber = quizState.currentIndex + 1;
     final total = quizState.totalQuestions;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return PopScope(
       canPop: false,
@@ -112,35 +115,87 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 // 1. Barre supérieure : Quitter, Progression, Sans stress, Solde Os
                 _buildHeader(context, currentNumber, total, quizState.progress),
 
-                const SizedBox(height: AppSpace.s3),
-
-                // Contenu scrollable (évite les overflows sur petits écrans)
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // 2. Carte de la Question
-                        _buildQuestionCard(question, isFrench),
-
-                        const SizedBox(height: AppSpace.s3),
-
-                        // 3. Grille des 4 options de réponse (2x2)
-                        _buildOptionsGrid(quizState, question),
-
-                        const SizedBox(height: AppSpace.s3),
-
-                        // 4. Bulle d'encouragement de Pi
-                        _buildMascotBanner(quizState, question, isFrench),
-                      ],
-                    ),
-                  ),
-                ),
-
                 const SizedBox(height: AppSpace.s2),
 
-                // 5. Bouton d'action inférieur (Valider ou Suivant)
-                _buildActionButton(context, quizState, strings),
+                // Contenu : 2 colonnes en paysage, colonne unique en portrait
+                Expanded(
+                  child: isLandscape
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Colonne gauche : Question et indice Pi
+                            Expanded(
+                              flex: 5,
+                              child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    _buildQuestionCard(question, isFrench),
+                                    const SizedBox(height: AppSpace.s2),
+                                    _buildMascotBanner(
+                                      quizState,
+                                      question,
+                                      isFrench,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpace.s3),
+                            // Colonne droite : Choix 2x2 et bouton d'action
+                            Expanded(
+                              flex: 5,
+                              child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    _buildOptionsGrid(
+                                      quizState,
+                                      question,
+                                      isLandscape: true,
+                                    ),
+                                    const SizedBox(height: AppSpace.s2),
+                                    _buildActionButton(
+                                      context,
+                                      quizState,
+                                      strings,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // 2. Carte de la Question
+                              _buildQuestionCard(question, isFrench),
+
+                              const SizedBox(height: AppSpace.s3),
+
+                              // 3. Grille des 4 options de réponse (2x2)
+                              _buildOptionsGrid(quizState, question),
+
+                              const SizedBox(height: AppSpace.s3),
+
+                              // 4. Bulle d'encouragement de Pi
+                              _buildMascotBanner(quizState, question, isFrench),
+                            ],
+                          ),
+                        ),
+                ),
+
+                if (!isLandscape) ...[
+                  const SizedBox(height: AppSpace.s2),
+                  // 5. Bouton d'action inférieur (Valider ou Suivant) en portrait
+                  _buildActionButton(context, quizState, strings),
+                ],
               ],
             ),
           ),
@@ -170,7 +225,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: context.appBorder, width: 1.5),
             ),
-            child: Icon(Icons.close_rounded, size: 20, color: context.appSubText),
+            child: Icon(
+              Icons.close_rounded,
+              size: 20,
+              color: context.appSubText,
+            ),
           ),
         ),
 
@@ -206,8 +265,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 10,
-                  backgroundColor: context.isDark ? AppColors.darkInk200 : AppColors.ink200,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.green500),
+                  backgroundColor: context.isDark
+                      ? AppColors.darkInk200
+                      : AppColors.ink200,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.green500,
+                  ),
                 ),
               ),
             ],
@@ -226,7 +289,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             color: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
             borderRadius: BorderRadius.circular(AppRadius.pill),
             border: Border.all(
-              color: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+              color: context.isDark
+                  ? const Color(0xFFD97706)
+                  : const Color(0xFFFDE68A),
               width: 1.5,
             ),
           ),
@@ -238,7 +303,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 '50',
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
+                  color: context.isDark
+                      ? const Color(0xFFFDE68A)
+                      : AppColors.amber900,
                 ),
               ),
             ],
@@ -267,15 +334,22 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         children: [
           // Catégorie pédagogique
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 4),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s3,
+              vertical: 4,
+            ),
             decoration: BoxDecoration(
-              color: context.isDark ? const Color(0xFF042F2E) : const Color(0xFFE0F2F1),
+              color: context.isDark
+                  ? const Color(0xFF042F2E)
+                  : const Color(0xFFE0F2F1),
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
             child: Text(
               question.getCategory(isFrench),
               style: AppText.bodyS.copyWith(
-                color: context.isDark ? const Color(0xFF2DD4BF) : const Color(0xFF00897B),
+                color: context.isDark
+                    ? const Color(0xFF2DD4BF)
+                    : const Color(0xFF00897B),
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
               ),
@@ -287,9 +361,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           // Énoncé
           Text(
             question.getPrompt(isFrench),
-            style: AppText.question.copyWith(
-              color: context.appText,
-            ),
+            style: AppText.question.copyWith(color: context.appText),
             textAlign: TextAlign.center,
           ),
 
@@ -298,7 +370,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           // Expression mathématique en Lexend
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: AppSpace.s3, horizontal: AppSpace.s4),
+            padding: const EdgeInsets.symmetric(
+              vertical: AppSpace.s3,
+              horizontal: AppSpace.s4,
+            ),
             decoration: BoxDecoration(
               color: context.appBg,
               borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -318,17 +393,21 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     );
   }
 
-  Widget _buildOptionsGrid(QuizState quizState, dynamic question) {
+  Widget _buildOptionsGrid(
+    QuizState quizState,
+    dynamic question, {
+    bool isLandscape = false,
+  }) {
     const letters = ['A', 'B', 'C', 'D'];
 
     return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: AppSpace.s2,
         crossAxisSpacing: AppSpace.s2,
-        childAspectRatio: 1.6,
+        childAspectRatio: isLandscape ? 2.2 : 1.6,
       ),
       itemCount: 4,
       itemBuilder: (context, index) {
@@ -347,10 +426,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
         if (isAnswered) {
           if (isCorrect) {
-            bgColor = context.isDark ? const Color(0xFF064E3B) : const Color(0xFFE8F8F5);
+            bgColor = context.isDark
+                ? const Color(0xFF064E3B)
+                : const Color(0xFFE8F8F5);
             borderColor = AppColors.green500;
             shadowColor = const Color(0xFF15803D);
-            textColor = context.isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D);
+            textColor = context.isDark
+                ? const Color(0xFF86EFAC)
+                : const Color(0xFF15803D);
             badge = Container(
               padding: const EdgeInsets.all(2),
               decoration: const BoxDecoration(
@@ -360,10 +443,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               child: const Icon(Icons.check, size: 12, color: Colors.white),
             );
           } else if (isSelected) {
-            bgColor = context.isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFEE2E2);
+            bgColor = context.isDark
+                ? const Color(0xFF7F1D1D)
+                : const Color(0xFFFEE2E2);
             borderColor = AppColors.coral500;
             shadowColor = const Color(0xFFB91C1C);
-            textColor = context.isDark ? const Color(0xFFFCA5A5) : AppColors.coral500;
+            textColor = context.isDark
+                ? const Color(0xFFFCA5A5)
+                : AppColors.coral500;
             badge = Container(
               padding: const EdgeInsets.all(2),
               decoration: const BoxDecoration(
@@ -377,7 +464,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             textColor = context.appSubText;
           }
         } else if (isSelected) {
-          bgColor = context.isDark ? AppColors.darkSky50 : const Color(0xFFE0F2FE);
+          bgColor = context.isDark
+              ? AppColors.darkSky50
+              : const Color(0xFFE0F2FE);
           borderColor = AppColors.sky600;
           shadowColor = AppColors.sky700;
           textColor = context.isDark ? AppColors.darkSky500 : AppColors.sky700;
@@ -405,12 +494,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             ),
             child: Stack(
               children: [
-                if (badge != null)
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: badge,
-                  ),
+                if (badge != null) Positioned(top: 6, right: 6, child: badge),
                 Padding(
                   padding: const EdgeInsets.all(AppSpace.s2),
                   child: Column(
@@ -451,7 +535,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     );
   }
 
-  Widget _buildMascotBanner(QuizState quizState, dynamic question, bool isFrench) {
+  Widget _buildMascotBanner(
+    QuizState quizState,
+    dynamic question,
+    bool isFrench,
+  ) {
     final strings = ref.watch(stringsProvider);
     String message;
 
@@ -485,21 +573,22 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             height: 48,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: context.isDark ? AppColors.darkSurfaceAlt : AppColors.amber50,
+              color: context.isDark
+                  ? AppColors.darkSurfaceAlt
+                  : AppColors.amber50,
               borderRadius: BorderRadius.circular(AppRadius.md),
               border: Border.all(
-                color: context.isDark ? AppColors.darkInk200 : const Color(0xFFFDE68A),
+                color: context.isDark
+                    ? AppColors.darkInk200
+                    : const Color(0xFFFDE68A),
                 width: 1,
               ),
             ),
             child: Image.asset(
               'assets/images/pi_transparent.png',
               fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => const Icon(
-                Icons.pets,
-                color: AppColors.sky600,
-                size: 28,
-              ),
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.pets, color: AppColors.sky600, size: 28),
             ),
           ),
 
@@ -534,7 +623,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         onPressed: hasSelected
             ? () {
                 ref.read(quizControllerProvider.notifier).validateAnswer();
-                final isCorrect = ref.read(quizControllerProvider).isCurrentCorrect;
+                final isCorrect = ref
+                    .read(quizControllerProvider)
+                    .isCurrentCorrect;
                 if (isCorrect == true) {
                   ref.read(audioServiceProvider).playSuccess();
                 } else {
@@ -556,9 +647,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         ref.read(quizControllerProvider.notifier).nextQuestion();
         if (isLast) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => const QuizResultsScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const QuizResultsScreen()),
           );
         }
       },

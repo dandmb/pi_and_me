@@ -23,10 +23,13 @@ void main() {
       container.dispose();
     });
 
-    test('Initial activeProfileProvider state loads null if no profile exists', () async {
-      final initial = await container.read(activeProfileProvider.future);
-      expect(initial, isNull);
-    });
+    test(
+      'Initial activeProfileProvider state loads null if no profile exists',
+      () async {
+        final initial = await container.read(activeProfileProvider.future);
+        expect(initial, isNull);
+      },
+    );
 
     test('saveProfile updates active profile in Riverpod state', () async {
       final profile = ChildProfile(

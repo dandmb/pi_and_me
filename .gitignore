@@ -49,3 +49,8 @@ app.*.map.json
 
 # Beginner documentation file
 GUIDE_DEBUTANT.md
+
+# Android keystore and signing keys
+*.jks
+*.keystore
+**/android/key.properties

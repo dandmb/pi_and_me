@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -89,6 +91,121 @@ class _DailyLimitScreenState extends ConsumerState<DailyLimitScreen> {
     final hours = _timeUntilMidnight.inHours;
     final minutes = _timeUntilMidnight.inMinutes % 60;
 
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    if (isLandscape) {
+      return PopScope(
+        canPop: true,
+        child: Scaffold(
+          backgroundColor: context.appBg,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s4,
+                vertical: AppSpace.s2,
+              ),
+              child: Column(
+                children: [
+                  // 1. Barre supérieure : Quota & Fermeture
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      DailyQuotaIndicator(
+                        usedSessions: limitState.usedSessionsToday,
+                        maxSessions: limitState.maxDailySessions,
+                        isLimitReached: true,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, size: 26),
+                        color: context.appSubText,
+                        onPressed: () => _backToHome(context),
+                        tooltip: strings.close,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: AppSpace.s2),
+
+                  // Contenu paysage 2 colonnes
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Colonne gauche : Mascotte endormie et message
+                        Expanded(
+                          flex: 5,
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              children: [
+                                _SleepingPiMascotArea(
+                                  equippedAccessoryIds:
+                                      shopState.equippedAccessoryIds,
+                                ),
+                                const SizedBox(height: AppSpace.s2),
+                                Text(
+                                  strings.piRestingTitle(childName),
+                                  style: AppText.h2.copyWith(
+                                    color: context.appText,
+                                    fontSize: 20,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: AppSpace.s1),
+                                Text(
+                                  strings.piRestingSubtitle,
+                                  style: AppText.body.copyWith(
+                                    color: context.appSubText,
+                                    fontSize: 13,
+                                    height: 1.35,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpace.s4),
+                        // Colonne droite : Compte à rebours, activité et boutons
+                        Expanded(
+                          flex: 6,
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              children: [
+                                _buildCountdownCard(
+                                  context,
+                                  strings,
+                                  hours,
+                                  minutes,
+                                ),
+                                const SizedBox(height: AppSpace.s3),
+                                _buildOfflineActivityCard(context, strings),
+                                const SizedBox(height: AppSpace.s3),
+                                ChunkyButton(
+                                  label: strings.returnToHome,
+                                  variant: ChunkyButtonVariant.primary,
+                                  height: 48,
+                                  onPressed: () => _backToHome(context),
+                                ),
+                                const SizedBox(height: AppSpace.s1),
+                                _buildParentAccessButton(context, strings),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return PopScope(
       canPop: true,
       child: Scaffold(
@@ -158,133 +275,12 @@ class _DailyLimitScreenState extends ConsumerState<DailyLimitScreen> {
                         const SizedBox(height: AppSpace.s5),
 
                         // 4. Carte "Prochaine réinitialisation dans :" (Heure de minuit)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(AppSpace.s4),
-                          decoration: BoxDecoration(
-                            color: context.isDark
-                                ? const Color(0xFF1E1B4B)
-                                : AppColors.night50,
-                            borderRadius: BorderRadius.circular(AppRadius.xl),
-                            border: Border.all(
-                              color: context.isDark
-                                  ? const Color(0xFF4338CA)
-                                  : AppColors.night700.withValues(alpha: 0.25),
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: context.isDark
-                                    ? Colors.black26
-                                    : AppColors.night700.withValues(alpha: 0.08),
-                                offset: const Offset(0, 4),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.alarm_rounded,
-                                    size: 20,
-                                    color: AppColors.night700,
-                                  ),
-                                  const SizedBox(width: AppSpace.s2),
-                                  Text(
-                                    strings.nextResetIn,
-                                    style: AppText.label.copyWith(
-                                      color: context.isDark
-                                          ? const Color(0xFFA5B4FC)
-                                          : AppColors.night700,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: AppSpace.s2),
-                              Text(
-                                strings.resetCountdownFormatted(hours, minutes),
-                                style: AppText.mathL.copyWith(
-                                  color: context.isDark
-                                      ? const Color(0xFFC7D2FE)
-                                      : AppColors.night700,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildCountdownCard(context, strings, hours, minutes),
 
                         const SizedBox(height: AppSpace.s4),
 
                         // 5. Carte "L'activité hors-écran du jour :"
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(AppSpace.s4),
-                          decoration: BoxDecoration(
-                            color: context.appSurface,
-                            borderRadius: BorderRadius.circular(AppRadius.xl),
-                            border: Border.all(
-                              color: context.appBorder,
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: context.appShadow,
-                                offset: const Offset(0, 4),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: context.isDark
-                                          ? const Color(0xFF451A03)
-                                          : AppColors.amber50,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.lightbulb_rounded,
-                                      size: 20,
-                                      color: AppColors.gold600,
-                                    ),
-                                  ),
-                                  const SizedBox(width: AppSpace.s2),
-                                  Expanded(
-                                    child: Text(
-                                      strings.offlineActivityHeader,
-                                      style: AppText.label.copyWith(
-                                        color: context.appText,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: AppSpace.s3),
-                              Text(
-                                '"${_getOfflineActivity(strings)}"',
-                                style: AppText.bodyL.copyWith(
-                                  color: context.isDark
-                                      ? const Color(0xFFE2E8F0)
-                                      : AppColors.ink900,
-                                  fontStyle: FontStyle.italic,
-                                  height: 1.35,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildOfflineActivityCard(context, strings),
 
                         const SizedBox(height: AppSpace.s4),
                       ],
@@ -305,31 +301,172 @@ class _DailyLimitScreenState extends ConsumerState<DailyLimitScreen> {
                 const SizedBox(height: AppSpace.s2),
 
                 // 7. Accès réservé aux parents (déblocage ou ajustement des quotas)
-                TextButton.icon(
-                  key: const Key('daily_limit_parent_access_button'),
-                  onPressed: () async {
-                    final navigator = Navigator.of(context);
-                    final unlocked = await ParentalGateDialog.show(context);
-                    if (unlocked == true && navigator.mounted) {
-                      navigator.push(
-                        MaterialPageRoute(
-                          builder: (_) => const ParentDashboardScreen(),
-                        ),
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.lock_outline_rounded, size: 16, color: AppColors.sky600),
-                  label: Text(
-                    strings.parentSettingsEntryTitle,
-                    style: AppText.buttonM.copyWith(
-                      color: AppColors.sky600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
+                _buildParentAccessButton(context, strings),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCountdownCard(
+    BuildContext context,
+    dynamic strings,
+    int hours,
+    int minutes,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpace.s4),
+      decoration: BoxDecoration(
+        color: context.isDark ? const Color(0xFF1E1B4B) : AppColors.night50,
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(
+          color: context.isDark
+              ? const Color(0xFF4338CA)
+              : AppColors.night700.withValues(alpha: 0.25),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: context.isDark
+                ? Colors.black26
+                : AppColors.night700.withValues(alpha: 0.08),
+            offset: const Offset(0, 4),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.alarm_rounded,
+                size: 20,
+                color: AppColors.night700,
+              ),
+              const SizedBox(width: AppSpace.s2),
+              Flexible(
+                child: Text(
+                  strings.nextResetIn,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: AppText.label.copyWith(
+                    color: context.isDark
+                        ? const Color(0xFFA5B4FC)
+                        : AppColors.night700,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.s2),
+          Text(
+            strings.resetCountdownFormatted(hours, minutes),
+            style: AppText.mathL.copyWith(
+              color: context.isDark
+                  ? const Color(0xFFC7D2FE)
+                  : AppColors.night700,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOfflineActivityCard(BuildContext context, dynamic strings) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpace.s4),
+      decoration: BoxDecoration(
+        color: context.appSurface,
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(color: context.appBorder, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: context.appShadow,
+            offset: const Offset(0, 4),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: context.isDark
+                      ? const Color(0xFF451A03)
+                      : AppColors.amber50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.lightbulb_rounded,
+                  size: 20,
+                  color: AppColors.gold600,
+                ),
+              ),
+              const SizedBox(width: AppSpace.s2),
+              Expanded(
+                child: Text(
+                  strings.offlineActivityHeader,
+                  style: AppText.label.copyWith(
+                    color: context.appText,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.s3),
+          Text(
+            '"${_getOfflineActivity(strings)}"',
+            style: AppText.bodyL.copyWith(
+              color: context.isDark
+                  ? const Color(0xFFE2E8F0)
+                  : AppColors.ink900,
+              fontStyle: FontStyle.italic,
+              height: 1.35,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildParentAccessButton(BuildContext context, dynamic strings) {
+    return TextButton.icon(
+      key: const Key('daily_limit_parent_access_button'),
+      onPressed: () async {
+        final navigator = Navigator.of(context);
+        final unlocked = await ParentalGateDialog.show(context);
+        if (unlocked == true && navigator.mounted) {
+          navigator.push(
+            MaterialPageRoute(
+              builder: (_) => const ParentDashboardScreen(),
+            ),
+          );
+        }
+      },
+      icon: const Icon(
+        Icons.lock_outline_rounded,
+        size: 16,
+        color: AppColors.sky600,
+      ),
+      label: Text(
+        strings.parentSettingsEntryTitle,
+        style: AppText.buttonM.copyWith(
+          color: AppColors.sky600,
+          fontSize: 13,
         ),
       ),
     );
@@ -392,9 +529,7 @@ class _SleepingPiMascotAreaState extends State<_SleepingPiMascotArea>
               width: 130,
               height: 18,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(
-                  Radius.elliptical(130, 18),
-                ),
+                borderRadius: BorderRadius.all(Radius.elliptical(130, 18)),
                 gradient: RadialGradient(
                   colors: [
                     Colors.black.withValues(alpha: 0.22),
@@ -462,8 +597,8 @@ class _SleepingPiMascotAreaState extends State<_SleepingPiMascotArea>
     final double opacity = progress < 0.2
         ? (progress / 0.2)
         : progress > 0.8
-            ? ((1.0 - progress) / 0.2)
-            : 1.0;
+        ? ((1.0 - progress) / 0.2)
+        : 1.0;
 
     return Transform.translate(
       offset: Offset(dx, dy),

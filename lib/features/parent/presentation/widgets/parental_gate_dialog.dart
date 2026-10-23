@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimens.dart';
@@ -133,7 +135,9 @@ class _ParentalGateDialogState extends ConsumerState<ParentalGateDialog> {
         _startLockoutCountdown();
       } else {
         setState(() {
-          _errorMessage = strings.parentGateAttemptsLeft(_lockoutManager.remainingAttempts);
+          _errorMessage = strings.parentGateAttemptsLeft(
+            _lockoutManager.remainingAttempts,
+          );
           _currentChallenge = _generator.generate();
         });
         _focusNode.requestFocus();
@@ -152,7 +156,10 @@ class _ParentalGateDialogState extends ConsumerState<ParentalGateDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.xxl),
       ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpace.s5, vertical: AppSpace.s4),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s5,
+        vertical: AppSpace.s4,
+      ),
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(AppSpace.s5),
@@ -167,10 +174,14 @@ class _ParentalGateDialogState extends ConsumerState<ParentalGateDialog> {
                   Container(
                     padding: const EdgeInsets.all(AppSpace.s2),
                     decoration: BoxDecoration(
-                      color: context.isDark ? const Color(0xFF1E293B) : AppColors.sky50,
+                      color: context.isDark
+                          ? const Color(0xFF1E293B)
+                          : AppColors.sky50,
                       borderRadius: BorderRadius.circular(AppRadius.md),
                       border: Border.all(
-                        color: context.isDark ? const Color(0xFF334155) : context.appBorder,
+                        color: context.isDark
+                            ? const Color(0xFF334155)
+                            : context.appBorder,
                         width: 1.5,
                       ),
                     ),
@@ -199,21 +210,33 @@ class _ParentalGateDialogState extends ConsumerState<ParentalGateDialog> {
 
               Text(
                 strings.parentGateSubtitle,
-                style: AppText.bodyS.copyWith(color: context.appSubText, height: 1.3),
+                style: AppText.bodyS.copyWith(
+                  color: context.appSubText,
+                  height: 1.3,
+                ),
               ),
 
               const SizedBox(height: AppSpace.s4),
 
               // 2. Défi mathématique textuel
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: AppSpace.s3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.s4,
+                  vertical: AppSpace.s3,
+                ),
                 decoration: BoxDecoration(
-                  color: context.isDark ? const Color(0xFF0F172A) : AppColors.bg,
+                  color: context.isDark
+                      ? const Color(0xFF0F172A)
+                      : AppColors.bg,
                   borderRadius: BorderRadius.circular(AppRadius.lg),
                   border: Border.all(
                     color: isLocked
-                        ? (context.isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFCA5A5))
-                        : (context.isDark ? const Color(0xFF334155) : AppColors.ink200),
+                        ? (context.isDark
+                              ? const Color(0xFF7F1D1D)
+                              : const Color(0xFFFCA5A5))
+                        : (context.isDark
+                              ? const Color(0xFF334155)
+                              : AppColors.ink200),
                     width: 2,
                   ),
                 ),
@@ -248,22 +271,32 @@ class _ParentalGateDialogState extends ConsumerState<ParentalGateDialog> {
                 Container(
                   padding: const EdgeInsets.all(AppSpace.s4),
                   decoration: BoxDecoration(
-                    color: context.isDark ? const Color(0xFF450A0A) : const Color(0xFFFEF2F2),
+                    color: context.isDark
+                        ? const Color(0xFF450A0A)
+                        : const Color(0xFFFEF2F2),
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                     border: Border.all(
-                      color: context.isDark ? const Color(0xFF991B1B) : const Color(0xFFF87171),
+                      color: context.isDark
+                          ? const Color(0xFF991B1B)
+                          : const Color(0xFFF87171),
                       width: 1.5,
                     ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.timer_off_outlined, color: AppColors.coral500, size: 28),
+                      const Icon(
+                        Icons.timer_off_outlined,
+                        color: AppColors.coral500,
+                        size: 28,
+                      ),
                       const SizedBox(width: AppSpace.s3),
                       Expanded(
                         child: Text(
                           strings.parentGateLockout(_lockoutSecondsRemaining),
                           style: AppText.body.copyWith(
-                            color: context.isDark ? const Color(0xFFFCA5A5) : AppColors.coral500,
+                            color: context.isDark
+                                ? const Color(0xFFFCA5A5)
+                                : AppColors.coral500,
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
                           ),
@@ -285,8 +318,12 @@ class _ParentalGateDialogState extends ConsumerState<ParentalGateDialog> {
                   key: const Key('parental_gate_input'),
                   controller: _inputController,
                   focusNode: _focusNode,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[\d,\.]')),
+                  ],
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _submitAnswer(),
                   style: AppText.mathL.copyWith(
@@ -301,25 +338,37 @@ class _ParentalGateDialogState extends ConsumerState<ParentalGateDialog> {
                       fontSize: 20,
                     ),
                     filled: true,
-                    fillColor: context.isDark ? const Color(0xFF0F172A) : Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 12),
+                    fillColor: context.isDark
+                        ? const Color(0xFF0F172A)
+                        : Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpace.s4,
+                      vertical: 12,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                       borderSide: BorderSide(
-                        color: _errorMessage != null ? AppColors.coral500 : context.appBorder,
+                        color: _errorMessage != null
+                            ? AppColors.coral500
+                            : context.appBorder,
                         width: 1.5,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                       borderSide: BorderSide(
-                        color: _errorMessage != null ? AppColors.coral500 : context.appBorder,
+                        color: _errorMessage != null
+                            ? AppColors.coral500
+                            : context.appBorder,
                         width: 1.5,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.lg),
-                      borderSide: const BorderSide(color: AppColors.sky600, width: 2),
+                      borderSide: const BorderSide(
+                        color: AppColors.sky600,
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),

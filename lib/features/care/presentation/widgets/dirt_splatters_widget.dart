@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 class DirtSplattersWidget extends StatelessWidget {
   final int dirtCount; // 0 à 4
 
-  const DirtSplattersWidget({
-    super.key,
-    required this.dirtCount,
-  });
+  const DirtSplattersWidget({super.key, required this.dirtCount});
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +21,9 @@ class DirtSplattersWidget extends StatelessWidget {
             Positioned(
               left: 38,
               bottom: 8,
-              child: _buildMudPatch(
-                width: 18,
-                height: 12,
-                angle: 0.15,
-              ),
+              child: _buildMudPatch(width: 18, height: 12, angle: 0.15),
             ),
-            Positioned(
-              left: 34,
-              bottom: 18,
-              child: _buildMudDrop(size: 4),
-            ),
+            Positioned(left: 34, bottom: 18, child: _buildMudDrop(size: 4)),
           ],
 
           // Tache 2 : Flanc droit & patte arrière
@@ -42,22 +31,10 @@ class DirtSplattersWidget extends StatelessWidget {
             Positioned(
               right: 18,
               bottom: 14,
-              child: _buildMudPatch(
-                width: 22,
-                height: 14,
-                angle: -0.25,
-              ),
+              child: _buildMudPatch(width: 22, height: 14, angle: -0.25),
             ),
-            Positioned(
-              right: 28,
-              bottom: 26,
-              child: _buildMudDrop(size: 5),
-            ),
-            Positioned(
-              right: 14,
-              bottom: 24,
-              child: _buildMudDrop(size: 3.5),
-            ),
+            Positioned(right: 28, bottom: 26, child: _buildMudDrop(size: 5)),
+            Positioned(right: 14, bottom: 24, child: _buildMudDrop(size: 3.5)),
           ],
 
           // Tache 3 : Poitrail et ventre
@@ -65,17 +42,9 @@ class DirtSplattersWidget extends StatelessWidget {
             Positioned(
               left: 42,
               top: 48,
-              child: _buildMudPatch(
-                width: 20,
-                height: 13,
-                angle: 0.35,
-              ),
+              child: _buildMudPatch(width: 20, height: 13, angle: 0.35),
             ),
-            Positioned(
-              left: 36,
-              top: 44,
-              child: _buildMudDrop(size: 4.5),
-            ),
+            Positioned(left: 36, top: 44, child: _buildMudDrop(size: 4.5)),
           ],
 
           // Tache 4 : Joue / oreille / front de Pi
@@ -83,22 +52,10 @@ class DirtSplattersWidget extends StatelessWidget {
             Positioned(
               left: 24,
               top: 26,
-              child: _buildMudPatch(
-                width: 16,
-                height: 11,
-                angle: -0.3,
-              ),
+              child: _buildMudPatch(width: 16, height: 11, angle: -0.3),
             ),
-            Positioned(
-              left: 20,
-              top: 20,
-              child: _buildMudDrop(size: 4),
-            ),
-            Positioned(
-              right: 32,
-              top: 30,
-              child: _buildMudDrop(size: 3.5),
-            ),
+            Positioned(left: 20, top: 20, child: _buildMudDrop(size: 4)),
+            Positioned(right: 32, top: 30, child: _buildMudDrop(size: 3.5)),
           ],
         ],
       ),
@@ -116,14 +73,10 @@ class DirtSplattersWidget extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: const Color(0xFF5C2C16).withValues(alpha: 0.88), // Terre boueuse sombre
-          borderRadius: BorderRadius.all(
-            Radius.elliptical(width, height),
-          ),
-          border: Border.all(
-            color: const Color(0xFF331608),
-            width: 1.0,
-          ),
+          color: const Color(0xFF5C2C16)
+              .withValues(alpha: 0.88), // Terre boueuse sombre
+          borderRadius: BorderRadius.all(Radius.elliptical(width, height)),
+          border: Border.all(color: const Color(0xFF331608), width: 1.0),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.20),

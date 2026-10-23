@@ -18,7 +18,10 @@ void main() {
       final map = state.toMap();
       final restored = ShopState.fromMap(map);
 
-      expect(restored.ownedAccessoryIds, containsAll(['blue_cap', 'nerd_glasses']));
+      expect(
+        restored.ownedAccessoryIds,
+        containsAll(['blue_cap', 'nerd_glasses']),
+      );
       expect(restored.equippedAccessoryId, equals('blue_cap'));
       expect(restored.selectedAccessoryId, equals('blue_cap'));
     });
@@ -61,13 +64,9 @@ void main() {
 
     setUp(() {
       SharedPreferences.setMockInitialValues({});
-      shopController = ShopController(
-        initialState: const ShopState(),
-      );
+      shopController = ShopController(initialState: const ShopState());
       careController = CareController(
-        initialCompanion: const PiCompanion(
-          bones: 100,
-        ),
+        initialCompanion: const PiCompanion(bones: 100),
       );
     });
 
@@ -79,12 +78,18 @@ void main() {
     test('initial state has empty owned items and no equipped accessory', () {
       expect(shopController.state.ownedAccessoryIds, isEmpty);
       expect(shopController.state.equippedAccessoryId, isNull);
-      expect(shopController.state.selectedCategory, equals(AccessoryCategory.hats));
+      expect(
+        shopController.state.selectedCategory,
+        equals(AccessoryCategory.hats),
+      );
     });
 
     test('selectCategory updates selectedCategory', () {
       shopController.selectCategory(AccessoryCategory.glasses);
-      expect(shopController.state.selectedCategory, equals(AccessoryCategory.glasses));
+      expect(
+        shopController.state.selectedCategory,
+        equals(AccessoryCategory.glasses),
+      );
     });
 
     test('selectAccessory updates selectedAccessoryId', () {
@@ -107,20 +112,26 @@ void main() {
       expect(shopController.state.feedbackMessage, contains('Casquette Bleue'));
     });
 
-    test('buyAccessory with insufficient bones fails and sets error feedback', () {
-      careController.state = careController.state.copyWith(bones: 10);
-      final item = ShopCatalog.findById('blue_cap')!; // price = 50
-      final success = shopController.buyAccessory(
-        item: item,
-        careNotifier: careController,
-        isFrench: true,
-      );
+    test(
+      'buyAccessory with insufficient bones fails and sets error feedback',
+      () {
+        careController.state = careController.state.copyWith(bones: 10);
+        final item = ShopCatalog.findById('blue_cap')!; // price = 50
+        final success = shopController.buyAccessory(
+          item: item,
+          careNotifier: careController,
+          isFrench: true,
+        );
 
-      expect(success, isFalse);
-      expect(careController.state.bones, equals(10)); // uncharged
-      expect(shopController.state.isOwned('blue_cap'), isFalse);
-      expect(shopController.state.feedbackMessage, contains('Il te manque 40 os dorés'));
-    });
+        expect(success, isFalse);
+        expect(careController.state.bones, equals(10)); // uncharged
+        expect(shopController.state.isOwned('blue_cap'), isFalse);
+        expect(
+          shopController.state.feedbackMessage,
+          contains('Il te manque 40 os dorés'),
+        );
+      },
+    );
 
     test('equipAccessory equips owned item', () {
       final item = ShopCatalog.findById('blue_cap')!;

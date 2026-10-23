@@ -1,6 +1,8 @@
 import 'dart:ui' as ui;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'app_language.dart';
 import 'app_strings.dart';
 
@@ -13,15 +15,16 @@ const String _keyAppLanguage = 'pi_app_language';
 /// - Si l'utilisateur a choisi manuellement dans les paramètres -> son choix prévaut.
 class LanguageNotifier extends StateNotifier<AppLanguage> {
   final SharedPreferences? prefs;
-  final String? systemLocaleCodeOverride; // Pour tester l'injection de langue système
+  final String?
+  systemLocaleCodeOverride; // Pour tester l'injection de langue système
 
-  LanguageNotifier({
-    this.prefs,
-    this.systemLocaleCodeOverride,
-  }) : super(resolveInitialLanguage(
+  LanguageNotifier({this.prefs, this.systemLocaleCodeOverride})
+    : super(
+        resolveInitialLanguage(
           prefs: prefs,
           systemCode: systemLocaleCodeOverride,
-        )) {
+        ),
+      ) {
     _loadSavedLanguage();
   }
 
@@ -37,7 +40,8 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
     }
 
     // 2. Détection de la langue du système
-    final rawSystemCode = systemCode ?? ui.PlatformDispatcher.instance.locale.languageCode;
+    final rawSystemCode =
+        systemCode ?? ui.PlatformDispatcher.instance.locale.languageCode;
     if (rawSystemCode.toLowerCase().startsWith('fr')) {
       return AppLanguage.fr;
     }
@@ -52,7 +56,9 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
     if (savedCode != null) {
       state = AppLanguage.fromCode(savedCode);
     } else {
-      final rawSystemCode = systemLocaleCodeOverride ?? ui.PlatformDispatcher.instance.locale.languageCode;
+      final rawSystemCode =
+          systemLocaleCodeOverride ??
+          ui.PlatformDispatcher.instance.locale.languageCode;
       state = rawSystemCode.toLowerCase().startsWith('fr')
           ? AppLanguage.fr
           : AppLanguage.en;
@@ -70,7 +76,9 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
   Future<void> resetToSystemLanguage() async {
     final sp = prefs ?? await SharedPreferences.getInstance();
     await sp.remove(_keyAppLanguage);
-    final rawSystemCode = systemLocaleCodeOverride ?? ui.PlatformDispatcher.instance.locale.languageCode;
+    final rawSystemCode =
+        systemLocaleCodeOverride ??
+        ui.PlatformDispatcher.instance.locale.languageCode;
     state = rawSystemCode.toLowerCase().startsWith('fr')
         ? AppLanguage.fr
         : AppLanguage.en;
@@ -78,7 +86,9 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
 }
 
 /// Provider global de la langue active.
-final languageProvider = StateNotifierProvider<LanguageNotifier, AppLanguage>((ref) {
+final languageProvider = StateNotifierProvider<LanguageNotifier, AppLanguage>((
+  ref,
+) {
   return LanguageNotifier();
 });
 

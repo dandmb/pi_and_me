@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimens.dart';
@@ -35,7 +36,9 @@ class ProfileSwitcherSheet extends ConsumerWidget {
       padding: const EdgeInsets.all(AppSpace.s5),
       decoration: BoxDecoration(
         color: context.appSurface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.xxl),
+        ),
       ),
       child: SafeArea(
         top: false,
@@ -113,13 +116,17 @@ class ProfileSwitcherSheet extends ConsumerWidget {
                               SnackBar(
                                 content: Text(
                                   '${strings.profileActivated} (${profile.name})',
-                                  style: AppText.bodyS.copyWith(color: Colors.white),
+                                  style: AppText.bodyS.copyWith(
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 backgroundColor: AppColors.sky700,
                                 duration: const Duration(seconds: 2),
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.lg,
+                                  ),
                                 ),
                               ),
                             );
@@ -142,7 +149,8 @@ class ProfileSwitcherSheet extends ConsumerWidget {
                             Navigator.of(context).pop();
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => const OnboardingScreen(canCancel: true),
+                                builder: (_) =>
+                                    const OnboardingScreen(canCancel: true),
                               ),
                             );
                           },
@@ -150,7 +158,9 @@ class ProfileSwitcherSheet extends ConsumerWidget {
                       )
                     else
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: AppSpace.s2),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpace.s2,
+                        ),
                         child: Text(
                           strings.maxProfilesReached,
                           style: AppText.bodyS.copyWith(
@@ -201,7 +211,10 @@ class ProfileSwitcherSheet extends ConsumerWidget {
             Expanded(
               child: Text(
                 strings.deleteProfileConfirm,
-                style: AppText.h3.copyWith(fontSize: 18, color: context.appText),
+                style: AppText.h3.copyWith(
+                  fontSize: 18,
+                  color: context.appText,
+                ),
               ),
             ),
           ],
@@ -225,7 +238,9 @@ class ProfileSwitcherSheet extends ConsumerWidget {
             ),
             onPressed: () async {
               Navigator.of(dialogCtx).pop();
-              await ref.read(activeProfileProvider.notifier).deleteProfile(profile.id);
+              await ref
+                  .read(activeProfileProvider.notifier)
+                  .deleteProfile(profile.id);
             },
             child: Text(strings.delete, style: AppText.buttonM),
           ),
@@ -295,7 +310,9 @@ class _ProfileCard extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: isActive
                         ? AppColors.sky500
-                        : (context.isDark ? AppColors.darkSurfaceAlt : AppColors.ink100),
+                        : (context.isDark
+                              ? AppColors.darkSurfaceAlt
+                              : AppColors.ink100),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

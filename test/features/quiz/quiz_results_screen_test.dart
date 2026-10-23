@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,7 @@ import 'package:pi_et_moi/core/localization/locale_controller.dart';
 import 'package:pi_et_moi/features/profile/domain/child_profile.dart';
 import 'package:pi_et_moi/features/profile/domain/school_grade.dart';
 import 'package:pi_et_moi/features/profile/presentation/profile_controller.dart';
+import 'package:pi_et_moi/features/quiz/data/quiz_stats_repository.dart';
 import 'package:pi_et_moi/features/quiz/domain/math_question_generator.dart';
 import 'package:pi_et_moi/features/quiz/presentation/quiz_controller.dart';
 import 'package:pi_et_moi/features/quiz/presentation/quiz_results_screen.dart';
@@ -49,43 +51,48 @@ void main() {
           return controller;
         }),
       ],
-      child: const MaterialApp(
-        home: QuizResultsScreen(),
-      ),
+      child: const MaterialApp(home: QuizResultsScreen()),
     );
   }
 
   group('QuizResultsScreen Widget Tests', () {
-    testWidgets('renders celebration, score, rewards and action buttons in French', (tester) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'renders celebration, score, rewards and action buttons in French',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableResultsScreen(systemLocale: 'fr', score: 5));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestableResultsScreen(systemLocale: 'fr', score: 5),
+        );
+        await tester.pumpAndSettle();
 
-      // Vérifie les textes d'en-tête
-      expect(find.text('Quiz Terminé !'), findsOneWidget);
-      expect(find.text('Bravo Léa !'), findsOneWidget);
-      expect(find.text('Score : 5 / 6'), findsOneWidget);
+        // Vérifie les textes d'en-tête
+        expect(find.text('Quiz Terminé !'), findsOneWidget);
+        expect(find.text('Bravo Léa !'), findsOneWidget);
+        expect(find.text('Score : 5 / 6'), findsOneWidget);
 
-      // Vérifie les récompenses
-      expect(find.text('Récompenses gagnées'), findsOneWidget);
-      expect(find.text('Os dorés'), findsOneWidget);
-      expect(find.text('Croquettes'), findsOneWidget);
-      expect(find.text('Balles'), findsOneWidget);
+        // Vérifie les récompenses
+        expect(find.text('Récompenses gagnées'), findsOneWidget);
+        expect(find.text('Os dorés'), findsOneWidget);
+        expect(find.text('Croquettes'), findsOneWidget);
+        expect(find.text('Balles'), findsOneWidget);
 
-      // Vérifie les boutons d'action
-      expect(find.text('Nourrir & Soigner Pi'), findsOneWidget);
-      expect(find.text('Retour au salon'), findsOneWidget);
-    });
+        // Vérifie les boutons d'action
+        expect(find.text('Nourrir & Soigner Pi'), findsOneWidget);
+        expect(find.text('Retour au salon'), findsOneWidget);
+      },
+    );
 
     testWidgets('renders in English when language is English', (tester) async {
       tester.view.physicalSize = const Size(800, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableResultsScreen(systemLocale: 'en', score: 6));
+      await tester.pumpWidget(
+        buildTestableResultsScreen(systemLocale: 'en', score: 6),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Quiz Completed!'), findsOneWidget);
@@ -97,6 +104,60 @@ void main() {
       expect(find.text('Feed & Care for Pi'), findsOneWidget);
       expect(find.text('Back to living room'), findsOneWidget);
     });
+
+    testWidgets(
+      'tapping action button records quiz session in QuizStatsRepository',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        final prefs = await SharedPreferences.getInstance();
+        final statsRepo = QuizStatsRepository(prefs: prefs);
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              languageProvider.overrideWith(
+                (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+              ),
+              activeProfileProvider.overrideWith(
+                () => _FakeProfileNotifier(
+                  ChildProfile.defaultProfile(
+                    name: 'Léa',
+                    grade: SchoolGrade.cm1,
+                  ),
+                ),
+              ),
+              quizStatsRepositoryProvider.overrideWithValue(statsRepo),
+              quizControllerProvider.overrideWith((ref) {
+                final controller = QuizController(
+                  generator: MathQuestionGenerator(Random(42)),
+                );
+                controller.startQuiz(SchoolGrade.cm1);
+                for (int i = 0; i < 6; i++) {
+                  final q = controller.state.currentQuestion!;
+                  controller.selectOption(q.correctIndex);
+                  controller.validateAnswer();
+                  controller.nextQuestion();
+                }
+                return controller;
+              }),
+            ],
+            child: const MaterialApp(home: QuizResultsScreen()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Retour au salon'));
+        await tester.pumpAndSettle();
+
+        final recorded = await statsRepo.getAllSessions();
+        expect(recorded.length, 1);
+        expect(recorded.first.correctAnswers, 6);
+        expect(recorded.first.totalQuestions, 6);
+      },
+    );
   });
 }
 

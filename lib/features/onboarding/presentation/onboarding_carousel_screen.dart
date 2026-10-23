@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../core/audio/audio_service.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
@@ -126,8 +127,9 @@ class _OnboardingCarouselScreenState
         body: SafeArea(
           child: Center(
             child: ConstrainedBox(
-              constraints:
-                  const BoxConstraints(maxWidth: AppSpace.maxContentWidth),
+              constraints: const BoxConstraints(
+                maxWidth: AppSpace.maxContentWidth,
+              ),
               child: Column(
                 children: [
                   // Barre supérieure : Sauter / Passer l'onboarding
@@ -168,7 +170,9 @@ class _OnboardingCarouselScreenState
                               vertical: AppSpace.s1,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppRadius.pill),
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.pill,
+                              ),
                             ),
                           ),
                           child: Text(
@@ -202,11 +206,13 @@ class _OnboardingCarouselScreenState
 
                   // Barre inférieure : Indicateur de pages & Bouton d'action
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(
+                    padding: EdgeInsets.fromLTRB(
                       AppSpace.s5,
                       AppSpace.s2,
                       AppSpace.s5,
-                      AppSpace.s4,
+                      MediaQuery.of(context).orientation == Orientation.landscape
+                          ? AppSpace.s2
+                          : AppSpace.s4,
                     ),
                     child: Column(
                       mainAxisSize: minAxisSize,
@@ -226,13 +232,19 @@ class _OnboardingCarouselScreenState
                                 color: isActive
                                     ? AppColors.sky600
                                     : context.appBorder,
-                                borderRadius:
-                                    BorderRadius.circular(AppRadius.pill),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.pill,
+                                ),
                               ),
                             );
                           }),
                         ),
-                        const SizedBox(height: AppSpace.s4),
+                        SizedBox(
+                          height: MediaQuery.of(context).orientation ==
+                                  Orientation.landscape
+                              ? AppSpace.s2
+                              : AppSpace.s4,
+                        ),
 
                         // Bouton Suivant / Rencontrer Pi
                         ChunkyButton(
@@ -240,7 +252,10 @@ class _OnboardingCarouselScreenState
                               ? strings.onboardingMeetPi
                               : strings.onboardingNext,
                           variant: ChunkyButtonVariant.primary,
-                          height: 56,
+                          height: MediaQuery.of(context).orientation ==
+                                  Orientation.landscape
+                              ? 44
+                              : 56,
                           onPressed: _onNext,
                         ),
                       ],
@@ -269,12 +284,131 @@ class _CarouselSlideView extends StatelessWidget {
     Color tagTextColor,
     Color accentColor,
     IconData icon,
-  }) slide;
+  })
+  slide;
 
   const _CarouselSlideView({required this.slide});
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    if (isLandscape) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpace.s5),
+        child: Row(
+          children: [
+            // Mockup miniature à gauche
+            Expanded(
+              flex: 4,
+              child: Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 220),
+                  margin: const EdgeInsets.symmetric(vertical: AppSpace.s1),
+                  decoration: BoxDecoration(
+                    color: context.appSurface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: context.appBorder,
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.ink900.withValues(alpha: 0.08),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: AspectRatio(
+                      aspectRatio: 9 / 19.5,
+                      child: Image.asset(
+                        slide.imagePath,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Center(
+                            child: Icon(
+                              slide.icon,
+                              size: 48,
+                              color: slide.accentColor,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpace.s4),
+            // Texte explicatif à droite
+            Expanded(
+              flex: 5,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpace.s3,
+                        vertical: AppSpace.s1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: slide.tagBgColor,
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(slide.icon, size: 15, color: slide.tagTextColor),
+                          const SizedBox(width: AppSpace.s1),
+                          Flexible(
+                            child: Text(
+                              slide.tag,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: AppText.label.copyWith(
+                                color: slide.tagTextColor,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: AppSpace.s2),
+                    Text(
+                      slide.title,
+                      style: AppText.h2.copyWith(
+                        color: context.appText,
+                        fontSize: 18,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpace.s2),
+                    Text(
+                      slide.description,
+                      style: AppText.body.copyWith(
+                        color: context.appSubText,
+                        fontSize: 13,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
@@ -293,7 +427,9 @@ class _CarouselSlideView extends StatelessWidget {
                     child: Center(
                       child: Container(
                         constraints: const BoxConstraints(maxHeight: 380),
-                        margin: const EdgeInsets.symmetric(vertical: AppSpace.s2),
+                        margin: const EdgeInsets.symmetric(
+                          vertical: AppSpace.s2,
+                        ),
                         decoration: BoxDecoration(
                           color: context.appSurface,
                           borderRadius: BorderRadius.circular(28),
@@ -348,11 +484,7 @@ class _CarouselSlideView extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          slide.icon,
-                          size: 15,
-                          color: slide.tagTextColor,
-                        ),
+                        Icon(slide.icon, size: 15, color: slide.tagTextColor),
                         const SizedBox(width: AppSpace.s1),
                         Text(
                           slide.tag,

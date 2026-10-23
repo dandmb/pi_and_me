@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'app_dimens.dart';
 import 'theme.dart';
 
@@ -9,7 +10,8 @@ ThemeData buildAppTheme([TextTheme? textTheme]) {
   final cs = base.colorScheme;
 
   return base.copyWith(
-    splashFactory: NoSplash.splashFactory, // Rétroaction physique via ChunkyButton
+    splashFactory:
+        NoSplash.splashFactory, // Rétroaction physique via ChunkyButton
     appBarTheme: AppBarTheme(
       backgroundColor: cs.surface,
       foregroundColor: cs.onSurface,
@@ -30,15 +32,15 @@ ThemeData buildAppTheme([TextTheme? textTheme]) {
         color: cs.onSurface,
         fontWeight: FontWeight.bold,
       ),
-      contentTextStyle: tt.bodyMedium?.copyWith(
-        color: cs.onSurfaceVariant,
-      ),
+      contentTextStyle: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: cs.surface,
       surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadius.xxl),
+        ),
       ),
     ),
     tabBarTheme: TabBarThemeData(
@@ -90,15 +92,15 @@ ThemeData buildAppDarkTheme([TextTheme? textTheme]) {
         color: cs.onSurface,
         fontWeight: FontWeight.bold,
       ),
-      contentTextStyle: tt.bodyMedium?.copyWith(
-        color: cs.onSurfaceVariant,
-      ),
+      contentTextStyle: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: cs.surface,
       surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadius.xxl),
+        ),
       ),
     ),
     tabBarTheme: TabBarThemeData(
@@ -121,4 +123,3 @@ ThemeData buildAppDarkTheme([TextTheme? textTheme]) {
     ),
   );
 }
-

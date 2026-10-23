@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -28,10 +29,7 @@ enum ShopTabMode { shop, wardrobe }
 class ShopScreen extends ConsumerStatefulWidget {
   final bool isEmbedded;
 
-  const ShopScreen({
-    super.key,
-    this.isEmbedded = false,
-  });
+  const ShopScreen({super.key, this.isEmbedded = false});
 
   @override
   ConsumerState<ShopScreen> createState() => _ShopScreenState();
@@ -54,8 +52,90 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final currentGrade = profileAsync.value?.grade ?? SchoolGrade.cp;
 
     // L'accessoire actuellement essayé dans la cabine (soit la sélection, soit l'équipé)
-    final previewId = shopState.selectedAccessoryId ?? shopState.equippedAccessoryId;
+    final previewId =
+        shopState.selectedAccessoryId ?? shopState.equippedAccessoryId;
     final previewItem = ShopCatalog.findById(previewId);
+
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    if (isLandscape) {
+      return Scaffold(
+        backgroundColor: context.appBg,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s3,
+              vertical: AppSpace.s2,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Colonne gauche : Cabine d'essayage, Onglets, Solde
+                SizedBox(
+                  width: 290,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!widget.isEmbedded) ...[
+                          _buildHeader(context, companion.bones, strings),
+                          const SizedBox(height: AppSpace.s2),
+                        ],
+                        _buildTabSelector(shopState, strings),
+                        const SizedBox(height: AppSpace.s2),
+                        _buildFittingRoom(
+                          previewId,
+                          previewItem,
+                          shopState,
+                          shopNotifier,
+                          strings,
+                        ),
+                        if (shopState.feedbackMessage != null) ...[
+                          const SizedBox(height: AppSpace.s2),
+                          _buildFeedbackBanner(shopState.feedbackMessage!),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpace.s3),
+                // Colonne droite : Sélecteur de catégories + Grille catalogue / dressing
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildCategorySelector(shopState, shopNotifier, strings),
+                      const SizedBox(height: AppSpace.s2),
+                      Expanded(
+                        child: _tabMode == ShopTabMode.shop
+                            ? _buildCatalogGrid(
+                                shopState,
+                                shopNotifier,
+                                companion.bones,
+                                currentGrade,
+                                strings,
+                              )
+                            : _buildWardrobeContent(
+                                shopState,
+                                shopNotifier,
+                                strings,
+                              ),
+                      ),
+                      if (!widget.isEmbedded) ...[
+                        const SizedBox(height: AppSpace.s2),
+                        _buildBottomDock(context, strings),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: context.appBg,
@@ -84,7 +164,13 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               const SizedBox(height: AppSpace.s2),
 
               // 4. Cabine d'essayage en direct avec Pi sur son socle
-              _buildFittingRoom(previewId, previewItem, shopState, shopNotifier, strings),
+              _buildFittingRoom(
+                previewId,
+                previewItem,
+                shopState,
+                shopNotifier,
+                strings,
+              ),
 
               // 5. Message de retour / notification d'achat ou d'équipement
               if (shopState.feedbackMessage != null) ...[
@@ -104,11 +190,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         currentGrade,
                         strings,
                       )
-                    : _buildWardrobeContent(
-                        shopState,
-                        shopNotifier,
-                        strings,
-                      ),
+                    : _buildWardrobeContent(shopState, shopNotifier, strings),
               ),
 
               // 7. Barre de navigation inférieure (si non embarqué)
@@ -130,7 +212,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         GestureDetector(
           onTap: () {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
+              MaterialPageRoute(
+                builder: (_) => const MainShellScreen(initialIndex: 0),
+              ),
               (route) => false,
             );
           },
@@ -152,7 +236,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         const SizedBox(width: AppSpace.s2),
         Expanded(
           child: Text(
-            _tabMode == ShopTabMode.shop ? strings.shopTitle : strings.wardrobeTab,
+            _tabMode == ShopTabMode.shop
+                ? strings.shopTitle
+                : strings.wardrobeTab,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -161,25 +247,36 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         ),
         const SizedBox(width: AppSpace.s2),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 4),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpace.s3,
+            vertical: 4,
+          ),
           decoration: BoxDecoration(
             color: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
             borderRadius: BorderRadius.circular(AppRadius.pill),
             border: Border.all(
-              color: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+              color: context.isDark
+                  ? const Color(0xFFD97706)
+                  : const Color(0xFFFDE68A),
               width: 1.5,
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.stars_rounded, size: 16, color: AppColors.gold600),
+              const Icon(
+                Icons.stars_rounded,
+                size: 16,
+                color: AppColors.gold600,
+              ),
               const SizedBox(width: 4),
               Text(
                 '$bonesCount',
                 style: AppText.bodyS.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
+                  color: context.isDark
+                      ? const Color(0xFFFDE68A)
+                      : AppColors.amber900,
                 ),
               ),
             ],
@@ -225,15 +322,23 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     Icon(
                       Icons.storefront_rounded,
                       size: 16,
-                      color: _tabMode == ShopTabMode.shop ? Colors.white : context.appSubText,
+                      color: _tabMode == ShopTabMode.shop
+                          ? Colors.white
+                          : context.appSubText,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      strings.shopTab,
-                      style: AppText.label.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: _tabMode == ShopTabMode.shop ? Colors.white : context.appSubText,
-                        fontSize: 13,
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        strings.shopTab,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: AppText.label.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: _tabMode == ShopTabMode.shop
+                              ? Colors.white
+                              : context.appSubText,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
@@ -265,15 +370,23 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     Icon(
                       Icons.checkroom_rounded,
                       size: 16,
-                      color: _tabMode == ShopTabMode.wardrobe ? Colors.white : context.appSubText,
+                      color: _tabMode == ShopTabMode.wardrobe
+                          ? Colors.white
+                          : context.appSubText,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${strings.wardrobeTab}${ownedCount > 0 ? ' ($ownedCount)' : ''}',
-                      style: AppText.label.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: _tabMode == ShopTabMode.wardrobe ? Colors.white : context.appSubText,
-                        fontSize: 13,
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        '${strings.wardrobeTab}${ownedCount > 0 ? ' ($ownedCount)' : ''}',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: AppText.label.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: _tabMode == ShopTabMode.wardrobe
+                              ? Colors.white
+                              : context.appSubText,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
@@ -298,9 +411,13 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       child: Row(
         children: AccessoryCategory.values.map((category) {
           final isSelected = category == selectedCategory;
-          final hasEquippedInCat = shopState.equippedByCategory.containsKey(category);
-          final hasPreviewInCat = shopState.previewByCategory.containsKey(category) &&
-              shopState.previewByCategory[category] != shopState.equippedByCategory[category];
+          final hasEquippedInCat = shopState.equippedByCategory.containsKey(
+            category,
+          );
+          final hasPreviewInCat =
+              shopState.previewByCategory.containsKey(category) &&
+              shopState.previewByCategory[category] !=
+                  shopState.equippedByCategory[category];
 
           return Padding(
             padding: const EdgeInsets.only(right: AppSpace.s2),
@@ -341,16 +458,22 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       category.icon,
                       size: 15,
                       color: isSelected
-                          ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                          ? (context.isDark
+                                ? AppColors.darkSky500
+                                : AppColors.sky700)
                           : context.appSubText,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       category.getLabel(strings.isFrench),
                       style: AppText.bodyS.copyWith(
-                        fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                        fontWeight: isSelected
+                            ? FontWeight.w900
+                            : FontWeight.w700,
                         color: isSelected
-                            ? (context.isDark ? AppColors.darkSky500 : AppColors.sky700)
+                            ? (context.isDark
+                                  ? AppColors.darkSky500
+                                  : AppColors.sky700)
                             : context.appSubText,
                         fontSize: 12,
                       ),
@@ -389,8 +512,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final activeIds = shopState.activeFittingRoomIds;
     final unequippedPreviews = shopState.unequippedPreviewIds;
     final hasAnyEquipped = shopState.equippedAccessoryIds.isNotEmpty;
-    final isPreviewEquipped =
-        unequippedPreviews.isEmpty && hasAnyEquipped;
+    final isPreviewEquipped = unequippedPreviews.isEmpty && hasAnyEquipped;
 
     final activeNames = activeIds
         .map((id) => ShopCatalog.findById(id)?.getName(strings.isFrench))
@@ -400,7 +522,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: AppSpace.s3, horizontal: AppSpace.s4),
+      padding: const EdgeInsets.symmetric(
+        vertical: AppSpace.s3,
+        horizontal: AppSpace.s4,
+      ),
       decoration: BoxDecoration(
         color: context.appSurface,
         borderRadius: BorderRadius.circular(AppRadius.xxl),
@@ -420,7 +545,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -432,7 +560,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       : strings.fittingRoom.toUpperCase(),
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: context.isDark ? AppColors.darkSky500 : AppColors.sky700,
+                    color: context.isDark
+                        ? AppColors.darkSky500
+                        : AppColors.sky700,
                     letterSpacing: 0.5,
                     fontSize: 9,
                   ),
@@ -479,11 +609,15 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                           isFrench: strings.isFrench,
                         );
                       } else {
-                        shopNotifier.selectAccessory(''); // Déselectionne l'essai
+                        shopNotifier.selectAccessory(
+                          '',
+                        ); // Déselectionne l'essai
                       }
                     },
                     child: Text(
-                      isPreviewEquipped ? strings.unequipAction : strings.cancelPreview,
+                      isPreviewEquipped
+                          ? strings.unequipAction
+                          : strings.cancelPreview,
                       style: AppText.bodyS.copyWith(
                         fontWeight: FontWeight.w800,
                         color: AppColors.coral500,
@@ -512,12 +646,23 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     width: 130,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: context.isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-                      borderRadius: const BorderRadius.all(Radius.elliptical(130, 24)),
-                      border: Border.all(color: context.isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1), width: 2),
+                      color: context.isDark
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFE2E8F0),
+                      borderRadius: const BorderRadius.all(
+                        Radius.elliptical(130, 24),
+                      ),
+                      border: Border.all(
+                        color: context.isDark
+                            ? const Color(0xFF475569)
+                            : const Color(0xFFCBD5E1),
+                        width: 2,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: context.isDark ? 0.3 : 0.08),
+                          color: Colors.black.withValues(
+                            alpha: context.isDark ? 0.3 : 0.08,
+                          ),
                           offset: const Offset(0, 3),
                           blurRadius: 0,
                         ),
@@ -544,8 +689,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           Text(
             activeNames.isNotEmpty
                 ? (isPreviewEquipped
-                    ? strings.piWears(combinedNamesLabel)
-                    : strings.piTries(combinedNamesLabel))
+                      ? strings.piWears(combinedNamesLabel)
+                      : strings.piTries(combinedNamesLabel))
                 : strings.piNatural,
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -574,7 +719,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.sky600),
+          const Icon(
+            Icons.check_circle_rounded,
+            size: 16,
+            color: AppColors.sky600,
+          ),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
@@ -618,7 +767,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         final isEquipped = shopState.isEquipped(item.id);
         final isSelected = shopState.isSelected(item.id);
         final isUnlocked = item.isGradeUnlocked(currentGrade);
-        final previewColor = (context.isDark && item.primaryColor.computeLuminance() < 0.2)
+        final previewColor =
+            (context.isDark && item.primaryColor.computeLuminance() < 0.2)
             ? item.accentColor
             : item.primaryColor;
 
@@ -662,18 +812,18 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: previewColor.withValues(alpha: context.isDark ? 0.25 : 0.12),
+                    color: previewColor.withValues(
+                      alpha: context.isDark ? 0.25 : 0.12,
+                    ),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: previewColor.withValues(alpha: context.isDark ? 0.5 : 0.35),
+                      color: previewColor.withValues(
+                        alpha: context.isDark ? 0.5 : 0.35,
+                      ),
                       width: 1.5,
                     ),
                   ),
-                  child: Icon(
-                    item.previewIcon,
-                    size: 26,
-                    color: previewColor,
-                  ),
+                  child: Icon(item.previewIcon, size: 26, color: previewColor),
                 ),
 
                 // Nom de l'article
@@ -704,13 +854,19 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.stars_rounded, size: 14, color: AppColors.gold600),
+                        const Icon(
+                          Icons.stars_rounded,
+                          size: 14,
+                          color: AppColors.gold600,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${item.price}',
                           style: AppText.bodyS.copyWith(
                             fontWeight: FontWeight.w900,
-                            color: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
+                            color: context.isDark
+                                ? const Color(0xFFFDE68A)
+                                : AppColors.amber900,
                             fontSize: 12,
                           ),
                         ),
@@ -798,10 +954,14 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
-          color: context.isDark ? AppColors.darkSurfaceAlt : const Color(0xFFF1F5F9),
+          color: context.isDark
+              ? AppColors.darkSurfaceAlt
+              : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
-            color: context.isDark ? AppColors.darkInk200 : const Color(0xFFCBD5E1),
+            color: context.isDark
+                ? AppColors.darkInk200
+                : const Color(0xFFCBD5E1),
             width: 1,
           ),
         ),
@@ -858,7 +1018,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               width: 68,
               height: 68,
               decoration: BoxDecoration(
-                color: context.isDark ? AppColors.darkSurfaceAlt : const Color(0xFFF1F5F9),
+                color: context.isDark
+                    ? AppColors.darkSurfaceAlt
+                    : const Color(0xFFF1F5F9),
                 shape: BoxShape.circle,
                 border: Border.all(color: context.appBorder, width: 2),
               ),
@@ -877,14 +1039,21 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             Text(
               strings.wardrobeEmptySubtitle,
               textAlign: TextAlign.center,
-              style: AppText.bodyS.copyWith(color: context.appSubText, fontSize: 13),
+              style: AppText.bodyS.copyWith(
+                color: context.appSubText,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: AppSpace.s4),
             SizedBox(
               width: 200,
               child: ChunkyButton(
                 label: strings.goToShop,
-                icon: const Icon(Icons.shopping_bag_rounded, size: 16, color: Colors.white),
+                icon: const Icon(
+                  Icons.shopping_bag_rounded,
+                  size: 16,
+                  color: Colors.white,
+                ),
                 variant: ChunkyButtonVariant.primary,
                 height: 40,
                 onPressed: () {
@@ -906,8 +1075,12 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     ShopController shopNotifier,
     dynamic strings,
   ) {
-    final allCategoryItems = ShopCatalog.getByCategory(shopState.selectedCategory);
-    final ownedItems = allCategoryItems.where((item) => shopState.isOwned(item.id)).toList();
+    final allCategoryItems = ShopCatalog.getByCategory(
+      shopState.selectedCategory,
+    );
+    final ownedItems = allCategoryItems
+        .where((item) => shopState.isOwned(item.id))
+        .toList();
 
     if (ownedItems.isEmpty) {
       return Center(
@@ -936,7 +1109,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 width: 180,
                 child: ChunkyButton(
                   label: strings.goToShop,
-                  icon: const Icon(Icons.shopping_bag_rounded, size: 16, color: Colors.white),
+                  icon: const Icon(
+                    Icons.shopping_bag_rounded,
+                    size: 16,
+                    color: Colors.white,
+                  ),
                   variant: ChunkyButtonVariant.primary,
                   height: 36,
                   onPressed: () {
@@ -965,7 +1142,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         final item = ownedItems[index];
         final isEquipped = shopState.isEquipped(item.id);
         final isSelected = shopState.isSelected(item.id);
-        final previewColor = (context.isDark && item.primaryColor.computeLuminance() < 0.2)
+        final previewColor =
+            (context.isDark && item.primaryColor.computeLuminance() < 0.2)
             ? item.accentColor
             : item.primaryColor;
 
@@ -1008,18 +1186,18 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: previewColor.withValues(alpha: context.isDark ? 0.25 : 0.12),
+                    color: previewColor.withValues(
+                      alpha: context.isDark ? 0.25 : 0.12,
+                    ),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: previewColor.withValues(alpha: context.isDark ? 0.5 : 0.35),
+                      color: previewColor.withValues(
+                        alpha: context.isDark ? 0.5 : 0.35,
+                      ),
                       width: 1.5,
                     ),
                   ),
-                  child: Icon(
-                    item.previewIcon,
-                    size: 26,
-                    color: previewColor,
-                  ),
+                  child: Icon(item.previewIcon, size: 26, color: previewColor),
                 ),
                 Text(
                   item.getName(strings.isFrench),
@@ -1060,7 +1238,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     height: 32,
                     onPressed: () {
                       ref.read(audioServiceProvider).playPop();
-                      shopNotifier.equipAccessory(item.id, isFrench: strings.isFrench);
+                      shopNotifier.equipAccessory(
+                        item.id,
+                        isFrench: strings.isFrench,
+                      );
                     },
                   ),
               ],
@@ -1094,12 +1275,17 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 1)),
+                MaterialPageRoute(
+                  builder: (_) => const MainShellScreen(initialIndex: 1),
+                ),
                 (route) => false,
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s3,
+                vertical: 6,
+              ),
               child: Row(
                 children: [
                   Icon(
@@ -1124,19 +1310,20 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
+                MaterialPageRoute(
+                  builder: (_) => const MainShellScreen(initialIndex: 0),
+                ),
                 (route) => false,
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s3,
+                vertical: 6,
+              ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.home_rounded,
-                    size: 18,
-                    color: context.appSubText,
-                  ),
+                  Icon(Icons.home_rounded, size: 18, color: context.appSubText),
                   const SizedBox(width: 6),
                   Text(
                     strings.salonDockLabel,
@@ -1152,7 +1339,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
           // 3. Boutique (Actif)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4, vertical: 6),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s4,
+              vertical: 6,
+            ),
             decoration: BoxDecoration(
               color: context.isDark ? AppColors.darkSky50 : AppColors.sky50,
               borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -1163,14 +1353,18 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 Icon(
                   Icons.storefront_rounded,
                   size: 18,
-                  color: context.isDark ? AppColors.darkSky500 : AppColors.sky600,
+                  color: context.isDark
+                      ? AppColors.darkSky500
+                      : AppColors.sky600,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   strings.shopDockLabel,
                   style: AppText.bodyS.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: context.isDark ? AppColors.darkSky500 : AppColors.sky700,
+                    color: context.isDark
+                        ? AppColors.darkSky500
+                        : AppColors.sky700,
                   ),
                 ),
               ],

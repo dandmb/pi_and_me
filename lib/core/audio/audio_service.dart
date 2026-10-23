@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'sound_mode_controller.dart';
 
 /// Interface abstraite pour le lecteur audio (permet de simuler facilement dans les tests).
@@ -76,10 +77,7 @@ class AudioService {
   final AudioPlayerClient client;
   final bool isSoundEnabled;
 
-  const AudioService({
-    required this.client,
-    required this.isSoundEnabled,
-  });
+  const AudioService({required this.client, required this.isSoundEnabled});
 
   /// Clic tactile / sélection d'un bouton ou accessoire
   Future<void> playPop() => _play('audio/sfx_pop.wav');

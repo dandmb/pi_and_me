@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -12,6 +13,7 @@ import '../../../core/audio/sound_mode_controller.dart';
 import '../../profile/presentation/widgets/profile_switcher_sheet.dart';
 import '../../parent/presentation/parent_dashboard_screen.dart';
 import '../../parent/presentation/widgets/parental_gate_dialog.dart';
+import '../../about/presentation/about_screen.dart';
 
 /// Feuille modale des Paramètres (accessible via l'icône engrenage).
 /// Contient le réglage de la langue (EN / FR) et les préférences.
@@ -38,7 +40,9 @@ class SettingsSheet extends ConsumerWidget {
       padding: const EdgeInsets.all(AppSpace.s5),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.xxl),
+        ),
       ),
       child: SafeArea(
         top: false,
@@ -47,139 +51,75 @@ class SettingsSheet extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-            // Poignée de glissement
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: AppSpace.s4),
+              // Poignée de glissement
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: AppSpace.s4),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
+                ),
+              ),
+
+              // Titre « Paramètres » / « Settings »
+              Text(
+                strings.settings,
+                style: AppText.h3.copyWith(
+                  color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: AppSpace.s5),
+
+              // Carte de réglage de la langue
+              Container(
+                padding: const EdgeInsets.all(AppSpace.s4),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkInk200 : AppColors.ink200,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-              ),
-            ),
-
-            // Titre « Paramètres » / « Settings »
-            Text(
-              strings.settings,
-              style: AppText.h3.copyWith(
-                color: isDark ? AppColors.darkInk900 : AppColors.ink900,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: AppSpace.s5),
-
-            // Carte de réglage de la langue
-            Container(
-              padding: const EdgeInsets.all(AppSpace.s4),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                border: Border.all(
-                  color: isDark ? AppColors.darkInk200 : AppColors.ink200,
-                  width: 1.5,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        strings.languageTitle,
-                        style: AppText.label.copyWith(
-                          color: isDark ? AppColors.darkInk900 : AppColors.ink900,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        strings.languageActiveDescription,
-                        style: AppText.bodyS.copyWith(
-                          color: isDark ? AppColors.darkInk500 : AppColors.ink600,
-                        ),
-                      ),
-                    ],
+                  color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                    width: 1.5,
                   ),
-                  const LanguageSwitcher(),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: AppSpace.s3),
-
-            // Effets Sonores (Activer / Désactiver)
-            Container(
-              padding: const EdgeInsets.all(AppSpace.s4),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                border: Border.all(
-                  color: isDark ? AppColors.darkInk200 : AppColors.ink200,
-                  width: 1.5,
                 ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppSpace.s2),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : AppColors.sky50,
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                    ),
-                    child: Icon(
-                      isSoundEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-                      color: isSoundEnabled ? AppColors.sky600 : AppColors.ink500,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpace.s3),
-                  Expanded(
-                    child: Column(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          strings.soundEffectsTitle,
+                          strings.languageTitle,
                           style: AppText.label.copyWith(
-                            color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                            color: isDark
+                                ? AppColors.darkInk900
+                                : AppColors.ink900,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          isSoundEnabled ? strings.soundEnabled : strings.soundDisabled,
+                          strings.languageActiveDescription,
                           style: AppText.bodyS.copyWith(
-                            color: isDark ? AppColors.darkInk500 : AppColors.ink600,
+                            color: isDark
+                                ? AppColors.darkInk500
+                                : AppColors.ink600,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Switch.adaptive(
-                    key: const Key('sound_effects_switch'),
-                    value: isSoundEnabled,
-                    activeTrackColor: AppColors.sky600,
-                    onChanged: (val) {
-                      ref.read(soundEnabledProvider.notifier).setSoundEnabled(val);
-                      if (val) {
-                        ref.read(audioServiceProvider).playPop();
-                      }
-                    },
-                  ),
-                ],
+                    const LanguageSwitcher(),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: AppSpace.s3),
+              const SizedBox(height: AppSpace.s3),
 
-            // Profils des enfants (lister et switcher de profil)
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-                ProfileSwitcherSheet.show(context);
-              },
-              child: Container(
+              // Effets Sonores (Activer / Désactiver)
+              Container(
                 padding: const EdgeInsets.all(AppSpace.s4),
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
@@ -194,12 +134,18 @@ class SettingsSheet extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(AppSpace.s2),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSky50 : AppColors.sky50,
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : AppColors.sky50,
                         borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
-                      child: const Icon(
-                        Icons.supervised_user_circle_rounded,
-                        color: AppColors.sky600,
+                      child: Icon(
+                        isSoundEnabled
+                            ? Icons.volume_up_rounded
+                            : Icons.volume_off_rounded,
+                        color: isSoundEnabled
+                            ? AppColors.sky600
+                            : AppColors.ink500,
                         size: 22,
                       ),
                     ),
@@ -209,48 +155,201 @@ class SettingsSheet extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            strings.profilesTitle,
+                            strings.soundEffectsTitle,
                             style: AppText.label.copyWith(
-                              color: isDark ? AppColors.darkInk900 : AppColors.ink900,
+                              color: isDark
+                                  ? AppColors.darkInk900
+                                  : AppColors.ink900,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            strings.changeProfile,
+                            isSoundEnabled
+                                ? strings.soundEnabled
+                                : strings.soundDisabled,
                             style: AppText.bodyS.copyWith(
-                              color: isDark ? AppColors.darkInk500 : AppColors.ink600,
+                              color: isDark
+                                  ? AppColors.darkInk500
+                                  : AppColors.ink600,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: isDark ? AppColors.darkInk500 : AppColors.ink500,
+                    Switch.adaptive(
+                      key: const Key('sound_effects_switch'),
+                      value: isSoundEnabled,
+                      activeTrackColor: AppColors.sky600,
+                      onChanged: (val) {
+                        ref
+                            .read(soundEnabledProvider.notifier)
+                            .setSoundEnabled(val);
+                        if (val) {
+                          ref.read(audioServiceProvider).playPop();
+                        }
+                      },
                     ),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: AppSpace.s3),
+              const SizedBox(height: AppSpace.s3),
 
-            // Espace Parents sécurisé par le Parental Gate
-            GestureDetector(
-              key: const Key('parent_dashboard_entry_tile'),
-              onTap: () async {
-                final navigator = Navigator.of(context);
-                final unlocked = await ParentalGateDialog.show(context);
-                if (unlocked == true && navigator.mounted) {
-                  navigator.pop();
-                  navigator.push(
-                    MaterialPageRoute(
-                      builder: (_) => const ParentDashboardScreen(),
+              // Profils des enfants (lister et switcher de profil)
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ProfileSwitcherSheet.show(context);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpace.s4),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                      width: 1.5,
                     ),
-                  );
-                }
-              },
-              child: Container(
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(AppSpace.s2),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.darkSky50 : AppColors.sky50,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                        child: const Icon(
+                          Icons.supervised_user_circle_rounded,
+                          color: AppColors.sky600,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpace.s3),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              strings.profilesTitle,
+                              style: AppText.label.copyWith(
+                                color: isDark
+                                    ? AppColors.darkInk900
+                                    : AppColors.ink900,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              strings.changeProfile,
+                              style: AppText.bodyS.copyWith(
+                                color: isDark
+                                    ? AppColors.darkInk500
+                                    : AppColors.ink600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: isDark ? AppColors.darkInk500 : AppColors.ink500,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: AppSpace.s3),
+
+              // Espace Parents sécurisé par le Parental Gate
+              GestureDetector(
+                key: const Key('parent_dashboard_entry_tile'),
+                onTap: () async {
+                  final navigator = Navigator.of(context);
+                  final unlocked = await ParentalGateDialog.show(context);
+                  if (unlocked == true && navigator.mounted) {
+                    navigator.pop();
+                    navigator.push(
+                      MaterialPageRoute(
+                        builder: (_) => const ParentDashboardScreen(),
+                      ),
+                    );
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpace.s4),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(AppSpace.s2),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : AppColors.sky50,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                        child: const Icon(
+                          Icons.shield_outlined,
+                          color: AppColors.sky600,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpace.s3),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  strings.parentSettingsEntryTitle,
+                                  style: AppText.label.copyWith(
+                                    color: isDark
+                                        ? AppColors.darkInk900
+                                        : AppColors.ink900,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.lock_rounded,
+                                  size: 14,
+                                  color: AppColors.sky600,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              strings.parentSettingsEntrySubtitle,
+                              style: AppText.bodyS.copyWith(
+                                color: isDark
+                                    ? AppColors.darkInk500
+                                    : AppColors.ink600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: isDark ? AppColors.darkInk500 : AppColors.ink500,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: AppSpace.s3),
+
+              // Réglage du Mode Sombre / Thème
+              Container(
                 padding: const EdgeInsets.all(AppSpace.s4),
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
@@ -260,148 +359,160 @@ class SettingsSheet extends ConsumerWidget {
                     width: 1.5,
                   ),
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppSpace.s2),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E293B) : AppColors.sky50,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                      ),
-                      child: const Icon(
-                        Icons.shield_outlined,
-                        color: AppColors.sky600,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpace.s3),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                strings.parentSettingsEntryTitle,
-                                style: AppText.label.copyWith(
-                                  color: isDark ? AppColors.darkInk900 : AppColors.ink900,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.lock_rounded, size: 14, color: AppColors.sky600),
-                            ],
+                    Row(
+                      children: [
+                        Icon(
+                          isDark
+                              ? Icons.dark_mode_rounded
+                              : Icons.light_mode_rounded,
+                          size: 20,
+                          color: isDark
+                              ? const Color(0xFF818CF8)
+                              : AppColors.gold600,
+                        ),
+                        const SizedBox(width: AppSpace.s2),
+                        Text(
+                          strings.themeTitle,
+                          style: AppText.label.copyWith(
+                            color: isDark
+                                ? AppColors.darkInk900
+                                : AppColors.ink900,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            strings.parentSettingsEntrySubtitle,
-                            style: AppText.bodyS.copyWith(
-                              color: isDark ? AppColors.darkInk500 : AppColors.ink600,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: isDark ? AppColors.darkInk500 : AppColors.ink500,
+                    const SizedBox(height: AppSpace.s3),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildThemeOption(
+                            context,
+                            ref,
+                            mode: ThemeMode.light,
+                            label: strings.lightTheme,
+                            icon: Icons.wb_sunny_rounded,
+                            isSelected: themeMode == ThemeMode.light,
+                            isDark: isDark,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildThemeOption(
+                            context,
+                            ref,
+                            mode: ThemeMode.dark,
+                            label: strings.darkTheme,
+                            icon: Icons.bedtime_rounded,
+                            isSelected: themeMode == ThemeMode.dark,
+                            isDark: isDark,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildThemeOption(
+                            context,
+                            ref,
+                            mode: ThemeMode.system,
+                            label: strings.systemTheme,
+                            icon: Icons.auto_mode_rounded,
+                            isSelected: themeMode == ThemeMode.system,
+                            isDark: isDark,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: AppSpace.s3),
+              const SizedBox(height: AppSpace.s3),
 
-            // Réglage du Mode Sombre / Thème
-            Container(
-              padding: const EdgeInsets.all(AppSpace.s4),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                border: Border.all(
-                  color: isDark ? AppColors.darkInk200 : AppColors.ink200,
-                  width: 1.5,
+              // À propos de MathPup (Version, Créateur, Contact)
+              GestureDetector(
+                key: const Key('about_screen_entry_tile'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  AboutScreen.show(context);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpace.s4),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurfaceAlt : AppColors.bg,
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkInk200 : AppColors.ink200,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(AppSpace.s2),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : AppColors.sky50,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                        child: const Icon(
+                          Icons.info_outline_rounded,
+                          color: AppColors.sky600,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpace.s3),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              strings.aboutTitle,
+                              style: AppText.label.copyWith(
+                                color: isDark
+                                    ? AppColors.darkInk900
+                                    : AppColors.ink900,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              strings.aboutSubtitle,
+                              style: AppText.bodyS.copyWith(
+                                color: isDark
+                                    ? AppColors.darkInk500
+                                    : AppColors.ink600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: isDark ? AppColors.darkInk500 : AppColors.ink500,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                        size: 20,
-                        color: isDark ? const Color(0xFF818CF8) : AppColors.gold600,
-                      ),
-                      const SizedBox(width: AppSpace.s2),
-                      Text(
-                        strings.themeTitle,
-                        style: AppText.label.copyWith(
-                          color: isDark ? AppColors.darkInk900 : AppColors.ink900,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpace.s3),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildThemeOption(
-                          context,
-                          ref,
-                          mode: ThemeMode.light,
-                          label: strings.lightTheme,
-                          icon: Icons.wb_sunny_rounded,
-                          isSelected: themeMode == ThemeMode.light,
-                          isDark: isDark,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildThemeOption(
-                          context,
-                          ref,
-                          mode: ThemeMode.dark,
-                          label: strings.darkTheme,
-                          icon: Icons.bedtime_rounded,
-                          isSelected: themeMode == ThemeMode.dark,
-                          isDark: isDark,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildThemeOption(
-                          context,
-                          ref,
-                          mode: ThemeMode.system,
-                          label: strings.systemTheme,
-                          icon: Icons.auto_mode_rounded,
-                          isSelected: themeMode == ThemeMode.system,
-                          isDark: isDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+
+              const SizedBox(height: AppSpace.s6),
+
+              // Bouton Fermer
+              ChunkyButton(
+                label: strings.close,
+                variant: ChunkyButtonVariant.secondary,
+                height: 48,
+                onPressed: () => Navigator.of(context).pop(),
               ),
-            ),
 
-            const SizedBox(height: AppSpace.s6),
-
-            // Bouton Fermer
-            ChunkyButton(
-              label: strings.close,
-              variant: ChunkyButtonVariant.secondary,
-              height: 48,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-
-            const SizedBox(height: AppSpace.s2),
-          ],
+              const SizedBox(height: AppSpace.s2),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 
   Widget _buildThemeOption(
@@ -428,7 +539,9 @@ class SettingsSheet extends ConsumerWidget {
           color: isSelected ? activeBg : inactiveBg,
           borderRadius: BorderRadius.circular(AppRadius.pill),
           border: Border.all(
-            color: isSelected ? activeColor : (isDark ? AppColors.darkInk200 : AppColors.ink200),
+            color: isSelected
+                ? activeColor
+                : (isDark ? AppColors.darkInk200 : AppColors.ink200),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -447,7 +560,9 @@ class SettingsSheet extends ConsumerWidget {
             Icon(
               icon,
               size: 15,
-              color: isSelected ? activeColor : (isDark ? AppColors.darkInk500 : AppColors.ink500),
+              color: isSelected
+                  ? activeColor
+                  : (isDark ? AppColors.darkInk500 : AppColors.ink500),
             ),
             const SizedBox(width: 4),
             Text(
@@ -455,7 +570,9 @@ class SettingsSheet extends ConsumerWidget {
               style: AppText.bodyS.copyWith(
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
                 fontSize: 11.5,
-                color: isSelected ? activeColor : (isDark ? AppColors.darkInk600 : AppColors.ink600),
+                color: isSelected
+                    ? activeColor
+                    : (isDark ? AppColors.darkInk600 : AppColors.ink600),
               ),
             ),
           ],

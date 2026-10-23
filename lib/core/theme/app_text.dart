@@ -1,33 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'app_colors.dart';
 
-TextStyle _display(double s, FontWeight w, double h, {double ls = 0, Color color = AppColors.ink900}) =>
-    GoogleFonts.abrilFatface(
-      fontSize: s,
-      fontWeight: w,
-      height: h,
-      letterSpacing: ls,
-      color: color,
-    );
+TextStyle _display(
+  double s,
+  FontWeight w,
+  double h, {
+  double ls = 0,
+  Color color = AppColors.ink900,
+}) => GoogleFonts.abrilFatface(
+  fontSize: s,
+  fontWeight: w,
+  height: h,
+  letterSpacing: ls,
+  color: color,
+);
 
-TextStyle _body(double s, FontWeight w, double h, {double ls = 0, Color color = AppColors.ink900}) =>
-    GoogleFonts.aBeeZee(
-      fontSize: s,
-      fontWeight: w,
-      height: h,
-      letterSpacing: ls,
-      color: color,
-    );
+TextStyle _body(
+  double s,
+  FontWeight w,
+  double h, {
+  double ls = 0,
+  Color color = AppColors.ink900,
+}) => GoogleFonts.aBeeZee(
+  fontSize: s,
+  fontWeight: w,
+  height: h,
+  letterSpacing: ls,
+  color: color,
+);
 
-TextStyle _math(double s, FontWeight w, double h, {double ls = 0, Color color = AppColors.ink900}) =>
-    GoogleFonts.lexend(
-      fontSize: s,
-      fontWeight: w,
-      height: h,
-      letterSpacing: ls,
-      color: color,
-    );
+TextStyle _math(
+  double s,
+  FontWeight w,
+  double h, {
+  double ls = 0,
+  Color color = AppColors.ink900,
+}) => GoogleFonts.lexend(
+  fontSize: s,
+  fontWeight: w,
+  height: h,
+  letterSpacing: ls,
+  color: color,
+);
 
 /// Typographie officielle de MathPup :
 /// - Abril Fatface pour les grands titres display (GoogleFonts)
@@ -44,14 +60,19 @@ abstract final class AppText {
   static TextStyle get subtitle => _body(18, FontWeight.w700, 1.30);
   static TextStyle get subtitleM => _body(16, FontWeight.w700, 1.30);
   static TextStyle get question => _body(20, FontWeight.w600, 1.40);
-  static TextStyle get questionYoung => _body(22, FontWeight.w600, 1.40); // CP–CE1
+  static TextStyle get questionYoung =>
+      _body(22, FontWeight.w600, 1.40); // CP–CE1
   static TextStyle get bodyL => _body(18, FontWeight.w600, 1.45);
   static TextStyle get body => _body(16, FontWeight.w600, 1.45);
-  static TextStyle get bodyS => _body(14, FontWeight.w600, 1.40, color: AppColors.ink600);
-  static TextStyle get buttonL => _body(18, FontWeight.w700, 1.0, ls: 0.3, color: Colors.white);
-  static TextStyle get buttonM => _body(16, FontWeight.w700, 1.0, ls: 0.2, color: Colors.white);
+  static TextStyle get bodyS =>
+      _body(14, FontWeight.w600, 1.40, color: AppColors.ink600);
+  static TextStyle get buttonL =>
+      _body(18, FontWeight.w700, 1.0, ls: 0.3, color: Colors.white);
+  static TextStyle get buttonM =>
+      _body(16, FontWeight.w700, 1.0, ls: 0.2, color: Colors.white);
   static TextStyle get label => _body(14, FontWeight.w700, 1.20);
-  static TextStyle get overline => _body(13, FontWeight.w700, 1.20, ls: 1.0, color: AppColors.ink500);
+  static TextStyle get overline =>
+      _body(13, FontWeight.w700, 1.20, ls: 1.0, color: AppColors.ink500);
 
   // Styles Lexend (Tous les nombres, calculs, fractions, compteurs & textes de lecture fluide)
   static TextStyle get guideSubtitle => _math(13.5, FontWeight.w400, 1.45);
@@ -60,5 +81,6 @@ abstract final class AppText {
   static TextStyle get mathL => _math(28, FontWeight.w700, 1.10);
   static TextStyle get mathM => _math(20, FontWeight.w700, 1.20);
   static TextStyle get mathS => _math(16, FontWeight.w700, 1.20);
-  static TextStyle get mathXS => _math(13, FontWeight.w600, 1.20, color: AppColors.ink600);
+  static TextStyle get mathXS =>
+      _math(13, FontWeight.w600, 1.20, color: AppColors.ink600);
 }

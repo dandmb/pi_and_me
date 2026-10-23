@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../profile/domain/school_grade.dart';
 import '../domain/math_question.dart';
 import '../domain/math_question_generator.dart';
@@ -35,8 +36,8 @@ class QuizState {
 
   MathQuestion? get currentQuestion =>
       questions.isNotEmpty && currentIndex < questions.length
-          ? questions[currentIndex]
-          : null;
+      ? questions[currentIndex]
+      : null;
 
   int get totalQuestions => questions.length;
 
@@ -65,9 +66,13 @@ class QuizState {
     return QuizState(
       questions: questions ?? this.questions,
       currentIndex: currentIndex ?? this.currentIndex,
-      selectedIndex: clearSelectedIndex ? null : (selectedIndex ?? this.selectedIndex),
+      selectedIndex: clearSelectedIndex
+          ? null
+          : (selectedIndex ?? this.selectedIndex),
       isAnswered: isAnswered ?? this.isAnswered,
-      isCurrentCorrect: clearIsCurrentCorrect ? null : (isCurrentCorrect ?? this.isCurrentCorrect),
+      isCurrentCorrect: clearIsCurrentCorrect
+          ? null
+          : (isCurrentCorrect ?? this.isCurrentCorrect),
       score: score ?? this.score,
       answersHistory: answersHistory ?? this.answersHistory,
       isCompleted: isCompleted ?? this.isCompleted,
@@ -84,8 +89,8 @@ class QuizController extends StateNotifier<QuizState> {
   final MathQuestionGenerator _generator;
 
   QuizController({MathQuestionGenerator? generator})
-      : _generator = generator ?? MathQuestionGenerator(),
-        super(const QuizState());
+    : _generator = generator ?? MathQuestionGenerator(),
+      super(const QuizState());
 
   /// Démarre une nouvelle session de quiz pour la classe demandée
   void startQuiz(SchoolGrade grade, {int count = 6}) {
@@ -164,7 +169,8 @@ class QuizController extends StateNotifier<QuizState> {
 }
 
 /// Provider global du contrôleur de Quiz
-final quizControllerProvider =
-    StateNotifierProvider<QuizController, QuizState>((ref) {
-  return QuizController();
-});
+final quizControllerProvider = StateNotifierProvider<QuizController, QuizState>(
+  (ref) {
+    return QuizController();
+  },
+);

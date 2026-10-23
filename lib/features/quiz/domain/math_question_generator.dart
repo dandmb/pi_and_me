@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import '../../profile/domain/school_grade.dart';
 import 'math_question.dart';
 
@@ -60,7 +61,11 @@ class MathQuestionGenerator {
         promptEn: 'How much is:',
         mathExpression: '$a + $b = ?',
         correctAnswer: '$answer',
-        distractors: ['${answer + 1}', '${max(1, answer - 1)}', '${answer + 2}'],
+        distractors: [
+          '${answer + 1}',
+          '${max(1, answer - 1)}',
+          '${answer + 2}',
+        ],
         hintFr: 'Compte sur tes doigts avec Pi ! 🐾',
         hintEn: 'Count on your paws with Pi! 🐾',
         explanationFr: '$a + $b est égal à $answer.',
@@ -79,7 +84,11 @@ class MathQuestionGenerator {
         promptEn: 'How much is:',
         mathExpression: '$a - $b = ?',
         correctAnswer: '$answer',
-        distractors: ['${answer + 1}', '${max(0, answer - 1)}', '${answer + 2}'],
+        distractors: [
+          '${answer + 1}',
+          '${max(0, answer - 1)}',
+          '${answer + 2}',
+        ],
         hintFr: 'Imagine que Pi retire $b os sur les $a !',
         hintEn: 'Imagine Pi takes away $b bones from $a!',
         explanationFr: '$a - $b est égal à $answer.',
@@ -97,7 +106,11 @@ class MathQuestionGenerator {
         promptEn: 'Find the missing number:',
         mathExpression: '$a + ? = 10',
         correctAnswer: '$answer',
-        distractors: ['${answer + 1}', '${max(1, answer - 1)}', '${(answer + 3) % 10}'],
+        distractors: [
+          '${answer + 1}',
+          '${max(1, answer - 1)}',
+          '${(answer + 3) % 10}',
+        ],
         hintFr: 'Combien manque-t-il pour faire 10 ?',
         hintEn: 'How many more to make 10?',
         explanationFr: '$a + $answer = 10.',
@@ -141,7 +154,11 @@ class MathQuestionGenerator {
         promptEn: 'Calculate the product:',
         mathExpression: '$factor × $base = ?',
         correctAnswer: '$answer',
-        distractors: ['${answer + base}', '${max(2, answer - base)}', '${answer + 1}'],
+        distractors: [
+          '${answer + base}',
+          '${max(2, answer - base)}',
+          '${answer + 1}',
+        ],
         hintFr: 'Rappelle-toi de la table de $base !',
         hintEn: 'Remember your table of $base!',
         explanationFr: '$factor × $base = $answer.',
@@ -159,7 +176,11 @@ class MathQuestionGenerator {
         promptEn: 'What is half of:',
         mathExpression: '$a ÷ 2 = ?',
         correctAnswer: '$answer',
-        distractors: ['${answer + 1}', '${max(1, answer - 1)}', '${answer + 2}'],
+        distractors: [
+          '${answer + 1}',
+          '${max(1, answer - 1)}',
+          '${answer + 2}',
+        ],
         hintFr: 'Partage en deux parts égales ! 🐾',
         hintEn: 'Split into two equal parts! 🐾',
         explanationFr: 'La moitié de $a est $answer.',
@@ -184,7 +205,11 @@ class MathQuestionGenerator {
         promptEn: 'Calculate:',
         mathExpression: '$a × $b = ?',
         correctAnswer: '$answer',
-        distractors: ['${answer + a}', '${max(10, answer - b)}', '${answer + 2}'],
+        distractors: [
+          '${answer + a}',
+          '${max(10, answer - b)}',
+          '${answer + 2}',
+        ],
         hintFr: 'C\'est la table de $a et de $b !',
         hintEn: 'That\'s the $a and $b times table!',
         explanationFr: '$a × $b = $answer.',
@@ -203,11 +228,17 @@ class MathQuestionGenerator {
         promptEn: 'How much is:',
         mathExpression: '$dividend ÷ $divisor = ?',
         correctAnswer: '$quotient',
-        distractors: ['${quotient + 1}', '${max(1, quotient - 1)}', '${quotient + 2}'],
+        distractors: [
+          '${quotient + 1}',
+          '${max(1, quotient - 1)}',
+          '${quotient + 2}',
+        ],
         hintFr: 'Combien de fois $divisor dans $dividend ?',
         hintEn: 'How many times $divisor in $dividend?',
-        explanationFr: '$dividend ÷ $divisor = $quotient car $divisor × $quotient = $dividend.',
-        explanationEn: '$dividend ÷ $divisor = $quotient because $divisor × $quotient = $dividend.',
+        explanationFr:
+            '$dividend ÷ $divisor = $quotient car $divisor × $quotient = $dividend.',
+        explanationEn:
+            '$dividend ÷ $divisor = $quotient because $divisor × $quotient = $dividend.',
       );
     } else {
       final c = _random.nextInt(7) + 2; // 2..8
@@ -223,7 +254,11 @@ class MathQuestionGenerator {
         promptEn: 'Put the number together:',
         mathExpression: '${c * 100} + ${d * 10} + $u = ?',
         correctAnswer: '$fullNumber',
-        distractors: ['${fullNumber + 10}', '${fullNumber - 100}', '${c * 100 + u * 10 + d}'],
+        distractors: [
+          '${fullNumber + 10}',
+          '${fullNumber - 100}',
+          '${c * 100 + u * 10 + d}',
+        ],
         hintFr: 'Centaines, dizaines et unités !',
         hintEn: 'Hundreds, tens, and units!',
         explanationFr: '${c * 100} + ${d * 10} + $u = $fullNumber.',
@@ -262,7 +297,10 @@ class MathQuestionGenerator {
       final bStr = b.toStringAsFixed(1).replaceAll('.', ',');
       final sumStr = sum.toStringAsFixed(1).replaceAll('.', ',');
       final wrong1 = (sum + 0.5).toStringAsFixed(1).replaceAll('.', ',');
-      final wrong2 = max(0.1, sum - 0.5).toStringAsFixed(1).replaceAll('.', ',');
+      final wrong2 = max(
+        0.1,
+        sum - 0.5,
+      ).toStringAsFixed(1).replaceAll('.', ',');
       final wrong3 = (sum + 1.0).toStringAsFixed(1).replaceAll('.', ',');
       return _buildQuestion(
         id: 'cm1_adddec_$index',
@@ -281,10 +319,26 @@ class MathQuestionGenerator {
       );
     } else {
       final fractions = [
-        {'expr': '1/2', 'ans': '0,5', 'wrongs': ['0,2', '1,2', '0,05']},
-        {'expr': '1/4', 'ans': '0,25', 'wrongs': ['0,4', '0,5', '0,14']},
-        {'expr': '3/4', 'ans': '0,75', 'wrongs': ['0,34', '0,5', '0,43']},
-        {'expr': '1/10', 'ans': '0,1', 'wrongs': ['0,01', '1,0', '0,100']},
+        {
+          'expr': '1/2',
+          'ans': '0,5',
+          'wrongs': ['0,2', '1,2', '0,05'],
+        },
+        {
+          'expr': '1/4',
+          'ans': '0,25',
+          'wrongs': ['0,4', '0,5', '0,14'],
+        },
+        {
+          'expr': '3/4',
+          'ans': '0,75',
+          'wrongs': ['0,34', '0,5', '0,43'],
+        },
+        {
+          'expr': '1/10',
+          'ans': '0,1',
+          'wrongs': ['0,01', '1,0', '0,100'],
+        },
       ];
       final item = fractions[_random.nextInt(fractions.length)];
       return _buildQuestion(
@@ -321,9 +375,19 @@ class MathQuestionGenerator {
         promptEn: 'Calculate:',
         mathExpression: '$percent% de $base = ?',
         correctAnswer: '$ansVal',
-        distractors: ['${ansVal + 5}', '${max(5, ansVal - 5)}', '${ansVal * 2}'],
-        hintFr: percent == 50 ? '50% c\'est la moitié !' : (percent == 25 ? '25% c\'est le quart !' : '10% c\'est divisé par 10 !'),
-        hintEn: percent == 50 ? '50% is half!' : (percent == 25 ? '25% is a quarter!' : '10% is divided by 10!'),
+        distractors: [
+          '${ansVal + 5}',
+          '${max(5, ansVal - 5)}',
+          '${ansVal * 2}',
+        ],
+        hintFr: percent == 50
+            ? '50% c\'est la moitié !'
+            : (percent == 25
+                  ? '25% c\'est le quart !'
+                  : '10% c\'est divisé par 10 !'),
+        hintEn: percent == 50
+            ? '50% is half!'
+            : (percent == 25 ? '25% is a quarter!' : '10% is divided by 10!'),
         explanationFr: '$percent% de $base = $ansVal.',
         explanationEn: '$percent% of $base = $ansVal.',
       );
@@ -358,7 +422,11 @@ class MathQuestionGenerator {
         promptEn: 'Perimeter of a square with side:',
         mathExpression: 'c = $side cm → Périmètre = ?',
         correctAnswer: '$perimeter cm',
-        distractors: ['${side * side} cm', '${side * 2} cm', '${perimeter + 4} cm'],
+        distractors: [
+          '${side * side} cm',
+          '${side * 2} cm',
+          '${perimeter + 4} cm',
+        ],
         hintFr: 'Le carré a 4 côtés égaux ! Périmètre = 4 × c.',
         hintEn: 'A square has 4 equal sides! Perimeter = 4 × s.',
         explanationFr: '4 × $side cm = $perimeter cm.',
@@ -385,11 +453,17 @@ class MathQuestionGenerator {
         promptEn: 'Calculate following operation order:',
         mathExpression: '$a + $b × $c = ?',
         correctAnswer: '$correct',
-        distractors: ['$wrongPriority', '${correct + 2}', '${max(1, correct - 3)}'],
+        distractors: [
+          '$wrongPriority',
+          '${correct + 2}',
+          '${max(1, correct - 3)}',
+        ],
         hintFr: 'La multiplication est prioritaire sur l\'addition ! 🐾',
         hintEn: 'Multiplication comes before addition! 🐾',
-        explanationFr: 'On calcule d\'abord $b × $c = ${b * c}, puis $a + ${b * c} = $correct.',
-        explanationEn: 'First calculate $b × $c = ${b * c}, then $a + ${b * c} = $correct.',
+        explanationFr:
+            'On calcule d\'abord $b × $c = ${b * c}, puis $a + ${b * c} = $correct.',
+        explanationEn:
+            'First calculate $b × $c = ${b * c}, then $a + ${b * c} = $correct.',
       );
     } else if (type == 1) {
       final l = _random.nextInt(6) + 4; // 4..9
@@ -404,7 +478,11 @@ class MathQuestionGenerator {
         promptEn: 'Area of a rectangle with dimensions:',
         mathExpression: 'L = $l cm, l = $w cm → Aire = ?',
         correctAnswer: '$area cm²',
-        distractors: ['${(l + w) * 2} cm²', '${area + 4} cm²', '${l * 2 + w} cm²'],
+        distractors: [
+          '${(l + w) * 2} cm²',
+          '${area + 4} cm²',
+          '${l * 2 + w} cm²',
+        ],
         hintFr: 'L\'aire d\'un rectangle est Longueur × largeur !',
         hintEn: 'The area of a rectangle is Length × width!',
         explanationFr: 'Aire = $l × $w = $area cm².',
@@ -428,8 +506,10 @@ class MathQuestionGenerator {
         ],
         hintFr: 'Divise par 2, puis encore par 2 !',
         hintEn: 'Divide by 2, then by 2 again!',
-        explanationFr: '$num ÷ 4 = ${(num / 4).toStringAsFixed(2).replaceAll('.', ',')}.',
-        explanationEn: '$num ÷ 4 = ${(num / 4).toStringAsFixed(2).replaceAll('.', ',')}.',
+        explanationFr:
+            '$num ÷ 4 = ${(num / 4).toStringAsFixed(2).replaceAll('.', ',')}.',
+        explanationEn:
+            '$num ÷ 4 = ${(num / 4).toStringAsFixed(2).replaceAll('.', ',')}.',
       );
     }
   }
@@ -470,11 +550,17 @@ class MathQuestionGenerator {
         promptEn: 'For x = $xVal, what is the value of:',
         mathExpression: '$coeff x + $constant = ?',
         correctAnswer: '$answer',
-        distractors: ['${answer + coeff}', '${coeff + xVal + constant}', '${answer - 2}'],
+        distractors: [
+          '${answer + coeff}',
+          '${coeff + xVal + constant}',
+          '${answer - 2}',
+        ],
         hintFr: 'Remplace x par $xVal et multiplie par $coeff !',
         hintEn: 'Replace x with $xVal and multiply by $coeff!',
-        explanationFr: '$coeff × $xVal + $constant = ${coeff * xVal} + $constant = $answer.',
-        explanationEn: '$coeff × $xVal + $constant = ${coeff * xVal} + $constant = $answer.',
+        explanationFr:
+            '$coeff × $xVal + $constant = ${coeff * xVal} + $constant = $answer.',
+        explanationEn:
+            '$coeff × $xVal + $constant = ${coeff * xVal} + $constant = $answer.',
       );
     } else {
       final a1 = _random.nextInt(3) + 1; // 1..3
@@ -491,8 +577,10 @@ class MathQuestionGenerator {
         distractors: ['${a1 + 1}/6', '${answerNum + 1}/4', '$a1/4'],
         hintFr: 'Mets au même dénominateur : 2 × 2 = 4 !',
         hintEn: 'Put under the common denominator: 2 × 2 = 4!',
-        explanationFr: '$a1/2 = ${a1 * 2}/4, donc ${a1 * 2}/4 + 1/4 = $answerNum/4.',
-        explanationEn: '$a1/2 = ${a1 * 2}/4, so ${a1 * 2}/4 + 1/4 = $answerNum/4.',
+        explanationFr:
+            '$a1/2 = ${a1 * 2}/4, donc ${a1 * 2}/4 + 1/4 = $answerNum/4.',
+        explanationEn:
+            '$a1/2 = ${a1 * 2}/4, so ${a1 * 2}/4 + 1/4 = $answerNum/4.',
       );
     }
   }
@@ -517,7 +605,8 @@ class MathQuestionGenerator {
         hintFr: 'Le produit de deux nombres négatifs est TOUJOURS positif ! 🐾',
         hintEn: 'The product of two negative numbers is ALWAYS positive! 🐾',
         explanationFr: 'Moins par moins donne plus : ($a) × ($b) = +$answer.',
-        explanationEn: 'Negative times negative gives positive: ($a) × ($b) = +$answer.',
+        explanationEn:
+            'Negative times negative gives positive: ($a) × ($b) = +$answer.',
       );
     } else if (type == 1) {
       final p = _random.nextInt(4) + 2; // 2..5
@@ -606,8 +695,10 @@ class MathQuestionGenerator {
         distractors: ['${x + 2}', '${max(1, x - 1)}', '${x + 1}'],
         hintFr: 'Isole d\'abord $a x en soustrayant $c, puis divise par $a !',
         hintEn: 'First subtract $c, then divide by $a!',
-        explanationFr: '$a x = $rhs - $c = ${a * x}, donc x = ${a * x} ÷ $a = $x.',
-        explanationEn: '$a x = $rhs - $c = ${a * x}, so x = ${a * x} ÷ $a = $x.',
+        explanationFr:
+            '$a x = $rhs - $c = ${a * x}, donc x = ${a * x} ÷ $a = $x.',
+        explanationEn:
+            '$a x = $rhs - $c = ${a * x}, so x = ${a * x} ÷ $a = $x.',
       );
     } else {
       final k = _random.nextInt(3) + 2; // 2..4
@@ -635,6 +726,7 @@ class MathQuestionGenerator {
   MathQuestion _buildQuestion({
     required String id,
     required SchoolGrade grade,
+    MathDomain? domain,
     required String categoryFr,
     required String categoryEn,
     required String promptFr,
@@ -664,13 +756,21 @@ class MathQuestionGenerator {
       fallbackCounter++;
     }
 
-    final allOptions = [correctAnswer, cleanDistractors[0], cleanDistractors[1], cleanDistractors[2]];
+    final allOptions = [
+      correctAnswer,
+      cleanDistractors[0],
+      cleanDistractors[1],
+      cleanDistractors[2],
+    ];
     allOptions.shuffle(_random);
     final correctIndex = allOptions.indexOf(correctAnswer);
+
+    final effectiveDomain = domain ?? _inferDomain(categoryFr);
 
     return MathQuestion(
       id: id,
       grade: grade,
+      domain: effectiveDomain,
       categoryFr: categoryFr,
       categoryEn: categoryEn,
       promptFr: promptFr,
@@ -683,5 +783,24 @@ class MathQuestionGenerator {
       explanationFr: explanationFr,
       explanationEn: explanationEn,
     );
+  }
+
+  static MathDomain _inferDomain(String categoryFr) {
+    final lower = categoryFr.toLowerCase();
+    if (lower.contains('géométrie') ||
+        lower.contains('aires') ||
+        lower.contains('espace')) {
+      return MathDomain.geometry;
+    }
+    if (lower.contains('périmètre') || lower.contains('mesure')) {
+      return MathDomain.measures;
+    }
+    if (lower.contains('complément') ||
+        lower.contains('partage') ||
+        lower.contains('pourcentage') ||
+        lower.contains('moitié')) {
+      return MathDomain.problems;
+    }
+    return MathDomain.numbers;
   }
 }

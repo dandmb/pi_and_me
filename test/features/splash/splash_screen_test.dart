@@ -10,34 +10,42 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('SplashScreen renders English title and badge when language is English', (WidgetTester tester) async {
+  testWidgets(
+    'SplashScreen renders English title and badge when language is English',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            languageProvider.overrideWith(
+              (ref) => LanguageNotifier(systemLocaleCodeOverride: 'en'),
+            ),
+          ],
+          child: const MaterialApp(home: SplashScreen()),
+        ),
+      );
+
+      expect(find.text('MathPup'), findsOneWidget);
+      expect(
+        find.text('Official curriculum from Grade 1 to 9'),
+        findsOneWidget,
+      );
+      expect(find.text('Loading...'), findsOneWidget);
+
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+    },
+  );
+
+  testWidgets('SplashScreen renders French when language is French', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'en')),
+          languageProvider.overrideWith(
+            (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+          ),
         ],
-        child: const MaterialApp(
-          home: SplashScreen(),
-        ),
-      ),
-    );
-
-    expect(find.text('MathPup'), findsOneWidget);
-    expect(find.text('Official curriculum from Grade 1 to 9'), findsOneWidget);
-    expect(find.text('Loading...'), findsOneWidget);
-
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-  });
-
-  testWidgets('SplashScreen renders French when language is French', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr')),
-        ],
-        child: const MaterialApp(
-          home: SplashScreen(),
-        ),
+        child: const MaterialApp(home: SplashScreen()),
       ),
     );
 

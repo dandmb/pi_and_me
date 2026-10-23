@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../localization/app_language.dart';
 import '../localization/locale_controller.dart';
 import '../theme/app_colors.dart';
@@ -59,9 +60,13 @@ class LanguageSwitcher extends ConsumerWidget {
                     lang.label,
                     style: AppText.label.copyWith(
                       color: isSelected
-                          ? (context.isDark ? AppColors.darkSky500 : AppColors.sky800)
+                          ? (context.isDark
+                                ? AppColors.darkSky500
+                                : AppColors.sky800)
                           : context.appSubText,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w600,
                       fontSize: 12,
                     ),
                   ),

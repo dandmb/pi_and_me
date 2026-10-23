@@ -22,196 +22,203 @@ void main() {
     prefs = await SharedPreferences.getInstance();
   });
 
-  testWidgets('MainShellScreen renders persistent AppBar and BottomBar with Salon first', (tester) async {
-    final repo = ProfileRepository(prefs: prefs);
-    final profile = ChildProfile(
-      id: 'p1',
-      name: 'Léa',
-      avatar: 'avatar_dog',
-      grade: SchoolGrade.cm1,
-      createdAt: DateTime.now(),
-    );
-    await repo.saveProfile(profile);
+  testWidgets(
+    'MainShellScreen renders persistent AppBar and BottomBar with Salon first',
+    (tester) async {
+      final repo = ProfileRepository(prefs: prefs);
+      final profile = ChildProfile(
+        id: 'p1',
+        name: 'Léa',
+        avatar: 'avatar_dog',
+        grade: SchoolGrade.cm1,
+        createdAt: DateTime.now(),
+      );
+      await repo.saveProfile(profile);
 
-    final container = ProviderContainer(
-      overrides: [
-        languageProvider.overrideWith(
-          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+      final container = ProviderContainer(
+        overrides: [
+          languageProvider.overrideWith(
+            (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+          ),
+          profileRepositoryProvider.overrideWithValue(repo),
+        ],
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: MainShellScreen()),
         ),
-        profileRepositoryProvider.overrideWithValue(repo),
-      ],
-    );
+      );
 
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const MaterialApp(
-          home: MainShellScreen(),
-        ),
-      ),
-    );
+      await tester.pumpAndSettle();
 
-    await tester.pumpAndSettle();
+      // 1. Verify Top AppBar elements
+      expect(find.text('Léa (CM1)'), findsOneWidget);
+      expect(find.byIcon(Icons.settings_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.stars_rounded), findsWidgets);
 
-    // 1. Verify Top AppBar elements
-    expect(find.text('Léa (CM1)'), findsOneWidget);
-    expect(find.byIcon(Icons.settings_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.stars_rounded), findsWidgets);
+      // 2. Verify 3-tab BottomBar with Salon at index 0
+      expect(find.text('Salon'), findsWidgets);
+      expect(find.text('Soigner'), findsWidgets);
+      expect(find.text('Boutique'), findsWidgets);
 
-    // 2. Verify 3-tab BottomBar with Salon at index 0
-    expect(find.text('Salon'), findsWidgets);
-    expect(find.text('Soigner'), findsWidgets);
-    expect(find.text('Boutique'), findsWidgets);
+      // 3. Switch to Soigner tab
+      await tester.tap(find.text('Soigner').first);
+      await tester.pumpAndSettle();
 
-    // 3. Switch to Soigner tab
-    await tester.tap(find.text('Soigner').first);
-    await tester.pumpAndSettle();
+      // Verify Soigner content is now visible
+      expect(find.text('Faim'), findsWidgets);
+      expect(find.text('Joie'), findsWidgets);
 
-    // Verify Soigner content is now visible
-    expect(find.text('Faim'), findsWidgets);
-    expect(find.text('Joie'), findsWidgets);
+      // 4. Switch to Boutique tab
+      await tester.tap(find.text('Boutique').first);
+      await tester.pumpAndSettle();
 
-    // 4. Switch to Boutique tab
-    await tester.tap(find.text('Boutique').first);
-    await tester.pumpAndSettle();
+      // Verify Shop content is visible
+      expect(find.text('Chapeaux'), findsWidgets);
 
-    // Verify Shop content is visible
-    expect(find.text('Chapeaux'), findsWidgets);
+      // 5. Test Back navigation while on Boutique -> Returns to Salon
+      // Trigger pop on Navigator
+      final dynamic popScope = tester.widget(
+        find.byWidgetPredicate((w) => w is PopScope).first,
+      );
+      popScope.onPopInvokedWithResult(false, null);
+      await tester.pumpAndSettle();
 
-    // 5. Test Back navigation while on Boutique -> Returns to Salon
-    // Trigger pop on Navigator
-    final dynamic popScope = tester.widget(find.byWidgetPredicate((w) => w is PopScope).first);
-    popScope.onPopInvokedWithResult(false, null);
-    await tester.pumpAndSettle();
+      // Now active index should be 0 (Salon)
+      expect(find.text('Jouer au Quiz'), findsOneWidget);
+    },
+  );
 
-    // Now active index should be 0 (Salon)
-    expect(find.text('Jouer au Quiz'), findsOneWidget);
-  });
+  testWidgets(
+    'MainShellScreen bottom bar respects Android system navigation bar insets',
+    (tester) async {
+      final repo = ProfileRepository(prefs: prefs);
+      final profile = ChildProfile(
+        id: 'p1',
+        name: 'Léa',
+        avatar: 'avatar_dog',
+        grade: SchoolGrade.cm1,
+        createdAt: DateTime.now(),
+      );
+      await repo.saveProfile(profile);
 
-  testWidgets('MainShellScreen bottom bar respects Android system navigation bar insets', (tester) async {
-    final repo = ProfileRepository(prefs: prefs);
-    final profile = ChildProfile(
-      id: 'p1',
-      name: 'Léa',
-      avatar: 'avatar_dog',
-      grade: SchoolGrade.cm1,
-      createdAt: DateTime.now(),
-    );
-    await repo.saveProfile(profile);
+      final container = ProviderContainer(
+        overrides: [
+          languageProvider.overrideWith(
+            (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+          ),
+          profileRepositoryProvider.overrideWithValue(repo),
+        ],
+      );
 
-    final container = ProviderContainer(
-      overrides: [
-        languageProvider.overrideWith(
-          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
-        ),
-        profileRepositoryProvider.overrideWithValue(repo),
-      ],
-    );
-
-    // Simulate an Android device with a 48dp system navigation bar at the bottom
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const MaterialApp(
-          home: MediaQuery(
-            data: MediaQueryData(
-              size: Size(400, 800),
-              padding: EdgeInsets.only(bottom: 48.0),
-              viewPadding: EdgeInsets.only(bottom: 48.0),
+      // Simulate an Android device with a 48dp system navigation bar at the bottom
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: MediaQuery(
+              data: MediaQueryData(
+                size: Size(400, 800),
+                padding: EdgeInsets.only(bottom: 48.0),
+                viewPadding: EdgeInsets.only(bottom: 48.0),
+              ),
+              child: MainShellScreen(),
             ),
-            child: MainShellScreen(),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    // Verify all 3 navigation items are rendered and tappable
-    expect(find.text('Salon'), findsWidgets);
-    expect(find.text('Soigner'), findsWidgets);
-    expect(find.text('Boutique'), findsWidgets);
+      // Verify all 3 navigation items are rendered and tappable
+      expect(find.text('Salon'), findsWidgets);
+      expect(find.text('Soigner'), findsWidgets);
+      expect(find.text('Boutique'), findsWidgets);
 
-    // Tap on Soigner tab - must register cleanly above the 48dp system navigation bar
-    final soignerTarget = find.text('Soigner').first;
-    final center = tester.getCenter(soignerTarget);
-    // Center of Soigner must be strictly above (800 - 48 = 752)
-    expect(center.dy < 752.0, isTrue);
+      // Tap on Soigner tab - must register cleanly above the 48dp system navigation bar
+      final soignerTarget = find.text('Soigner').first;
+      final center = tester.getCenter(soignerTarget);
+      // Center of Soigner must be strictly above (800 - 48 = 752)
+      expect(center.dy < 752.0, isTrue);
 
-    await tester.tap(soignerTarget);
-    await tester.pumpAndSettle();
+      await tester.tap(soignerTarget);
+      await tester.pumpAndSettle();
 
-    // Verify Tab 1 is now active
-    expect(find.text('Faim'), findsWidgets);
-  });
+      // Verify Tab 1 is now active
+      expect(find.text('Faim'), findsWidgets);
+    },
+  );
 
-  testWidgets('When daily limit reached (6/6): tapping Soigner or Boutique opens DailyLimitScreen and stays on Salon', (tester) async {
-    final repo = ProfileRepository(prefs: prefs);
-    final profile = ChildProfile(
-      id: 'p1',
-      name: 'Léa',
-      avatar: 'avatar_dog',
-      grade: SchoolGrade.cm1,
-      createdAt: DateTime.now(),
-    );
-    await repo.saveProfile(profile);
+  testWidgets(
+    'When daily limit reached (6/6): tapping Soigner or Boutique opens DailyLimitScreen and stays on Salon',
+    (tester) async {
+      final repo = ProfileRepository(prefs: prefs);
+      final profile = ChildProfile(
+        id: 'p1',
+        name: 'Léa',
+        avatar: 'avatar_dog',
+        grade: SchoolGrade.cm1,
+        createdAt: DateTime.now(),
+      );
+      await repo.saveProfile(profile);
 
-    final container = ProviderContainer(
-      overrides: [
-        languageProvider.overrideWith(
-          (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+      final container = ProviderContainer(
+        overrides: [
+          languageProvider.overrideWith(
+            (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+          ),
+          profileRepositoryProvider.overrideWithValue(repo),
+          dailyLimitControllerProvider.overrideWith((ref) {
+            return DailyLimitController(
+              initialProfileId: 'p1',
+              initialState: DailyLimitState(
+                profileId: 'p1',
+                usedSessionsToday: 6,
+                maxDailySessions: 6,
+                lastSessionDate: DateTime.now(),
+              ),
+            );
+          }),
+        ],
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: MainShellScreen()),
         ),
-        profileRepositoryProvider.overrideWithValue(repo),
-        dailyLimitControllerProvider.overrideWith((ref) {
-          return DailyLimitController(
-            initialProfileId: 'p1',
-            initialState: DailyLimitState(
-              profileId: 'p1',
-              usedSessionsToday: 6,
-              maxDailySessions: 6,
-              lastSessionDate: DateTime.now(),
-            ),
-          );
-        }),
-      ],
-    );
+      );
 
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const MaterialApp(
-          home: MainShellScreen(),
-        ),
-      ),
-    );
+      await tester.pumpAndSettle();
 
-    await tester.pumpAndSettle();
+      // Verify lock icons or docked items are visible
+      expect(find.text('Soigner'), findsWidgets);
+      expect(find.text('Boutique'), findsWidgets);
 
-    // Verify lock icons or docked items are visible
-    expect(find.text('Soigner'), findsWidgets);
-    expect(find.text('Boutique'), findsWidgets);
+      // Tap on Soigner tab
+      await tester.tap(find.text('Soigner').first);
+      await tester.pumpAndSettle();
 
-    // Tap on Soigner tab
-    await tester.tap(find.text('Soigner').first);
-    await tester.pumpAndSettle();
+      // Must open DailyLimitScreen, NOT CareScreen
+      expect(find.byType(DailyLimitScreen), findsOneWidget);
 
-    // Must open DailyLimitScreen, NOT CareScreen
-    expect(find.byType(DailyLimitScreen), findsOneWidget);
+      // Pop DailyLimitScreen
+      final returnBtn = find.text('Retour au salon');
+      expect(returnBtn, findsOneWidget);
+      await tester.tap(returnBtn);
+      await tester.pumpAndSettle();
 
-    // Pop DailyLimitScreen
-    final returnBtn = find.text('Retour au salon');
-    expect(returnBtn, findsOneWidget);
-    await tester.tap(returnBtn);
-    await tester.pumpAndSettle();
+      // We are back on Salon
+      expect(find.text('Voir Pi se reposer (6/6)'), findsOneWidget);
 
-    // We are back on Salon
-    expect(find.text('Voir Pi se reposer (6/6)'), findsOneWidget);
+      // Tap on Boutique tab
+      await tester.tap(find.text('Boutique').first);
+      await tester.pumpAndSettle();
 
-    // Tap on Boutique tab
-    await tester.tap(find.text('Boutique').first);
-    await tester.pumpAndSettle();
-
-    // Must open DailyLimitScreen, NOT ShopScreen
-    expect(find.byType(DailyLimitScreen), findsOneWidget);
-  });
+      // Must open DailyLimitScreen, NOT ShopScreen
+      expect(find.byType(DailyLimitScreen), findsOneWidget);
+    },
+  );
 }

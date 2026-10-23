@@ -1,8 +1,12 @@
 import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../care/presentation/care_controller.dart';
 import '../../profile/presentation/profile_controller.dart';
+import '../../quiz/data/quiz_stats_repository.dart';
+import '../../quiz/domain/quiz_session_record.dart';
 import '../../shop/presentation/shop_controller.dart';
 import 'daily_limit_controller.dart';
 
@@ -17,19 +21,20 @@ class ParentDashboardState {
 
   const ParentDashboardState({
     this.timerFreeModeByProfile = const {},
-    this.totalQuizzesCompleted = 18,
-    this.averageAccuracyRate = 0.88,
+    this.totalQuizzesCompleted = 0,
+    this.averageAccuracyRate = 0.0,
     this.domainMastery = const {
-      'numbers': 0.92,
-      'geometry': 0.85,
-      'measures': 0.78,
-      'problems': 0.84,
+      'numbers': 0.0,
+      'geometry': 0.0,
+      'measures': 0.0,
+      'problems': 0.0,
     },
     this.isExporting = false,
     this.lastExportJson,
   });
 
-  bool isTimerFree(String profileId) => timerFreeModeByProfile[profileId] ?? false;
+  bool isTimerFree(String profileId) =>
+      timerFreeModeByProfile[profileId] ?? false;
 
   ParentDashboardState copyWith({
     Map<String, bool>? timerFreeModeByProfile,
@@ -40,8 +45,10 @@ class ParentDashboardState {
     String? lastExportJson,
   }) {
     return ParentDashboardState(
-      timerFreeModeByProfile: timerFreeModeByProfile ?? this.timerFreeModeByProfile,
-      totalQuizzesCompleted: totalQuizzesCompleted ?? this.totalQuizzesCompleted,
+      timerFreeModeByProfile:
+          timerFreeModeByProfile ?? this.timerFreeModeByProfile,
+      totalQuizzesCompleted:
+          totalQuizzesCompleted ?? this.totalQuizzesCompleted,
       averageAccuracyRate: averageAccuracyRate ?? this.averageAccuracyRate,
       domainMastery: domainMastery ?? this.domainMastery,
       isExporting: isExporting ?? this.isExporting,
@@ -57,7 +64,7 @@ class ParentDashboardController extends StateNotifier<ParentDashboardState> {
   SharedPreferences? _prefs;
 
   ParentDashboardController(this._ref, {SharedPreferences? prefs})
-      : super(const ParentDashboardState()) {
+    : super(const ParentDashboardState()) {
     _prefs = prefs;
     _init();
   }
@@ -80,6 +87,20 @@ class ParentDashboardController extends StateNotifier<ParentDashboardState> {
     }
 
     state = state.copyWith(timerFreeModeByProfile: timerMap);
+    await loadStats();
+  }
+
+  /// Charge et agrège les statistiques réelles depuis le dépôt d'historique de quiz.
+  Future<void> loadStats() async {
+    final statsRepo = _ref.read(quizStatsRepositoryProvider);
+    final sessions = await statsRepo.getAllSessions();
+    final stats = EducationalStats.calculate(sessions);
+
+    state = state.copyWith(
+      totalQuizzesCompleted: stats.totalQuizzesCompleted,
+      averageAccuracyRate: stats.averageAccuracyRate,
+      domainMastery: stats.domainMastery,
+    );
   }
 
   /// Active ou désactive le mode sans chrono pour un profil enfant spécifique.
@@ -94,7 +115,9 @@ class ParentDashboardController extends StateNotifier<ParentDashboardState> {
 
   /// Modifie la limite quotidienne maximale de quiz (augmenter ou diminuer de 1 à 12).
   Future<void> setDailyLimit(int max) async {
-    await _ref.read(dailyLimitControllerProvider.notifier).setMaxDailySessions(max);
+    await _ref
+        .read(dailyLimitControllerProvider.notifier)
+        .setMaxDailySessions(max);
   }
 
   /// Débloque +1 session bonus aujourd'hui via le contrôleur de quotas.
@@ -145,15 +168,16 @@ class ParentDashboardController extends StateNotifier<ParentDashboardState> {
         'averageAccuracyRate': state.averageAccuracyRate,
         'domains': state.domainMastery,
       },
+      'quizHistory':
+          (await _ref.read(quizStatsRepositoryProvider).getAllSessions())
+              .map((s) => s.toMap())
+              .toList(),
     };
 
     const encoder = JsonEncoder.withIndent('  ');
     final jsonString = encoder.convert(exportData);
 
-    state = state.copyWith(
-      isExporting: false,
-      lastExportJson: jsonString,
-    );
+    state = state.copyWith(isExporting: false, lastExportJson: jsonString);
 
     return jsonString;
   }
@@ -162,6 +186,7 @@ class ParentDashboardController extends StateNotifier<ParentDashboardState> {
   Future<void> deleteEntireHouseholdData() async {
     _prefs ??= await SharedPreferences.getInstance();
     await _prefs?.clear();
+    await _ref.read(quizStatsRepositoryProvider).clearAll();
 
     // Réinitialise les contrôleurs mémoires
     _ref.invalidate(allProfilesProvider);
@@ -176,6 +201,8 @@ class ParentDashboardController extends StateNotifier<ParentDashboardState> {
 
 /// Provider global de l'Espace Parents.
 final parentDashboardControllerProvider =
-    StateNotifierProvider<ParentDashboardController, ParentDashboardState>((ref) {
-  return ParentDashboardController(ref);
-});
+    StateNotifierProvider<ParentDashboardController, ParentDashboardState>((
+      ref,
+    ) {
+      return ParentDashboardController(ref);
+    });

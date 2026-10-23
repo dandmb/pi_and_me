@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../profile/presentation/profile_controller.dart';
 import '../domain/daily_limit_state.dart';
 
@@ -13,11 +14,13 @@ class DailyLimitController extends StateNotifier<DailyLimitState> {
     SharedPreferences? prefs,
     String initialProfileId = 'default',
     DailyLimitState? initialState,
-  }) : super(initialState ??
-            DailyLimitState(
-              profileId: initialProfileId,
-              lastSessionDate: DateTime.now(),
-            )) {
+  }) : super(
+         initialState ??
+             DailyLimitState(
+               profileId: initialProfileId,
+               lastSessionDate: DateTime.now(),
+             ),
+       ) {
     _prefs = prefs;
     if (initialState == null) {
       _init();
@@ -177,8 +180,8 @@ class DailyLimitController extends StateNotifier<DailyLimitState> {
 /// Provider Riverpod global pour la limite quotidienne et le temps d'écran.
 final dailyLimitControllerProvider =
     StateNotifierProvider<DailyLimitController, DailyLimitState>((ref) {
-  final activeProfile = ref.watch(activeProfileProvider).value;
-  final profileId = activeProfile?.id ?? 'default';
+      final activeProfile = ref.watch(activeProfileProvider).value;
+      final profileId = activeProfile?.id ?? 'default';
 
-  return DailyLimitController(initialProfileId: profileId);
-});
+      return DailyLimitController(initialProfileId: profileId);
+    });

@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pi_et_moi/features/parent/domain/parental_gate_challenge.dart';
 
@@ -43,10 +44,25 @@ void main() {
       expect(challenge.getQuestion(false), 'Forty-eight divided by six');
     });
 
-    test('Verifies correct numerical answers with whitespace trimming', () {
+    test('Verifies correct numerical answers with whitespace trimming and decimal/comma notation', () {
       expect(challenge.verify('8'), isTrue);
       expect(challenge.verify('  8  '), isTrue);
       expect(challenge.verify('08'), isTrue);
+      expect(challenge.verify('8.0'), isTrue);
+      expect(challenge.verify('8,0'), isTrue);
+    });
+
+    test('Verifies challenges with explicit decimal answers', () {
+      const decimalChallenge = ParentalGateChallenge(
+        questionFr: 'Quinze divisé par deux',
+        questionEn: 'Fifteen divided by two',
+        expectedAnswer: 7.5,
+      );
+      expect(decimalChallenge.verify('7.5'), isTrue);
+      expect(decimalChallenge.verify('7,5'), isTrue);
+      expect(decimalChallenge.verify(' 7,5 '), isTrue);
+      expect(decimalChallenge.verify('7'), isFalse);
+      expect(decimalChallenge.verify('7,4'), isFalse);
     });
 
     test('Rejects incorrect or malformed inputs', () {
@@ -54,7 +70,8 @@ void main() {
       expect(challenge.verify('huit'), isFalse);
       expect(challenge.verify(''), isFalse);
       expect(challenge.verify('   '), isFalse);
-      expect(challenge.verify('8.0'), isFalse);
+      expect(challenge.verify('8,5'), isFalse);
+      expect(challenge.verify('abc'), isFalse);
     });
   });
 
@@ -72,7 +89,7 @@ void main() {
 
     test('Generates challenges across multiple operations', () {
       final generator = ParentalGateChallengeGenerator(Random(42));
-      final answers = <int>[];
+      final answers = <num>[];
       for (int i = 0; i < 20; i++) {
         final c = generator.generate();
         answers.add(c.expectedAnswer);

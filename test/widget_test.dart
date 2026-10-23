@@ -9,11 +9,15 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('PiEtMoiApp boots on SplashScreen and transitions', (WidgetTester tester) async {
+  testWidgets('PiEtMoiApp boots on SplashScreen and transitions', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          languageProvider.overrideWith((ref) => LanguageNotifier(systemLocaleCodeOverride: 'en')),
+          languageProvider.overrideWith(
+            (ref) => LanguageNotifier(systemLocaleCodeOverride: 'en'),
+          ),
         ],
         child: const PiEtMoiApp(),
       ),

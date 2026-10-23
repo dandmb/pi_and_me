@@ -80,7 +80,10 @@ enum SchoolGrade {
   });
 
   /// Parse un identifiant (ex: "cp", "6e") vers son enum SchoolGrade
-  static SchoolGrade fromId(String id, {SchoolGrade fallback = SchoolGrade.cm1}) {
+  static SchoolGrade fromId(
+    String id, {
+    SchoolGrade fallback = SchoolGrade.cm1,
+  }) {
     for (final grade in SchoolGrade.values) {
       if (grade.id.toLowerCase() == id.toLowerCase()) {
         return grade;

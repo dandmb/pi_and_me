@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -24,10 +25,7 @@ import '../../parent/presentation/daily_limit_screen.dart';
 class MainShellScreen extends ConsumerStatefulWidget {
   final int initialIndex;
 
-  const MainShellScreen({
-    super.key,
-    this.initialIndex = 0,
-  });
+  const MainShellScreen({super.key, this.initialIndex = 0});
 
   @override
   ConsumerState<MainShellScreen> createState() => _MainShellScreenState();
@@ -47,11 +45,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     if (_currentIndex == index) return;
     final limitState = ref.read(dailyLimitControllerProvider);
     if (limitState.isLimitReached && (index == 1 || index == 2)) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => const DailyLimitScreen(),
-        ),
-      );
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const DailyLimitScreen()));
       return;
     }
     setState(() {
@@ -132,10 +127,15 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
       });
     }
 
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: isDark
+            ? Brightness.light
+            : Brightness.dark,
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
       ),
@@ -161,45 +161,118 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
           backgroundColor: isDark ? AppColors.darkBg : AppColors.bg,
           body: SafeArea(
             bottom: false,
-            child: Column(
-              children: [
-                // 1. Barre supérieure persistante et stylée
-                _buildTopAppBar(context, profileAsync, companion, strings, isDark, themeMode),
+            child: isLandscape
+                ? Row(
+                    children: [
+                      // Rail de navigation latéral en mode paysage
+                      _buildLandscapeNavigationRail(
+                        context,
+                        strings,
+                        isDark,
+                        limitState.isLimitReached,
+                      ),
+                      // Contenu principal avec AppBar compacte
+                      Expanded(
+                        child: Column(
+                          children: [
+                            _buildTopAppBar(
+                              context,
+                              profileAsync,
+                              companion,
+                              strings,
+                              isDark,
+                              themeMode,
+                              isLandscape: true,
+                            ),
+                            Expanded(
+                              child: profileAsync.when(
+                                loading: () => const Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.sky600,
+                                  ),
+                                ),
+                                error: (err, _) => AppErrorView(
+                                  isFrench: strings.isFrench,
+                                  onRetry: () =>
+                                      ref.invalidate(activeProfileProvider),
+                                ),
+                                data: (profile) => IndexedStack(
+                                  index: _currentIndex,
+                                  children: [
+                                    HomeScreen(
+                                      isEmbedded: true,
+                                      onSwitchTab: _onTabSelected,
+                                    ),
+                                    CareScreen(
+                                      isEmbedded: true,
+                                      isActive: _currentIndex == 1,
+                                    ),
+                                    const ShopScreen(isEmbedded: true),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      // 1. Barre supérieure persistante et stylée
+                      _buildTopAppBar(
+                        context,
+                        profileAsync,
+                        companion,
+                        strings,
+                        isDark,
+                        themeMode,
+                      ),
 
-                // 2. Contenu principal selon l'onglet actif
-                Expanded(
-                  child: profileAsync.when(
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(color: AppColors.sky600),
-                    ),
-                    error: (err, _) => AppErrorView(
-                      isFrench: strings.isFrench,
-                      onRetry: () => ref.invalidate(activeProfileProvider),
-                    ),
-                    data: (profile) => IndexedStack(
-                      index: _currentIndex,
-                      children: [
-                        // Onglet 0 : Salon (au début)
-                        HomeScreen(
-                          isEmbedded: true,
-                          onSwitchTab: _onTabSelected,
+                      // 2. Contenu principal selon l'onglet actif
+                      Expanded(
+                        child: profileAsync.when(
+                          loading: () => const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.sky600,
+                            ),
+                          ),
+                          error: (err, _) => AppErrorView(
+                            isFrench: strings.isFrench,
+                            onRetry: () =>
+                                ref.invalidate(activeProfileProvider),
+                          ),
+                          data: (profile) => IndexedStack(
+                            index: _currentIndex,
+                            children: [
+                              // Onglet 0 : Salon (au début)
+                              HomeScreen(
+                                isEmbedded: true,
+                                onSwitchTab: _onTabSelected,
+                              ),
+                              // Onglet 1 : Soigner
+                              CareScreen(
+                                isEmbedded: true,
+                                isActive: _currentIndex == 1,
+                              ),
+                              // Onglet 2 : Boutique
+                              const ShopScreen(isEmbedded: true),
+                            ],
+                          ),
                         ),
-                        // Onglet 1 : Soigner
-                        CareScreen(
-                          isEmbedded: true,
-                          isActive: _currentIndex == 1,
-                        ),
-                        // Onglet 2 : Boutique
-                        const ShopScreen(isEmbedded: true),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
-          // 3. Barre de navigation inférieure persistante (Dock flottant moderne)
-          bottomNavigationBar: _buildBottomNavigationBar(context, strings, isDark, limitState.isLimitReached),
+          // 3. Barre de navigation inférieure persistante (Portrait uniquement)
+          bottomNavigationBar: isLandscape
+              ? null
+              : _buildBottomNavigationBar(
+                  context,
+                  strings,
+                  isDark,
+                  limitState.isLimitReached,
+                ),
         ),
       ),
     );
@@ -212,8 +285,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     PiCompanion companion,
     dynamic strings,
     bool isDark,
-    ThemeMode themeMode,
-  ) {
+    ThemeMode themeMode, {
+    bool isLandscape = false,
+  }) {
     final profile = profileAsync.valueOrNull;
     final childName = profile?.name ?? strings.defaultFriendName;
     final gradeLabel = profile != null
@@ -223,12 +297,14 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkInk200 : AppColors.ink200;
     final textColor = isDark ? AppColors.darkInk900 : AppColors.ink900;
-    final shadowColor = isDark ? Colors.black.withValues(alpha: 0.3) : AppColors.ink100;
+    final shadowColor = isDark
+        ? Colors.black.withValues(alpha: 0.3)
+        : AppColors.ink100;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
+      padding: EdgeInsets.symmetric(
         horizontal: AppSpace.s4,
-        vertical: AppSpace.s2,
+        vertical: isLandscape ? AppSpace.s1 : AppSpace.s2,
       ),
       color: Colors.transparent,
       child: Row(
@@ -302,12 +378,16 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                   color: isDark ? const Color(0xFF451A03) : AppColors.amber50,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(
-                    color: isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
+                    color: isDark
+                        ? const Color(0xFFD97706)
+                        : const Color(0xFFFDE68A),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: isDark ? Colors.black.withValues(alpha: 0.25) : const Color(0xFFFEF3C7),
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.25)
+                          : const Color(0xFFFEF3C7),
                       offset: const Offset(0, 2),
                       blurRadius: 4,
                     ),
@@ -324,7 +404,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                     Text(
                       '${companion.bones}',
                       style: AppText.mathS.copyWith(
-                        color: isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
+                        color: isDark
+                            ? const Color(0xFFFDE68A)
+                            : AppColors.amber900,
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
                       ),
@@ -367,8 +449,144 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     );
   }
 
+  // --- RAIL DE NAVIGATION LATÉRAL (Mode Paysage) ---
+  Widget _buildLandscapeNavigationRail(
+    BuildContext context,
+    dynamic strings,
+    bool isDark,
+    bool isLimitReached,
+  ) {
+    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
+    final borderColor = isDark ? AppColors.darkInk200 : AppColors.ink200;
+    final shadowColor = isDark
+        ? Colors.black.withValues(alpha: 0.3)
+        : AppColors.ink100;
+
+    return Container(
+      width: 78,
+      margin: const EdgeInsets.fromLTRB(AppSpace.s3, AppSpace.s2, 0, AppSpace.s2),
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.s2, horizontal: 4),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: borderColor, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor,
+            offset: const Offset(0, 3),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Mini Logo Chiot Pi
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF003640) : const Color(0xFFE0F7FC),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.pets, color: AppColors.sky600, size: 20),
+          ),
+          const SizedBox(height: AppSpace.s3),
+          // 1. Salon
+          _buildLandscapeRailItem(
+            index: 0,
+            icon: Icons.home_rounded,
+            label: strings.salonDockLabel,
+            isActive: _currentIndex == 0,
+            isDark: isDark,
+          ),
+          const SizedBox(height: AppSpace.s2),
+          // 2. Soigner
+          _buildLandscapeRailItem(
+            index: 1,
+            icon: Icons.favorite_rounded,
+            label: strings.careDockLabel,
+            isActive: _currentIndex == 1,
+            isDark: isDark,
+            isLocked: isLimitReached,
+          ),
+          const SizedBox(height: AppSpace.s2),
+          // 3. Boutique
+          _buildLandscapeRailItem(
+            index: 2,
+            icon: Icons.storefront_rounded,
+            label: strings.shopDockLabel,
+            isActive: _currentIndex == 2,
+            isDark: isDark,
+            isLocked: isLimitReached,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLandscapeRailItem({
+    required int index,
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required bool isDark,
+    bool isLocked = false,
+  }) {
+    final effectiveIcon = isLocked ? Icons.lock_outline_rounded : icon;
+    final itemOpacity = isLocked ? 0.45 : 1.0;
+
+    return Opacity(
+      opacity: itemOpacity,
+      child: GestureDetector(
+        key: Key('nav_item_$index'),
+        onTap: () => _onTabSelected(index),
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+          decoration: BoxDecoration(
+            color: isActive
+                ? (isDark ? AppColors.darkSky500 : AppColors.sky500)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                effectiveIcon,
+                size: 20,
+                color: isActive
+                    ? (isDark ? const Color(0xFF003640) : Colors.white)
+                    : (isDark ? AppColors.darkInk500 : AppColors.ink500),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppText.bodyS.copyWith(
+                  fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
+                  fontSize: 10,
+                  color: isActive
+                      ? (isDark ? const Color(0xFF003640) : Colors.white)
+                      : (isDark ? AppColors.darkInk600 : AppColors.ink600),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // --- BOTTOM BAR UNIFIÉE (Dock Flottant Moderne : Salon, Soigner, Boutique) ---
-  Widget _buildBottomNavigationBar(BuildContext context, dynamic strings, bool isDark, bool isLimitReached) {
+  Widget _buildBottomNavigationBar(
+    BuildContext context,
+    dynamic strings,
+    bool isDark,
+    bool isLimitReached,
+  ) {
     final dockBg = isDark ? AppColors.darkSurface : Colors.white;
     final dockBorder = isDark ? AppColors.darkInk200 : const Color(0xFFE2E8F0);
 
@@ -446,6 +664,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
       child: Opacity(
         opacity: itemOpacity,
         child: GestureDetector(
+          key: Key('nav_item_$index'),
           onTap: () => _onTabSelected(index),
           behavior: HitTestBehavior.opaque,
           child: Center(
@@ -464,7 +683,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: (isDark ? AppColors.darkSky500 : AppColors.sky500).withValues(alpha: 0.30),
+                          color:
+                              (isDark ? AppColors.darkSky500 : AppColors.sky500)
+                                  .withValues(alpha: 0.30),
                           offset: const Offset(0, 3),
                           blurRadius: 8,
                         ),
@@ -488,11 +709,15 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppText.bodyS.copyWith(
-                        fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
+                        fontWeight: isActive
+                            ? FontWeight.w900
+                            : FontWeight.w700,
                         fontSize: 12.5,
                         color: isActive
                             ? (isDark ? const Color(0xFF003640) : Colors.white)
-                            : (isDark ? AppColors.darkInk600 : AppColors.ink600),
+                            : (isDark
+                                  ? AppColors.darkInk600
+                                  : AppColors.ink600),
                       ),
                     ),
                   ),
@@ -505,4 +730,3 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     );
   }
 }
-

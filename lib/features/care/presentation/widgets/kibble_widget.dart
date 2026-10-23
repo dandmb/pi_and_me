@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 class KibbleWidget extends StatelessWidget {
   final double size;
 
-  const KibbleWidget({
-    super.key,
-    this.size = 26.0,
-  });
+  const KibbleWidget({super.key, this.size = 26.0});
 
   @override
   Widget build(BuildContext context) {

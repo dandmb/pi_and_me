@@ -33,7 +33,8 @@ void main() {
         ),
         careControllerProvider.overrideWith(
           (ref) => CareController(
-            initialCompanion: initialCompanion ??
+            initialCompanion:
+                initialCompanion ??
                 const PiCompanion(
                   hunger: 0.80,
                   joy: 0.70,
@@ -46,57 +47,62 @@ void main() {
           ),
         ),
       ],
-      child: const MaterialApp(
-        home: CareScreen(),
-      ),
+      child: const MaterialApp(home: CareScreen()),
     );
   }
 
   group('CareScreen Widget Tests', () {
-    testWidgets('renders header, environment selector, gauges, tennis ball row and action tray in French', (tester) async {
+    testWidgets(
+      'renders header, environment selector, gauges, tennis ball row and action tray in French',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        await tester.pumpWidget(buildTestableCareScreen(systemLocale: 'fr'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Prendre soin de Pi'), findsOneWidget);
+        expect(find.text('100'), findsOneWidget);
+
+        expect(find.text('Salon'), findsWidgets);
+        expect(find.text('Jardin'), findsOneWidget);
+        expect(find.text('Plage'), findsOneWidget);
+        expect(find.text('Forêt'), findsOneWidget);
+
+        expect(find.text('Faim'), findsOneWidget);
+        expect(find.text('Joie'), findsOneWidget);
+        expect(find.text('Énergie'), findsOneWidget);
+        expect(find.text('Propreté'), findsOneWidget);
+
+        expect(find.text('Balles'), findsOneWidget);
+        expect(find.text('Lancer la balle'), findsOneWidget);
+        expect(find.byType(TennisBallWidget), findsWidgets);
+
+        expect(find.text('Jouer'), findsOneWidget);
+        expect(find.text('Nourrir'), findsOneWidget);
+        expect(find.text('Laver'), findsOneWidget);
+        expect(find.text('Guider'), findsOneWidget);
+        expect(find.text('Dodo'), findsOneWidget);
+      },
+    );
+
+    testWidgets('switching mode clears previous status message', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableCareScreen(systemLocale: 'fr'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Prendre soin de Pi'), findsOneWidget);
-      expect(find.text('100'), findsOneWidget);
-
-      expect(find.text('Salon'), findsWidgets);
-      expect(find.text('Jardin'), findsOneWidget);
-      expect(find.text('Plage'), findsOneWidget);
-      expect(find.text('Forêt'), findsOneWidget);
-
-      expect(find.text('Faim'), findsOneWidget);
-      expect(find.text('Joie'), findsOneWidget);
-      expect(find.text('Énergie'), findsOneWidget);
-      expect(find.text('Propreté'), findsOneWidget);
-
-      expect(find.text('Balles'), findsOneWidget);
-      expect(find.text('Lancer la balle'), findsOneWidget);
-      expect(find.byType(TennisBallWidget), findsWidgets);
-
-      expect(find.text('Jouer'), findsOneWidget);
-      expect(find.text('Nourrir'), findsOneWidget);
-      expect(find.text('Laver'), findsOneWidget);
-      expect(find.text('Guider'), findsOneWidget);
-      expect(find.text('Dodo'), findsOneWidget);
-    });
-
-    testWidgets('switching mode clears previous status message', (tester) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await tester.pumpWidget(buildTestableCareScreen(
-        systemLocale: 'fr',
-        initialCompanion: const PiCompanion(
-          statusMessage: 'Wouf ! Balle rapportée ! (+25% Joie)',
-          croquettes: 3,
+      await tester.pumpWidget(
+        buildTestableCareScreen(
+          systemLocale: 'fr',
+          initialCompanion: const PiCompanion(
+            statusMessage: 'Wouf ! Balle rapportée ! (+25% Joie)',
+            croquettes: 3,
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Wouf ! Balle rapportée ! (+25% Joie)'), findsOneWidget);
@@ -113,10 +119,12 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableCareScreen(
-        systemLocale: 'fr',
-        initialCompanion: const PiCompanion(croquettes: 3, hunger: 0.50),
-      ));
+      await tester.pumpWidget(
+        buildTestableCareScreen(
+          systemLocale: 'fr',
+          initialCompanion: const PiCompanion(croquettes: 3, hunger: 0.50),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Passer en mode Nourrir
@@ -145,10 +153,15 @@ void main() {
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
 
-      expect(find.text('Miam ! Délicieux repas, merci ! (+Faim)'), findsOneWidget);
+      expect(
+        find.text('Miam ! Délicieux repas, merci ! (+Faim)'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('sleep mode activates bedtime scene and toggles nap/wake', (tester) async {
+    testWidgets('sleep mode activates bedtime scene and toggles nap/wake', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -177,17 +190,21 @@ void main() {
       expect(find.widgetWithText(ChunkyButton, 'Faire dodo'), findsOneWidget);
     });
 
-    testWidgets('status reward message auto-dismisses after 4 seconds', (tester) async {
+    testWidgets('status reward message auto-dismisses after 4 seconds', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableCareScreen(
-        systemLocale: 'fr',
-        initialCompanion: const PiCompanion(
-          statusMessage: 'Bravo Pi ! (+10% Joie)',
+      await tester.pumpWidget(
+        buildTestableCareScreen(
+          systemLocale: 'fr',
+          initialCompanion: const PiCompanion(
+            statusMessage: 'Bravo Pi ! (+10% Joie)',
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       expect(find.text('Bravo Pi ! (+10% Joie)'), findsOneWidget);
@@ -199,18 +216,19 @@ void main() {
       expect(find.text('Bravo Pi ! (+10% Joie)'), findsNothing);
     });
 
-    testWidgets('clean mode washes dirty Pi and restores cleanliness', (tester) async {
+    testWidgets('clean mode washes dirty Pi and restores cleanliness', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableCareScreen(
-        systemLocale: 'fr',
-        initialCompanion: const PiCompanion(
-          dirtCount: 3,
-          cleanliness: 0.25,
+      await tester.pumpWidget(
+        buildTestableCareScreen(
+          systemLocale: 'fr',
+          initialCompanion: const PiCompanion(dirtCount: 3, cleanliness: 0.25),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       // Clic sur Laver
@@ -223,7 +241,10 @@ void main() {
       await tester.tap(find.widgetWithText(ChunkyButton, 'Laver'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Tout propre et tout frais ! (+15% Joie)'), findsOneWidget);
+      expect(
+        find.text('Tout propre et tout frais ! (+15% Joie)'),
+        findsOneWidget,
+      );
       expect(find.text('Pi est tout propre et brillant !'), findsOneWidget);
     });
 
@@ -241,48 +262,97 @@ void main() {
       expect(find.text('Wash'), findsOneWidget);
     });
 
-    testWidgets('serve button is disabled and shows Rassasié when hunger is 1.0', (tester) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'serve button is disabled and shows Rassasié when hunger is 1.0',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableCareScreen(
-        systemLocale: 'fr',
-        initialCompanion: const PiCompanion(
-          hunger: 1.0,
-          croquettes: 3,
-        ),
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestableCareScreen(
+            systemLocale: 'fr',
+            initialCompanion: const PiCompanion(hunger: 1.0, croquettes: 3),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Nourrir'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Nourrir'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Rassasié'), findsOneWidget);
-      final serveBtn = tester.widget<ChunkyButton>(find.widgetWithText(ChunkyButton, 'Rassasié'));
-      expect(serveBtn.onPressed, isNull);
-    });
+        expect(find.text('Rassasié'), findsOneWidget);
+        final serveBtn = tester.widget<ChunkyButton>(
+          find.widgetWithText(ChunkyButton, 'Rassasié'),
+        );
+        expect(serveBtn.onPressed, isNull);
+      },
+    );
 
-    testWidgets('when Pi is sleeping, play tab shows sleeping notice and throw button is disabled', (tester) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'when Pi is sleeping, play tab shows sleeping notice and throw button is disabled',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.pumpWidget(buildTestableCareScreen(
-        systemLocale: 'fr',
-        initialCompanion: const PiCompanion(
-          isSleeping: true,
-          balls: 3,
-        ),
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestableCareScreen(
+            systemLocale: 'fr',
+            initialCompanion: const PiCompanion(isSleeping: true, balls: 3),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Dans l'onglet Jouer, la carte d'information sur le sommeil doit être affichée
-      expect(find.text('Pi dort paisiblement'), findsOneWidget);
-      expect(find.text('Pi dort...'), findsOneWidget);
+        // Dans l'onglet Jouer, la carte d'information sur le sommeil doit être affichée
+        expect(find.text('Pi dort paisiblement'), findsOneWidget);
+        expect(find.text('Pi dort...'), findsOneWidget);
 
-      final throwBtn = tester.widget<ChunkyButton>(find.widgetWithText(ChunkyButton, 'Pi dort...'));
-      expect(throwBtn.onPressed, isNull);
-    });
+        final throwBtn = tester.widget<ChunkyButton>(
+          find.widgetWithText(ChunkyButton, 'Pi dort...'),
+        );
+        expect(throwBtn.onPressed, isNull);
+      },
+    );
+
+    testWidgets(
+      'tapping surface in sleep mode moves Pi without premature +30% energy message, only Faire dormir puts him to sleep',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        await tester.pumpWidget(
+          buildTestableCareScreen(
+            systemLocale: 'fr',
+            initialCompanion: const PiCompanion(
+              isSleeping: false,
+              energy: 0.50,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // 1. Switch to Dodo mode
+        await tester.tap(find.text('Dodo'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Faire dodo'), findsOneWidget);
+
+        // 2. Tap on the surface (play area)
+        await tester.tapAt(const Offset(400, 500));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        // Pi is still awake and does NOT have the +30% Énergie message
+        expect(find.textContaining('+30% Énergie'), findsNothing);
+
+        // 3. Only when tapping "Faire dodo", Pi goes to bed and shows the message
+        await tester.tap(find.widgetWithText(ChunkyButton, 'Faire dodo'));
+        await tester.pumpAndSettle();
+
+        expect(find.textContaining('+30% Énergie'), findsOneWidget);
+        expect(find.text('Réveiller'), findsOneWidget);
+      },
+    );
   });
 }

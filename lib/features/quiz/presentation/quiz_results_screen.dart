@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -9,11 +10,15 @@ import '../../../core/audio/audio_service.dart';
 import '../../care/presentation/care_controller.dart';
 import '../../care/presentation/widgets/animated_pi_mascot.dart';
 import '../../navigation/presentation/main_shell_screen.dart';
+import '../../profile/domain/school_grade.dart';
 import '../../profile/presentation/profile_controller.dart';
 import '../../shop/presentation/shop_controller.dart';
 import '../../parent/domain/daily_limit_state.dart';
 import '../../parent/presentation/daily_limit_controller.dart';
+import '../../parent/presentation/parent_dashboard_controller.dart';
 import '../../parent/presentation/widgets/daily_quota_indicator.dart';
+import '../data/quiz_stats_repository.dart';
+import '../domain/quiz_session_record.dart';
 import 'quiz_controller.dart';
 
 /// Écran 3 : Résultats du Quiz & Célébration bienveillante avec Pi.
@@ -43,7 +48,42 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
   void _finishAndNavigate(BuildContext context, int targetIndex) {
     ref.read(audioServiceProvider).playPop();
     final quizState = ref.read(quizControllerProvider);
-    ref.read(careControllerProvider.notifier).addRewards(
+    final activeProfile = ref.read(activeProfileProvider).value;
+    final profileId = activeProfile?.id ?? 'default';
+    final grade = activeProfile?.grade ?? SchoolGrade.cp;
+
+    // Enregistrement des statistiques pédagogiques réelles
+    final totalByDomain = <String, int>{};
+    final correctByDomain = <String, int>{};
+
+    for (int i = 0; i < quizState.questions.length; i++) {
+      final q = quizState.questions[i];
+      final domainKey = q.domain.name;
+      totalByDomain[domainKey] = (totalByDomain[domainKey] ?? 0) + 1;
+      final isCorrect =
+          i < quizState.answersHistory.length && quizState.answersHistory[i];
+      if (isCorrect) {
+        correctByDomain[domainKey] = (correctByDomain[domainKey] ?? 0) + 1;
+      }
+    }
+
+    final record = QuizSessionRecord(
+      id: 'quiz_${DateTime.now().millisecondsSinceEpoch}',
+      profileId: profileId,
+      timestamp: DateTime.now(),
+      grade: grade,
+      totalQuestions: quizState.totalQuestions,
+      correctAnswers: quizState.score,
+      totalByDomain: totalByDomain,
+      correctByDomain: correctByDomain,
+    );
+
+    ref.read(quizStatsRepositoryProvider).recordSession(record);
+    ref.read(parentDashboardControllerProvider.notifier).loadStats();
+
+    ref
+        .read(careControllerProvider.notifier)
+        .addRewards(
           bones: quizState.bonesEarned,
           croquettes: quizState.croquettesEarned,
           balls: quizState.ballsEarned,
@@ -70,6 +110,77 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     final score = quizState.score;
     final total = quizState.totalQuestions > 0 ? quizState.totalQuestions : 6;
 
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    if (isLandscape) {
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) {
+            _finishAndNavigate(context, 0);
+          }
+        },
+        child: Scaffold(
+          backgroundColor: context.appBg,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s4,
+                vertical: AppSpace.s2,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Colonne gauche : Félicitations et Mascotte qui célèbre
+                  Expanded(
+                    flex: 5,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          _buildHeader(
+                            context,
+                            strings,
+                            childName,
+                            score,
+                            total,
+                            limitState,
+                          ),
+                          const SizedBox(height: AppSpace.s2),
+                          _buildMascotCelebration(
+                            score,
+                            total,
+                            strings,
+                            shopState.equippedAccessoryIds,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.s4),
+                  // Colonne droite : Carte des récompenses et boutons d'action
+                  Expanded(
+                    flex: 5,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          _buildRewardsCard(context, quizState, strings),
+                          const SizedBox(height: AppSpace.s3),
+                          _buildActionButtons(context, strings),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -80,51 +191,58 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
       child: Scaffold(
         backgroundColor: context.appBg,
         body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpace.s4,
-            vertical: AppSpace.s3,
-          ),
-          child: Column(
-            children: [
-              // 1. En-tête : Badge & Félicitations
-              _buildHeader(context, strings, childName, score, total, limitState),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s4,
+              vertical: AppSpace.s3,
+            ),
+            child: Column(
+              children: [
+                // 1. En-tête : Badge & Félicitations
+                _buildHeader(
+                  context,
+                  strings,
+                  childName,
+                  score,
+                  total,
+                  limitState,
+                ),
 
-              const SizedBox(height: AppSpace.s3),
+                const SizedBox(height: AppSpace.s3),
 
-              // Contenu défilant pour adapter tous les écrans
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // 2. Mascotte Pi qui célèbre + Badge du Score
-                      _buildMascotCelebration(
-                        score,
-                        total,
-                        strings,
-                        shopState.equippedAccessoryIds,
-                      ),
+                // Contenu défilant pour adapter tous les écrans
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // 2. Mascotte Pi qui célèbre + Badge du Score
+                        _buildMascotCelebration(
+                          score,
+                          total,
+                          strings,
+                          shopState.equippedAccessoryIds,
+                        ),
 
-                      const SizedBox(height: AppSpace.s4),
+                        const SizedBox(height: AppSpace.s4),
 
-                      // 3. Carte des Récompenses gagnées (Os, Croquettes, Balles)
-                      _buildRewardsCard(context, quizState, strings),
-                    ],
+                        // 3. Carte des Récompenses gagnées (Os, Croquettes, Balles)
+                        _buildRewardsCard(context, quizState, strings),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: AppSpace.s3),
+                const SizedBox(height: AppSpace.s3),
 
-              // 4. Boutons d'action : Soigner Pi & Retour au Salon
-              _buildActionButtons(context, strings),
-            ],
+                // 4. Boutons d'action : Soigner Pi & Retour au Salon
+                _buildActionButtons(context, strings),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildHeader(
     BuildContext context,
@@ -134,8 +252,10 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     int total,
     DailyLimitState limitState,
   ) {
-    final projectedSessions =
-        (limitState.usedSessionsToday + 1).clamp(0, limitState.maxDailySessions);
+    final projectedSessions = (limitState.usedSessionsToday + 1).clamp(
+      0,
+      limitState.maxDailySessions,
+    );
     final isLimitNowReached = projectedSessions >= limitState.maxDailySessions;
 
     return Column(
@@ -143,28 +263,39 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.s3,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                color: context.isDark ? const Color(0xFF064E3B) : const Color(0xFFE8F8F5),
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-                border: Border.all(
-                  color: context.isDark ? const Color(0xFF059669) : const Color(0xFFA7F3D0),
-                  width: 1,
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.s3,
+                  vertical: 4,
                 ),
-              ),
-              child: Text(
-                strings.quizCompleted,
-                style: AppText.bodyS.copyWith(
-                  color: context.isDark ? const Color(0xFF6EE7B7) : const Color(0xFF15803D),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+                decoration: BoxDecoration(
+                  color: context.isDark
+                      ? const Color(0xFF064E3B)
+                      : const Color(0xFFE8F8F5),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  border: Border.all(
+                    color: context.isDark
+                        ? const Color(0xFF059669)
+                        : const Color(0xFFA7F3D0),
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  strings.quizCompleted,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: AppText.bodyS.copyWith(
+                    color: context.isDark
+                        ? const Color(0xFF6EE7B7)
+                        : const Color(0xFF15803D),
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ),
+            const SizedBox(width: AppSpace.s2),
             DailyQuotaIndicator(
               usedSessions: projectedSessions,
               maxSessions: limitState.maxDailySessions,
@@ -175,10 +306,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
         const SizedBox(height: AppSpace.s2),
         Text(
           strings.quizBravo(childName),
-          style: AppText.h2.copyWith(
-            color: context.appText,
-            fontSize: 24,
-          ),
+          style: AppText.h2.copyWith(color: context.appText, fontSize: 24),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpace.s1),
@@ -262,7 +390,11 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     );
   }
 
-  Widget _buildRewardsCard(BuildContext context, QuizState quizState, dynamic strings) {
+  Widget _buildRewardsCard(
+    BuildContext context,
+    QuizState quizState,
+    dynamic strings,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpace.s4),
@@ -301,9 +433,15 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                   icon: '🦴',
                   count: '+${quizState.bonesEarned}',
                   label: strings.goldenBones,
-                  bgColor: context.isDark ? const Color(0xFF451A03) : AppColors.amber50,
-                  borderColor: context.isDark ? const Color(0xFFD97706) : const Color(0xFFFDE68A),
-                  textColor: context.isDark ? const Color(0xFFFDE68A) : AppColors.amber900,
+                  bgColor: context.isDark
+                      ? const Color(0xFF451A03)
+                      : AppColors.amber50,
+                  borderColor: context.isDark
+                      ? const Color(0xFFD97706)
+                      : const Color(0xFFFDE68A),
+                  textColor: context.isDark
+                      ? const Color(0xFFFDE68A)
+                      : AppColors.amber900,
                 ),
               ),
               const SizedBox(width: AppSpace.s2),
@@ -313,9 +451,15 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                   icon: '🍖',
                   count: '+${quizState.croquettesEarned}',
                   label: strings.croquettes,
-                  bgColor: context.isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5),
-                  borderColor: context.isDark ? const Color(0xFF059669) : const Color(0xFFA7F3D0),
-                  textColor: context.isDark ? const Color(0xFF6EE7B7) : const Color(0xFF065F46),
+                  bgColor: context.isDark
+                      ? const Color(0xFF064E3B)
+                      : const Color(0xFFECFDF5),
+                  borderColor: context.isDark
+                      ? const Color(0xFF059669)
+                      : const Color(0xFFA7F3D0),
+                  textColor: context.isDark
+                      ? const Color(0xFF6EE7B7)
+                      : const Color(0xFF065F46),
                 ),
               ),
               const SizedBox(width: AppSpace.s2),
@@ -325,9 +469,15 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
                   icon: '🎾',
                   count: '+${quizState.ballsEarned}',
                   label: strings.balls,
-                  bgColor: context.isDark ? const Color(0xFF0C4A6E) : const Color(0xFFF0F9FF),
-                  borderColor: context.isDark ? const Color(0xFF0284C7) : const Color(0xFFBAE6FD),
-                  textColor: context.isDark ? const Color(0xFF38BDF8) : const Color(0xFF0369A1),
+                  bgColor: context.isDark
+                      ? const Color(0xFF0C4A6E)
+                      : const Color(0xFFF0F9FF),
+                  borderColor: context.isDark
+                      ? const Color(0xFF0284C7)
+                      : const Color(0xFFBAE6FD),
+                  textColor: context.isDark
+                      ? const Color(0xFF38BDF8)
+                      : const Color(0xFF0369A1),
                 ),
               ),
             ],
@@ -349,18 +499,27 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  strings.streakDays(quizState.streakDays),
-                  style: AppText.bodyS.copyWith(
-                    color: context.appText,
-                    fontWeight: FontWeight.w800,
+                Flexible(
+                  child: Text(
+                    strings.streakDays(quizState.streakDays),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: AppText.bodyS.copyWith(
+                      color: context.appText,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
-                Text(
-                  strings.isFrench ? '🌱 Rythme parfait !' : '🌱 Great pace!',
-                  style: AppText.bodyS.copyWith(
-                    color: AppColors.green600,
-                    fontWeight: FontWeight.w800,
+                const SizedBox(width: AppSpace.s2),
+                Flexible(
+                  child: Text(
+                    strings.isFrench ? '🌱 Rythme parfait !' : '🌱 Great pace!',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: AppText.bodyS.copyWith(
+                      color: AppColors.green600,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
@@ -416,10 +575,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     );
   }
 
-  Widget _buildActionButtons(
-    BuildContext context,
-    dynamic strings,
-  ) {
+  Widget _buildActionButtons(BuildContext context, dynamic strings) {
     return Column(
       children: [
         ChunkyButton(

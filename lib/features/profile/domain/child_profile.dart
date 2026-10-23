@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'school_grade.dart';
 
 /// Modèle représentant le profil d'un enfant dans MathPup.
@@ -20,7 +21,10 @@ class ChildProfile {
   });
 
   /// Crée un profil par défaut (exemple onboarding)
-  factory ChildProfile.defaultProfile({String name = 'Léa', SchoolGrade grade = SchoolGrade.cm1}) {
+  factory ChildProfile.defaultProfile({
+    String name = 'Léa',
+    SchoolGrade grade = SchoolGrade.cm1,
+  }) {
     return ChildProfile(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: name,
@@ -44,7 +48,9 @@ class ChildProfile {
   /// Reconstruit l'objet depuis une Map
   factory ChildProfile.fromMap(Map<String, dynamic> map) {
     return ChildProfile(
-      id: map['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id:
+          map['id'] as String? ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       name: map['name'] as String? ?? 'Ami',
       avatar: map['avatar'] as String? ?? 'avatar_dog',
       grade: SchoolGrade.fromId(map['grade'] as String? ?? 'cm1'),
@@ -92,5 +98,6 @@ class ChildProfile {
   int get hashCode => Object.hash(id, name, avatar, grade);
 
   @override
-  String toString() => 'ChildProfile(id: $id, name: $name, grade: ${grade.label})';
+  String toString() =>
+      'ChildProfile(id: $id, name: $name, grade: ${grade.label})';
 }
