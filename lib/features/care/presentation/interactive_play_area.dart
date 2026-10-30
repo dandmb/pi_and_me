@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/locale_controller.dart';
+import '../../../core/audio/audio_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -278,6 +279,11 @@ class InteractivePlayArea extends ConsumerWidget {
                                       : equippedAccessoryIds,
                                   enableTapInteraction:
                                       activeMode != CareInteractionMode.clean,
+                                  onTap: () {
+                                    if (!isSleeping) {
+                                      ref.read(audioServiceProvider).playBark();
+                                    }
+                                  },
                                   piSize: 96,
                                 ),
 

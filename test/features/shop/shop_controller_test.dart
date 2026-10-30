@@ -220,5 +220,34 @@ void main() {
         equals(['hero_cape', 'pirate_bandana', 'top_hat']),
       );
     });
+
+    test('ShopCatalog contains 24 accessories across all 4 categories', () {
+      expect(ShopCatalog.items.length, 24);
+
+      // Verify the 6 new accessories are present and properly configured
+      final flowerCrown = ShopCatalog.findById('flower_crown')!;
+      expect(flowerCrown.category, AccessoryCategory.hats);
+      expect(flowerCrown.price, 75);
+
+      final gamerHeadphones = ShopCatalog.findById('gamer_headphones')!;
+      expect(gamerHeadphones.category, AccessoryCategory.hats);
+      expect(gamerHeadphones.price, 115);
+
+      final heartGlasses = ShopCatalog.findById('heart_glasses')!;
+      expect(heartGlasses.category, AccessoryCategory.glasses);
+      expect(heartGlasses.price, 95);
+
+      final cozyScarf = ShopCatalog.findById('cozy_scarf')!;
+      expect(cozyScarf.category, AccessoryCategory.collars);
+      expect(cozyScarf.price, 60);
+
+      final diamondCollar = ShopCatalog.findById('diamond_collar')!;
+      expect(diamondCollar.category, AccessoryCategory.collars);
+      expect(diamondCollar.price, 145);
+
+      final royalCape = ShopCatalog.findById('royal_cape')!;
+      expect(royalCape.category, AccessoryCategory.capes);
+      expect(royalCape.price, 135);
+    });
   });
 }

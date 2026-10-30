@@ -122,6 +122,34 @@ class ShopCatalog {
       primaryColor: Color(0xFFFFFFFF),
       accentColor: Color(0xFFF97316),
     ),
+    AccessoryItem(
+      id: 'flower_crown',
+      nameFr: 'Couronne de Fleurs',
+      nameEn: 'Flower Crown',
+      descriptionFr:
+          'Une couronne de marguerites et roses pastel pleine de fraîcheur !',
+      descriptionEn: 'A fresh flower crown of daisies and pastel roses!',
+      category: AccessoryCategory.hats,
+      price: 75,
+      previewIcon: Icons.local_florist_rounded,
+      primaryColor: Color(0xFFEC4899),
+      accentColor: Color(0xFFFDE047),
+    ),
+    AccessoryItem(
+      id: 'gamer_headphones',
+      nameFr: 'Casque Gamer Néon',
+      nameEn: 'Neon Gamer Headset',
+      descriptionFr:
+          'Un casque ultra-tendance aux reflets néon pour réviser en rythme !',
+      descriptionEn:
+          'An ultra-trendy neon headset to practice math to the beat!',
+      category: AccessoryCategory.hats,
+      price: 115,
+      requiredGrade: SchoolGrade.ce1,
+      previewIcon: Icons.headphones_rounded,
+      primaryColor: Color(0xFF06B6D4),
+      accentColor: Color(0xFFEC4899),
+    ),
 
     // 2. Lunettes
     AccessoryItem(
@@ -176,6 +204,20 @@ class ShopCatalog {
       previewIcon: Icons.scuba_diving_rounded,
       primaryColor: Color(0xFF0D9488),
       accentColor: Color(0xFF38BDF8),
+    ),
+    AccessoryItem(
+      id: 'heart_glasses',
+      nameFr: 'Lunettes Cœur',
+      nameEn: 'Heart Sunglasses',
+      descriptionFr:
+          'Des lunettes teintées en forme de cœur rose bonbon pleines de tendresse !',
+      descriptionEn:
+          'Sweet pink heart-shaped tinted sunglasses full of puppy love!',
+      category: AccessoryCategory.glasses,
+      price: 95,
+      previewIcon: Icons.favorite_rounded,
+      primaryColor: Color(0xFFF43F5E),
+      accentColor: Color(0xFFFDA4AF),
     ),
 
     // 3. Colliers & Foulards
@@ -232,6 +274,35 @@ class ShopCatalog {
       primaryColor: Color(0xFFF59E0B),
       accentColor: Color(0xFFB45309),
     ),
+    AccessoryItem(
+      id: 'cozy_scarf',
+      nameFr: 'Écharpe Tricotée',
+      nameEn: 'Cozy Knitted Scarf',
+      descriptionFr:
+          'Une écharpe moelleuse rayée rouge et crème pour les fraîches journées.',
+      descriptionEn:
+          'A cozy red and cream striped knitted scarf for chilly days.',
+      category: AccessoryCategory.collars,
+      price: 60,
+      previewIcon: Icons.waves_rounded,
+      primaryColor: Color(0xFFDC2626),
+      accentColor: Color(0xFFFEF3C7),
+    ),
+    AccessoryItem(
+      id: 'diamond_collar',
+      nameFr: 'Collier Diamant Étoilé',
+      nameEn: 'Star Diamond Collar',
+      descriptionFr:
+          'Un collier violet de grand prestige serti d\'un diamant taillé en étoile !',
+      descriptionEn:
+          'A prestigious royal violet collar set with a shining star diamond!',
+      category: AccessoryCategory.collars,
+      price: 145,
+      requiredGrade: SchoolGrade.ce2,
+      previewIcon: Icons.diamond_rounded,
+      primaryColor: Color(0xFF8B5CF6),
+      accentColor: Color(0xFF67E8F9),
+    ),
 
     // 4. Capes
     AccessoryItem(
@@ -287,6 +358,21 @@ class ShopCatalog {
       previewIcon: Icons.forest_rounded,
       primaryColor: Color(0xFF15803D),
       accentColor: Color(0xFF86EFAC),
+    ),
+    AccessoryItem(
+      id: 'royal_cape',
+      nameFr: 'Cape Royale',
+      nameEn: 'Royal Velvet Cape',
+      descriptionFr:
+          'Une somptueuse cape de velours pourpre bordée d\'or et d\'hermine royale !',
+      descriptionEn:
+          'A sumptuous royal purple velvet cape trimmed with gold and ermine!',
+      category: AccessoryCategory.capes,
+      price: 135,
+      requiredGrade: SchoolGrade.ce1,
+      previewIcon: Icons.shield_rounded,
+      primaryColor: Color(0xFF7C3AED),
+      accentColor: Color(0xFFF59E0B),
     ),
   ];
 

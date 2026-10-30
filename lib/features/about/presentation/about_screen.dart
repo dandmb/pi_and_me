@@ -100,7 +100,7 @@ class AboutScreen extends ConsumerWidget {
     final versionDisplay = packageInfoAsync.when(
       data: (info) => strings.versionLabel(info.version, info.buildNumber),
       loading: () => strings.aboutVersionLabel,
-      error: (_, __) => strings.aboutVersionLabel,
+      error: (_, _) => strings.aboutVersionLabel,
     );
     final isDark = Theme.of(context).brightness == Brightness.dark;
 

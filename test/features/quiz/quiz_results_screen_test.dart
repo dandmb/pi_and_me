@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pi_et_moi/core/audio/audio_service.dart';
 import 'package:pi_et_moi/core/localization/locale_controller.dart';
+import 'package:pi_et_moi/features/care/presentation/widgets/animated_pi_mascot.dart';
 import 'package:pi_et_moi/features/profile/domain/child_profile.dart';
 import 'package:pi_et_moi/features/profile/domain/school_grade.dart';
 import 'package:pi_et_moi/features/profile/presentation/profile_controller.dart';
@@ -158,7 +160,85 @@ void main() {
         expect(recorded.first.totalQuestions, 6);
       },
     );
+
+    testWidgets(
+      'tapping Pi mascot and reward badges triggers interactive feedback and barking sound',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        final fakeClient = _MockAudioPlayerClient();
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              languageProvider.overrideWith(
+                (ref) => LanguageNotifier(systemLocaleCodeOverride: 'fr'),
+              ),
+              audioPlayerClientProvider.overrideWithValue(fakeClient),
+              activeProfileProvider.overrideWith(
+                () => _FakeProfileNotifier(
+                  ChildProfile.defaultProfile(
+                    name: 'Léa',
+                    grade: SchoolGrade.cm1,
+                  ),
+                ),
+              ),
+              quizControllerProvider.overrideWith((ref) {
+                final controller = QuizController(
+                  generator: MathQuestionGenerator(Random(42)),
+                );
+                controller.startQuiz(SchoolGrade.cm1);
+                for (int i = 0; i < 6; i++) {
+                  final q = controller.state.currentQuestion!;
+                  controller.selectOption(q.correctIndex);
+                  controller.validateAnswer();
+                  controller.nextQuestion();
+                }
+                return controller;
+              }),
+            ],
+            child: const MaterialApp(home: QuizResultsScreen()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Tape sur la mascotte de Pi
+        await tester.tap(find.byType(AnimatedPiMascot));
+        await tester.pump();
+
+        // Vérifie que la bulle de dialogue 'Wouf ! Wouf !' apparaît
+        expect(find.text('Wouf ! Wouf !'), findsOneWidget);
+
+        // Vérifie qu'un aboiement audio a bien été émis
+        expect(fakeClient.playedAssets.contains('audio/sfx_bark.wav'), isTrue);
+
+        // Tape sur le badge des Os dorés
+        await tester.tap(find.text('Os dorés'));
+        await tester.pump();
+
+        // Vérifie le message de rétroaction interactif
+        expect(
+          find.textContaining('Os dorés pour la boutique !'),
+          findsOneWidget,
+        );
+        expect(fakeClient.playedAssets.contains('audio/sfx_bone.wav'), isTrue);
+      },
+    );
   });
+}
+
+class _MockAudioPlayerClient implements AudioPlayerClient {
+  final List<String> playedAssets = [];
+
+  @override
+  Future<void> playAsset(String assetPath) async {
+    playedAssets.add(assetPath);
+  }
+
+  @override
+  void dispose() {}
 }
 
 class _FakeProfileNotifier extends ActiveProfileNotifier {

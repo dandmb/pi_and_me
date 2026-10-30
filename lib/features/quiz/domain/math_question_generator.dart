@@ -306,7 +306,7 @@ class MathQuestionGenerator {
         promptEn: 'Pi runs $dist1 meters to catch his ball, then $dist2 meters back. How far did he run in total?',
         mathExpression: '$dist1 m + $dist2 m = ? m',
         correctAnswer: '$total m',
-        distractors: ['${total + 10} m', '${max(5, total - 5)} m', '${dist1} m'],
+        distractors: ['${total + 10} m', '${max(5, total - 5)} m', '$dist1 m'],
         hintFr: 'Additionne les deux distances parcourues par Pi ! 🐾',
         hintEn: 'Add both distances ran by Pi! 🐾',
         explanationFr: '$dist1 m + $dist2 m = $total mètres au total.',
@@ -820,143 +820,288 @@ class MathQuestionGenerator {
   MathQuestion _generate6eQuestion(int index) {
     final type = index % 6;
     if (type == 0) {
-      final a = _random.nextInt(5) + 2; // 2..6
-      final b = _random.nextInt(4) + 2; // 2..5
-      final c = _random.nextInt(5) + 2; // 2..6
-      final correct = a + (b * c);
-      final wrongPriority = (a + b) * c;
+      // 1. Priorités opératoires avec décimaux et soustraction/multiplication
+      final base = (_random.nextInt(4) + 4) * 10; // 40, 50, 60, 70
+      final mult = _random.nextInt(3) + 3; // 3, 4, 5
+      final dec = [2.5, 3.5, 4.5][_random.nextInt(3)];
+      final product = (mult * dec).round();
+      final correct = base - product;
+      final wrongPriority = ((base - mult) * dec).round();
       return _buildQuestion(
         id: '6e_prio_$index',
         grade: SchoolGrade.sixieme,
         domain: MathDomain.numbers,
-        categoryFr: '6e • Priorités Opératoires',
-        categoryEn: 'Grade 6 • Order of Operations',
-        promptFr: 'Calcule en respectant les priorités :',
+        categoryFr: '6e • Priorités et Décimaux',
+        categoryEn: 'Grade 6 • Order of Operations & Decimals',
+        promptFr: 'Calcule en respectant les priorités opératoires :',
         promptEn: 'Calculate following operation order:',
-        mathExpression: '$a + $b × $c = ?',
+        mathExpression:
+            '$base - $mult × ${dec.toString().replaceAll('.', ',')} = ?',
         correctAnswer: '$correct',
         distractors: [
           '$wrongPriority',
-          '${correct + 2}',
-          '${max(1, correct - 3)}',
+          '${correct + 10}',
+          '${max(2, correct - 10)}',
         ],
-        hintFr: 'La multiplication est prioritaire sur l\'addition ! 🐾',
-        hintEn: 'Multiplication comes before addition! 🐾',
+        hintFr: 'La multiplication s\'effectue TOUJOURS avant la soustraction !',
+        hintEn: 'Multiplication ALWAYS takes precedence over subtraction!',
         explanationFr:
-            'On calcule d\'abord $b × $c = ${b * c}, puis $a + ${b * c} = $correct.',
+            'On calcule d\'abord $mult × ${dec.toString().replaceAll('.', ',')} = $product, puis $base - $product = $correct.',
         explanationEn:
-            'First calculate $b × $c = ${b * c}, then $a + ${b * c} = $correct.',
+            'First calculate $mult × $dec = $product, then $base - $product = $correct.',
       );
     } else if (type == 1) {
-      final l = _random.nextInt(6) + 4; // 4..9
-      final w = _random.nextInt(4) + 2; // 2..5
-      final area = l * w;
+      // 2. Périmètre du cercle (Formule 6e P = 2 * pi * r avec pi ≈ 3,14)
+      final rList = [5, 10, 20];
+      final r = rList[_random.nextInt(rList.length)];
+      final perim = (2 * 3.14 * r).toStringAsFixed(1).replaceAll('.', ',');
+      final perimDouble = 2 * 3.14 * r;
       return _buildQuestion(
-        id: '6e_area_$index',
+        id: '6e_circle_$index',
         grade: SchoolGrade.sixieme,
         domain: MathDomain.geometry,
-        categoryFr: '6e • Aires et Géométrie',
-        categoryEn: 'Grade 6 • Area & Geometry',
-        promptFr: 'Aire d\'un rectangle de dimensions :',
-        promptEn: 'Area of a rectangle with dimensions:',
-        mathExpression: 'L = $l cm, l = $w cm → Aire = ?',
-        correctAnswer: '$area cm²',
+        categoryFr: '6e • Périmètre du Cercle',
+        categoryEn: 'Grade 6 • Circle Circumference',
+        promptFr:
+            'Un cercle a un rayon de $r cm (avec π ≈ 3,14). Quel est son périmètre ?',
+        promptEn:
+            'A circle has radius $r cm (with π ≈ 3.14). What is its circumference?',
+        mathExpression: 'P = 2 × π × r → P = 2 × 3,14 × $r = ? cm',
+        correctAnswer: '$perim cm',
         distractors: [
-          '${(l + w) * 2} cm²',
-          '${area + 4} cm²',
-          '${l * 2 + w} cm²',
+          '${(3.14 * r).toStringAsFixed(1).replaceAll('.', ',')} cm',
+          '${(perimDouble + 6.28).toStringAsFixed(1).replaceAll('.', ',')} cm',
+          '${(r * 4)} cm',
         ],
-        hintFr: 'L\'aire d\'un rectangle est Longueur × largeur !',
-        hintEn: 'The area of a rectangle is Length × width!',
-        explanationFr: 'Aire = $l × $w = $area cm².',
-        explanationEn: 'Area = $l × $w = $area cm².',
+        hintFr: 'La formule du périmètre d\'un cercle est 2 × π × r !',
+        hintEn: 'The circumference formula is 2 × π × r!',
+        explanationFr: 'P = 2 × 3,14 × $r = $perim cm.',
+        explanationEn: 'P = 2 × 3.14 × $r = ${perim.replaceAll(',', '.')} cm.',
       );
     } else if (type == 2) {
-      final num = (_random.nextInt(5) + 3) * 2; // 6, 8, 10..
+      // 3. Fraction d'une quantité (Grand classique 6e)
+      final fractions = [
+        {'num': 3, 'den': 4, 'total': 80, 'unit': 'kg'},
+        {'num': 2, 'den': 5, 'total': 150, 'unit': '€'},
+        {'num': 5, 'den': 6, 'total': 42, 'unit': 'm'},
+        {'num': 7, 'den': 10, 'total': 200, 'unit': 'L'},
+      ];
+      final f = fractions[_random.nextInt(fractions.length)];
+      final num = f['num'] as int;
+      final den = f['den'] as int;
+      final total = f['total'] as int;
+      final unit = f['unit'] as String;
+      final ans = (total ~/ den) * num;
       return _buildQuestion(
-        id: '6e_divdec_$index',
+        id: '6e_fracqty_$index',
         grade: SchoolGrade.sixieme,
         domain: MathDomain.numbers,
-        categoryFr: '6e • Division Décimale',
-        categoryEn: 'Grade 6 • Decimal Division',
-        promptFr: 'Calcule le quotient :',
-        promptEn: 'Calculate the quotient:',
-        mathExpression: '$num ÷ 4 = ?',
-        correctAnswer: (num / 4).toStringAsFixed(2).replaceAll('.', ','),
+        categoryFr: '6e • Fraction d\'une Quantité',
+        categoryEn: 'Grade 6 • Fraction of a Quantity',
+        promptFr: 'Calcule la fraction de la quantité :',
+        promptEn: 'Calculate the fraction of the quantity:',
+        mathExpression: '$num/$den de $total $unit = ? $unit',
+        correctAnswer: '$ans $unit',
         distractors: [
-          ((num / 4) + 0.5).toStringAsFixed(2).replaceAll('.', ','),
-          ((num / 4) - 0.25).toStringAsFixed(2).replaceAll('.', ','),
-          '${num ~/ 4}',
+          '${(total ~/ den)} $unit',
+          '${ans + den} $unit',
+          '${max(2, ans - den * 2)} $unit',
         ],
-        hintFr: 'Divise par 2, puis encore par 2 !',
-        hintEn: 'Divide by 2, then by 2 again!',
+        hintFr:
+            'Divise la quantité par le dénominateur ($den), puis multiplie par le numérateur ($num) !',
+        hintEn:
+            'Divide quantity by denominator ($den), then multiply by numerator ($num)!',
         explanationFr:
-            '$num ÷ 4 = ${(num / 4).toStringAsFixed(2).replaceAll('.', ',')}.',
+            '($total ÷ $den) × $num = ${total ~/ den} × $num = $ans $unit.',
         explanationEn:
-            '$num ÷ 4 = ${(num / 4).toStringAsFixed(2).replaceAll('.', ',')}.',
+            '($total ÷ $den) × $num = ${total ~/ den} × $num = $ans $unit.',
       );
     } else if (type == 3) {
-      final a = _random.nextInt(5) + 2; // 2..6
-      final b = _random.nextInt(4) + 2; // 2..5
-      final c = _random.nextInt(4) + 2; // 2..5
-      final correct = (a + b) * c;
-      final wrongPriority = a + (b * c);
-      return _buildQuestion(
-        id: '6e_paren_$index',
-        grade: SchoolGrade.sixieme,
-        domain: MathDomain.numbers,
-        categoryFr: '6e • Parenthèses Prioritaires',
-        categoryEn: 'Grade 6 • Parentheses Priority',
-        promptFr: 'Calcule en observant les parenthèses :',
-        promptEn: 'Calculate respecting the parentheses:',
-        mathExpression: '($a + $b) × $c = ?',
-        correctAnswer: '$correct',
-        distractors: ['$wrongPriority', '${correct + 2}', '${correct - c}'],
-        hintFr: 'Les calculs entre parenthèses s\'effectuent TOUJOURS en premier ! 🐾',
-        hintEn: 'Calculations inside parentheses ALWAYS come first! 🐾',
-        explanationFr: 'On calcule d\'abord ($a + $b) = ${a + b}, puis ${a + b} × $c = $correct.',
-        explanationEn: 'First calculate ($a + $b) = ${a + b}, then ${a + b} × $c = $correct.',
-      );
+      // 4. Calcul mental avec décimaux (×0,1 ou ÷0,5)
+      final isDivHalf = _random.nextBool();
+      if (isDivHalf) {
+        final val = (_random.nextInt(6) + 4) * 4; // 16, 20, 24, 28, 32...
+        final ans = val * 2;
+        return _buildQuestion(
+          id: '6e_divhalf_$index',
+          grade: SchoolGrade.sixieme,
+          domain: MathDomain.numbers,
+          categoryFr: '6e • Division par 0,5',
+          categoryEn: 'Grade 6 • Division by 0.5',
+          promptFr: 'Astuce de calcul mental collège :',
+          promptEn: 'Mental math shortcut:',
+          mathExpression: '$val ÷ 0,5 = ?',
+          correctAnswer: '$ans',
+          distractors: [
+            '${val ~/ 2}',
+            '${val + 5}',
+            '${ans + 4}',
+          ],
+          hintFr:
+              'Diviser par 0,5 revient exactement à MULTIPLIER par 2 ! 🐾',
+          hintEn:
+              'Dividing by 0.5 is exactly the same as multiplying by 2! 🐾',
+          explanationFr:
+              'Diviser par 0,5 (un demi), c\'est multiplier par 2 : $val × 2 = $ans.',
+          explanationEn:
+              'Dividing by 0.5 is multiplying by 2: $val × 2 = $ans.',
+        );
+      } else {
+        final intPart = _random.nextInt(50) + 20; // 20..69
+        final decPart = _random.nextInt(9) + 1; // 1..9
+        final original = '$intPart,$decPart';
+        final ans = '${intPart ~/ 10},${intPart % 10}$decPart';
+        final wrong1 = '${intPart * 10},$decPart';
+        final wrong2 = '0,$intPart$decPart';
+        final wrong3 = '${intPart + 1},$decPart';
+        return _buildQuestion(
+          id: '6e_mult01_$index',
+          grade: SchoolGrade.sixieme,
+          domain: MathDomain.numbers,
+          categoryFr: '6e • Multiplication par 0,1',
+          categoryEn: 'Grade 6 • Multiply by 0.1',
+          promptFr: 'Règle de déplacement de la virgule :',
+          promptEn: 'Decimal point shift rule:',
+          mathExpression: '$original × 0,1 = ?',
+          correctAnswer: ans,
+          distractors: [wrong1, wrong2, wrong3],
+          hintFr:
+              'Multiplier par 0,1 décale la virgule d\'un rang vers la gauche !',
+          hintEn:
+              'Multiplying by 0.1 shifts the decimal point one place to the left!',
+          explanationFr: '$original × 0,1 = $ans (on divise par 10).',
+          explanationEn:
+              '${original.replaceAll(',', '.')} × 0.1 = ${ans.replaceAll(',', '.')}.',
+        );
+      }
     } else if (type == 4) {
-      final a1 = (_random.nextInt(4) + 4) * 10; // 40, 50, 60, 70
-      final a2 = (_random.nextInt(4) + 4) * 10; // 40, 50, 60, 70
-      final a3 = 180 - (a1 + a2);
-      return _buildQuestion(
-        id: '6e_angtri_$index',
-        grade: SchoolGrade.sixieme,
-        domain: MathDomain.geometry,
-        categoryFr: '6e • Angles d\'un Triangle',
-        categoryEn: 'Grade 6 • Triangle Angles',
-        promptFr: 'Dans un triangle, deux angles mesurent $a1° et $a2°. Combien mesure le troisième angle ?',
-        promptEn: 'In a triangle, two angles are $a1° and $a2°. What is the measure of the third angle?',
-        mathExpression: '$a1° + $a2° + ? = 180°',
-        correctAnswer: '$a3°',
-        distractors: ['${a3 + 10}°', '${max(10, a3 - 10)}°', '${180 - a1}°'],
-        hintFr: 'La somme des 3 angles d\'un triangle vaut TOUJOURS 180° !',
-        hintEn: 'The sum of all 3 angles in a triangle is ALWAYS 180°!',
-        explanationFr: '$a1° + $a2° = ${a1 + a2}°, donc 180° - ${a1 + a2}° = $a3°.',
-        explanationEn: '$a1° + $a2° = ${a1 + a2}°, so 180° - ${a1 + a2}° = $a3°.',
-      );
+      // 5. Grandeurs & Mesures : Conversions de volumes / capacités et durées
+      final isDuration = _random.nextBool();
+      if (isDuration) {
+        const startH = 14;
+        const startM = 45;
+        const durH = 1;
+        const durM = 35;
+        // 14h45 + 1h35 = 16h20
+        const totalM = startM + durM; // 80
+        const endH = startH + durH + (totalM ~/ 60); // 16
+        const endM = totalM % 60; // 20
+        return _buildQuestion(
+          id: '6e_dur_$index',
+          grade: SchoolGrade.sixieme,
+          domain: MathDomain.measures,
+          categoryFr: '6e • Calculs de Durée',
+          categoryEn: 'Grade 6 • Duration Calculations',
+          promptFr:
+              'Un train part à 14h45 et roule pendant 1h35. À quelle heure arrive-t-il ?',
+          promptEn:
+              'A train departs at 2:45 PM and travels for 1h35. When does it arrive?',
+          mathExpression: '14h45 + 1h35 = ?',
+          correctAnswer: '${endH}h$endM',
+          distractors: [
+            '${endH}h$totalM',
+            '${endH - 1}h$endM',
+            '${endH + 1}h10',
+          ],
+          hintFr:
+              '60 minutes forment 1 heure pleine ! 14h45 + 15 min = 15h00...',
+          hintEn:
+              '60 minutes make 1 full hour! 2:45 + 15 min = 3:00...',
+          explanationFr:
+              '14h45 + 1h = 15h45. Puis 15h45 + 35 min = 16h20.',
+          explanationEn:
+              '2:45 + 1h = 3:45. Then 3:45 + 35 min = 4:20.',
+        );
+      } else {
+        final liters = [1.5, 2.5, 3.5][_random.nextInt(3)];
+        final ml = (liters * 1000).toInt();
+        final lStr = liters.toString().replaceAll('.', ',');
+        return _buildQuestion(
+          id: '6e_cap_$index',
+          grade: SchoolGrade.sixieme,
+          domain: MathDomain.measures,
+          categoryFr: '6e • Conversions de Capacités',
+          categoryEn: 'Grade 6 • Capacity Conversions',
+          promptFr: 'Convertis le volume en millilitres :',
+          promptEn: 'Convert capacity to milliliters:',
+          mathExpression: '$lStr L = ? mL',
+          correctAnswer: '$ml mL',
+          distractors: [
+            '${(liters * 100).toInt()} mL',
+            '${(liters * 10).toInt()} mL',
+            '${ml + 500} mL',
+          ],
+          hintFr: '1 Litre équivaut à 1 000 millilitres !',
+          hintEn: '1 Liter equals 1,000 milliliters!',
+          explanationFr: '$lStr L × 1 000 = $ml mL.',
+          explanationEn: '$liters L × 1,000 = $ml mL.',
+        );
+      }
     } else {
-      final pct = [20, 30, 75][_random.nextInt(3)];
-      final totalVal = pct == 75 ? 40 : 80;
-      final ans = (totalVal * pct) ~/ 100;
-      return _buildQuestion(
-        id: '6e_pct_$index',
-        grade: SchoolGrade.sixieme,
-        domain: MathDomain.problems,
-        categoryFr: '6e • Pourcentages & Ratios',
-        categoryEn: 'Grade 6 • Percentages',
-        promptFr: 'Calcule le pourcentage d\'une somme :',
-        promptEn: 'Calculate the percentage of an amount:',
-        mathExpression: '$pct% de $totalVal € = ? €',
-        correctAnswer: '$ans €',
-        distractors: ['${ans + 5} €', '${max(5, ans - 5)} €', '${ans * 2} €'],
-        hintFr: pct == 75 ? '75% c\'est trois quarts (trois fois 25%) !' : 'Prends 10% en divisant par 10, puis multiplie !',
-        hintEn: pct == 75 ? '75% is three quarters!' : 'Find 10% by dividing by 10, then multiply!',
-        explanationFr: '$pct% de $totalVal € = ($pct × $totalVal) ÷ 100 = $ans €.',
-        explanationEn: '$pct% of $totalVal € = ($pct × $totalVal) ÷ 100 = $ans €.',
-      );
+      // 6. Problèmes & Proportionnalité : Remises et proportions réelles
+      final isPriceDiscount = _random.nextBool();
+      if (isPriceDiscount) {
+        final origPrice = (_random.nextInt(3) + 3) * 20; // 60, 80, 100
+        final newPrice = origPrice - (origPrice ~/ 4);
+        final realDiscount = origPrice ~/ 4;
+        return _buildQuestion(
+          id: '6e_discount_$index',
+          grade: SchoolGrade.sixieme,
+          domain: MathDomain.problems,
+          categoryFr: '6e • Remise et Pourcentage',
+          categoryEn: 'Grade 6 • Discount & Percentage',
+          promptFr:
+              'Un sac de croquettes coûte $origPrice €. Il bénéficie de 25% de remise. Quel est le nouveau prix ?',
+          promptEn:
+              'A pet food bag costs $origPrice €. With a 25% discount, what is the new price?',
+          mathExpression: '$origPrice € - 25% = ? €',
+          correctAnswer: '$newPrice €',
+          distractors: [
+            '$realDiscount €',
+            '${newPrice + 10} €',
+            '${origPrice - 25} €',
+          ],
+          hintFr:
+              '25% correspond au quart du prix ($origPrice ÷ 4), qu\'on soustrait ensuite !',
+          hintEn:
+              '25% is one quarter of the price ($origPrice ÷ 4), subtract it from the total!',
+          explanationFr:
+              'Remise = $origPrice ÷ 4 = $realDiscount €. Nouveau prix = $origPrice - $realDiscount = $newPrice €.',
+          explanationEn:
+              'Discount = $origPrice ÷ 4 = $realDiscount €. Final price = $origPrice - $realDiscount = $newPrice €.',
+        );
+      } else {
+        const puppies = 4;
+        const grams = 320;
+        const targetPuppies = 6;
+        const totalGrams = (grams ~/ puppies) * targetPuppies; // 80 * 6 = 480
+        return _buildQuestion(
+          id: '6e_prop_puppies_$index',
+          grade: SchoolGrade.sixieme,
+          domain: MathDomain.problems,
+          categoryFr: '6e • Proportionnalité Directe',
+          categoryEn: 'Grade 6 • Direct Proportion',
+          promptFr:
+              'Pour $puppies chiots, il faut $grams g de nourriture par jour. Combien faut-il pour $targetPuppies chiots ?',
+          promptEn:
+              'For $puppies puppies, $grams g of food is needed. How much is needed for $targetPuppies puppies?',
+          mathExpression: '$grams g ÷ $puppies × $targetPuppies = ? g',
+          correctAnswer: '$totalGrams g',
+          distractors: [
+            '${totalGrams - 80} g',
+            '${totalGrams + 80} g',
+            '${grams * 2} g',
+          ],
+          hintFr:
+              'Calcule d\'abord la ration pour 1 seul chiot ($grams ÷ $puppies), puis multiplie par $targetPuppies !',
+          hintEn:
+              'Find ration for 1 puppy first ($grams ÷ $puppies), then multiply by $targetPuppies!',
+          explanationFr:
+              '1 chiot = $grams ÷ $puppies = ${grams ~/ puppies} g. Donc $targetPuppies chiots = ${grams ~/ puppies} × $targetPuppies = $totalGrams g.',
+          explanationEn:
+              '1 puppy = $grams ÷ $puppies = ${grams ~/ puppies} g. So $targetPuppies puppies = ${grams ~/ puppies} × $targetPuppies = $totalGrams g.',
+        );
+      }
     }
   }
 

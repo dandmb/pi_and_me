@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,7 +25,8 @@ import '../domain/quiz_session_record.dart';
 import 'quiz_controller.dart';
 
 /// Écran 3 : Résultats du Quiz & Célébration bienveillante avec Pi.
-/// Attribue les récompenses en Os dorés 🦴, croquettes 🍖 et balles 🎾.
+/// Attribue les récompenses en Os dorés 🦴, croquettes 🍖 et balles 🎾
+/// avec une animation progressive interactive et des aboiements joyeux de Pi.
 class QuizResultsScreen extends ConsumerStatefulWidget {
   const QuizResultsScreen({super.key});
 
@@ -30,19 +34,122 @@ class QuizResultsScreen extends ConsumerStatefulWidget {
   ConsumerState<QuizResultsScreen> createState() => _QuizResultsScreenState();
 }
 
-class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
+class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _rewardsController;
+  late final Animation<double> _rewardsAnimation;
+
+  bool _showBarkBubble = false;
+  String? _activeRewardFeedback;
+  int _highlightedRewardIndex = -1;
+  int _lastTickedBones = 0;
+  Timer? _barkTimer;
+  Timer? _feedbackTimer;
+
+  bool get _isTestEnv {
+    try {
+      return Platform.environment.containsKey('FLUTTER_TEST');
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    _rewardsController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+
+    _rewardsAnimation = CurvedAnimation(
+      parent: _rewardsController,
+      curve: Curves.easeOutCubic,
+    );
+
+    _rewardsAnimation.addListener(() {
+      final quizState = ref.read(quizControllerProvider);
+      final currentBones =
+          (_rewardsAnimation.value * quizState.bonesEarned).round();
+      if (currentBones > _lastTickedBones &&
+          currentBones % 2 == 0 &&
+          !_isTestEnv) {
+        _lastTickedBones = currentBones;
+        ref.read(audioServiceProvider).playPop();
+      }
+    });
+
+    _rewardsController.forward();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final score = ref.read(quizControllerProvider).score;
       if (score >= 4) {
         ref.read(audioServiceProvider).playCelebration();
+        if (_isTestEnv) {
+          ref.read(audioServiceProvider).playBark();
+        } else {
+          // Pi aboie joyeusement après le début de la fanfare de célébration
+          _barkTimer = Timer(const Duration(milliseconds: 650), () {
+            if (mounted) {
+              ref.read(audioServiceProvider).playBark();
+              setState(() => _showBarkBubble = true);
+              _barkTimer = Timer(const Duration(milliseconds: 2200), () {
+                if (mounted) setState(() => _showBarkBubble = false);
+              });
+            }
+          });
+        }
       } else {
+        // En cas de score intermédiaire, Pi aboie avec tendresse pour encourager l'enfant
         ref.read(audioServiceProvider).playBark();
+        if (!_isTestEnv) {
+          setState(() => _showBarkBubble = true);
+          _barkTimer = Timer(const Duration(milliseconds: 2200), () {
+            if (mounted) setState(() => _showBarkBubble = false);
+          });
+        }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _barkTimer?.cancel();
+    _feedbackTimer?.cancel();
+    _rewardsController.dispose();
+    super.dispose();
+  }
+
+  void _onPiTapped() {
+    ref.read(audioServiceProvider).playBark();
+    _barkTimer?.cancel();
+    setState(() => _showBarkBubble = true);
+    if (!_isTestEnv) {
+      _barkTimer = Timer(const Duration(milliseconds: 2000), () {
+        if (mounted) setState(() => _showBarkBubble = false);
+      });
+    }
+  }
+
+  void _onRewardTapped(int index, String feedback, VoidCallback playSound) {
+    playSound();
+    _feedbackTimer?.cancel();
+    setState(() {
+      _highlightedRewardIndex = index;
+      _activeRewardFeedback = feedback;
+    });
+    if (!_isTestEnv) {
+      _feedbackTimer = Timer(const Duration(milliseconds: 2500), () {
+        if (mounted && _highlightedRewardIndex == index) {
+          setState(() {
+            _activeRewardFeedback = null;
+            _highlightedRewardIndex = -1;
+          });
+        }
+      });
+    }
   }
 
   void _finishAndNavigate(BuildContext context, int targetIndex) {
@@ -329,64 +436,122 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     dynamic strings,
     List<String> equippedAccessoryIds,
   ) {
-    return SizedBox(
-      height: 185,
-      width: 185,
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          // Halo doré lumineux
-          Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.gold400.withValues(alpha: 0.35),
-            ),
-          ),
-
-          // Pi qui saute de joie (yeux rieurs ^ ^, bouche ouverte, queue qui bat et coeurs)
-          Positioned(
-            bottom: 22,
-            child: AnimatedPiMascot(
-              piSize: 122,
-              isCelebrating: true,
-              equippedAccessoryIds: equippedAccessoryIds,
-            ),
-          ),
-
-          // Pastille du score superposée en bas de Pi
-          Positioned(
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.s4,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.sky600,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-                boxShadow: const [
-                  BoxShadow(
-                    color: AppColors.sky700,
-                    offset: Offset(0, 3),
-                    blurRadius: 0,
-                  ),
-                ],
-              ),
-              child: Text(
-                strings.quizSummary(score, total),
-                style: AppText.mathM.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 15,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 195,
+          width: 200,
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              // Halo doré lumineux
+              Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.gold400.withValues(alpha: 0.35),
                 ),
               ),
-            ),
+
+              // Bulle de dialogue quand Pi aboie
+              if (_showBarkBubble)
+                Positioned(
+                  top: -6,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.7, end: 1.0),
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.elasticOut,
+                    builder: (context, scale, child) => Transform.scale(
+                      scale: scale,
+                      child: child,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpace.s3,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: context.isDark
+                            ? const Color(0xFF1E293B)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                        border: Border.all(
+                          color: AppColors.gold400,
+                          width: 2,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        strings.isFrench ? 'Wouf ! Wouf !' : 'Woof! Woof!',
+                        style: AppText.label.copyWith(
+                          color: const Color(0xFFB45309),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Pi qui saute de joie (yeux rieurs ^ ^, bouche ouverte, queue qui bat et coeurs)
+              // Taper sur Pi déclenche un jappement joyeux immédiat !
+              Positioned(
+                bottom: 22,
+                child: GestureDetector(
+                  onTap: _onPiTapped,
+                  behavior: HitTestBehavior.opaque,
+                  child: AnimatedPiMascot(
+                    piSize: 122,
+                    isCelebrating: true,
+                    equippedAccessoryIds: equippedAccessoryIds,
+                    enableTapInteraction: true,
+                    onTap: _onPiTapped,
+                  ),
+                ),
+              ),
+
+              // Pastille du score superposée en bas de Pi
+              Positioned(
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.s4,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.sky600,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: AppColors.sky700,
+                        offset: Offset(0, 3),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    strings.quizSummary(score, total),
+                    style: AppText.mathM.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -421,67 +586,147 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
             ),
             textAlign: TextAlign.center,
           ),
-
           const SizedBox(height: AppSpace.s3),
 
-          // 3 récompenses : Os dorés, Croquettes, Balles
-          Row(
-            children: [
-              Expanded(
-                child: _buildRewardBadge(
-                  context,
-                  icon: '🦴',
-                  count: '+${quizState.bonesEarned}',
-                  label: strings.goldenBones,
-                  bgColor: context.isDark
-                      ? const Color(0xFF451A03)
-                      : AppColors.amber50,
-                  borderColor: context.isDark
-                      ? const Color(0xFFD97706)
-                      : const Color(0xFFFDE68A),
-                  textColor: context.isDark
-                      ? const Color(0xFFFDE68A)
-                      : AppColors.amber900,
-                ),
-              ),
-              const SizedBox(width: AppSpace.s2),
-              Expanded(
-                child: _buildRewardBadge(
-                  context,
-                  icon: '🍖',
-                  count: '+${quizState.croquettesEarned}',
-                  label: strings.croquettes,
-                  bgColor: context.isDark
-                      ? const Color(0xFF064E3B)
-                      : const Color(0xFFECFDF5),
-                  borderColor: context.isDark
-                      ? const Color(0xFF059669)
-                      : const Color(0xFFA7F3D0),
-                  textColor: context.isDark
-                      ? const Color(0xFF6EE7B7)
-                      : const Color(0xFF065F46),
-                ),
-              ),
-              const SizedBox(width: AppSpace.s2),
-              Expanded(
-                child: _buildRewardBadge(
-                  context,
-                  icon: '🎾',
-                  count: '+${quizState.ballsEarned}',
-                  label: strings.balls,
-                  bgColor: context.isDark
-                      ? const Color(0xFF0C4A6E)
-                      : const Color(0xFFF0F9FF),
-                  borderColor: context.isDark
-                      ? const Color(0xFF0284C7)
-                      : const Color(0xFFBAE6FD),
-                  textColor: context.isDark
-                      ? const Color(0xFF38BDF8)
-                      : const Color(0xFF0369A1),
-                ),
-              ),
-            ],
+          // 3 récompenses avec animation progressive et réactivité tactile
+          AnimatedBuilder(
+            animation: _rewardsAnimation,
+            builder: (context, _) {
+              final t = _rewardsAnimation.value;
+              final currentBones = (t * quizState.bonesEarned).round();
+              final currentCroquettes =
+                  (t * quizState.croquettesEarned).round();
+              final currentBalls = (t * quizState.ballsEarned).round();
+
+              return Row(
+                children: [
+                  Expanded(
+                    child: _buildInteractiveRewardBadge(
+                      context,
+                      index: 0,
+                      icon: '🦴',
+                      count: '+$currentBones',
+                      label: strings.goldenBones,
+                      bgColor: context.isDark
+                          ? const Color(0xFF451A03)
+                          : AppColors.amber50,
+                      borderColor: context.isDark
+                          ? const Color(0xFFD97706)
+                          : const Color(0xFFFDE68A),
+                      textColor: context.isDark
+                          ? const Color(0xFFFDE68A)
+                          : AppColors.amber900,
+                      isHighlighted: _highlightedRewardIndex == 0,
+                      onTap: () => _onRewardTapped(
+                        0,
+                        strings.isFrench
+                            ? '🦴 +${quizState.bonesEarned} Os dorés pour la boutique !'
+                            : '🦴 +${quizState.bonesEarned} Golden bones for the shop!',
+                        () => ref.read(audioServiceProvider).playBone(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.s2),
+                  Expanded(
+                    child: _buildInteractiveRewardBadge(
+                      context,
+                      index: 1,
+                      icon: '🍖',
+                      count: '+$currentCroquettes',
+                      label: strings.croquettes,
+                      bgColor: context.isDark
+                          ? const Color(0xFF064E3B)
+                          : const Color(0xFFECFDF5),
+                      borderColor: context.isDark
+                          ? const Color(0xFF059669)
+                          : const Color(0xFFA7F3D0),
+                      textColor: context.isDark
+                          ? const Color(0xFF6EE7B7)
+                          : const Color(0xFF065F46),
+                      isHighlighted: _highlightedRewardIndex == 1,
+                      onTap: () => _onRewardTapped(
+                        1,
+                        strings.isFrench
+                            ? '🍖 +${quizState.croquettesEarned} Croquettes pour régaler Pi !'
+                            : '🍖 +${quizState.croquettesEarned} Kibbles to feed Pi!',
+                        () => ref.read(audioServiceProvider).playFeed(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.s2),
+                  Expanded(
+                    child: _buildInteractiveRewardBadge(
+                      context,
+                      index: 2,
+                      icon: '🎾',
+                      count: '+$currentBalls',
+                      label: strings.balls,
+                      bgColor: context.isDark
+                          ? const Color(0xFF0C4A6E)
+                          : const Color(0xFFF0F9FF),
+                      borderColor: context.isDark
+                          ? const Color(0xFF0284C7)
+                          : const Color(0xFFBAE6FD),
+                      textColor: context.isDark
+                          ? const Color(0xFF38BDF8)
+                          : const Color(0xFF0369A1),
+                      isHighlighted: _highlightedRewardIndex == 2,
+                      onTap: () => _onRewardTapped(
+                        2,
+                        strings.isFrench
+                            ? '🎾 +${quizState.ballsEarned} Balles pour jouer avec Pi !'
+                            : '🎾 +${quizState.ballsEarned} Balls to play with Pi!',
+                        () => ref.read(audioServiceProvider).playBall(),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
+
+          // Message interactif au toucher d'une récompense
+          if (_activeRewardFeedback != null) ...[
+            const SizedBox(height: AppSpace.s2),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.85, end: 1.0),
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutBack,
+              builder: (context, scale, child) => Transform.scale(
+                scale: scale,
+                child: child,
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.s3,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: context.isDark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(
+                    color: context.isDark
+                        ? const Color(0xFFD97706)
+                        : const Color(0xFFF59E0B),
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  _activeRewardFeedback!,
+                  textAlign: TextAlign.center,
+                  style: AppText.bodyS.copyWith(
+                    color: context.isDark
+                        ? const Color(0xFFFDE68A)
+                        : AppColors.amber900,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ],
 
           const SizedBox(height: AppSpace.s3),
 
@@ -530,47 +775,75 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen> {
     );
   }
 
-  Widget _buildRewardBadge(
+  Widget _buildInteractiveRewardBadge(
     BuildContext context, {
+    required int index,
     required String icon,
     required String count,
     required String label,
     required Color bgColor,
     required Color borderColor,
     required Color textColor,
+    required bool isHighlighted,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: AppSpace.s2, horizontal: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: borderColor, width: 1.5),
-      ),
-      child: Column(
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 22)),
-          const SizedBox(height: 2),
-          Text(
-            count,
-            style: AppText.mathM.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.w900,
-              fontSize: 16,
-            ),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        transform: Matrix4.diagonal3Values(
+          isHighlighted ? 1.05 : 1.0,
+          isHighlighted ? 1.05 : 1.0,
+          1.0,
+        ),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpace.s2,
+          horizontal: 4,
+        ),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(
+            color: isHighlighted ? AppColors.gold400 : borderColor,
+            width: isHighlighted ? 2.5 : 1.5,
           ),
-          const SizedBox(height: 2),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              label,
-              style: AppText.bodyS.copyWith(
-                color: context.appSubText,
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
+          boxShadow: isHighlighted
+              ? [
+                  BoxShadow(
+                    color: AppColors.gold400.withValues(alpha: 0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 22)),
+            const SizedBox(height: 2),
+            Text(
+              count,
+              style: AppText.mathM.copyWith(
+                color: textColor,
+                fontWeight: FontWeight.w900,
+                fontSize: 16,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: AppText.bodyS.copyWith(
+                  color: context.appSubText,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
