@@ -643,4 +643,23 @@ class AppStrings {
   String get aboutCopyright => isFrench
       ? '© 2026 Dan Bizwa. Tous droits réservés.'
       : '© 2026 Dan Bizwa. All rights reserved.';
+
+  // --- NOTATION DE L'APPLICATION (IN-APP REVIEW & MILESTONES) ---
+  String get ratingDialogTitle =>
+      isFrench ? 'Tu t\'amuses bien avec Pi ?' : 'Enjoying math with Pi?';
+  String get ratingDialogSubtitle =>
+      isFrench ? 'Bravo pour tes super progrès ! 🎉' : 'Awesome progress, champion! 🎉';
+  String get ratingDialogBody => isFrench
+      ? 'Pour aider Pi le chiot et encourager de nouvelles surprises, demande à tes parents de laisser 5 étoiles sur le Store !'
+      : 'To support Pi the puppy and unlock future surprises, ask your parents to leave 5 stars on the Store!';
+  String get ratingActionRate =>
+      isFrench ? '⭐⭐⭐⭐⭐ Donner 5 étoiles' : '⭐⭐⭐⭐⭐ Give 5 stars';
+  String get ratingActionLater =>
+      isFrench ? 'Plus tard' : 'Maybe later';
+  String get ratingThankYouMessage => isFrench
+      ? 'Merci beaucoup ! Pi remue la queue de joie ! 🐶'
+      : 'Thank you so much! Pi is wagging his tail with joy! 🐶';
+  String get ratingParentalGatePrompt => isFrench
+      ? 'Un parent doit confirmer pour ouvrir le Store :'
+      : 'A parent must confirm to open the Store:';
 }

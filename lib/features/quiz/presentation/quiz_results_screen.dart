@@ -20,6 +20,8 @@ import '../../parent/domain/daily_limit_state.dart';
 import '../../parent/presentation/daily_limit_controller.dart';
 import '../../parent/presentation/parent_dashboard_controller.dart';
 import '../../parent/presentation/widgets/daily_quota_indicator.dart';
+import '../../rating/presentation/rating_controller.dart';
+import '../../rating/presentation/widgets/rating_milestone_dialog.dart';
 import '../data/quiz_stats_repository.dart';
 import '../domain/quiz_session_record.dart';
 import 'quiz_controller.dart';
@@ -45,6 +47,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen>
   int _lastTickedBones = 0;
   Timer? _barkTimer;
   Timer? _feedbackTimer;
+  Timer? _ratingTimer;
 
   bool get _isTestEnv {
     try {
@@ -111,6 +114,19 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen>
           });
         }
       }
+
+      // Évaluation bienveillante d'un « Moment de Victoire » pour solliciter un avis
+      if (!_isTestEnv) {
+        _ratingTimer = Timer(const Duration(milliseconds: 2200), () async {
+          if (!mounted) return;
+          final shouldPrompt = await ref
+              .read(ratingControllerProvider.notifier)
+              .onQuizCompleted(currentScore: score);
+          if (shouldPrompt && mounted) {
+            await RatingMilestoneDialog.show(context);
+          }
+        });
+      }
     });
   }
 
@@ -118,6 +134,7 @@ class _QuizResultsScreenState extends ConsumerState<QuizResultsScreen>
   void dispose() {
     _barkTimer?.cancel();
     _feedbackTimer?.cancel();
+    _ratingTimer?.cancel();
     _rewardsController.dispose();
     super.dispose();
   }
