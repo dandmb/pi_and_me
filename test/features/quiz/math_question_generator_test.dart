@@ -43,6 +43,22 @@ void main() {
           expect(q.explanationFr.isNotEmpty, isTrue);
           expect(q.explanationEn.isNotEmpty, isTrue);
         }
+
+        // Vérifie qu'une session de 6 questions propose 6 catégories distinctes (aucune redondance)
+        final uniqueCategories = session.map((q) => q.categoryFr).toSet();
+        expect(
+          uniqueCategories.length,
+          equals(6),
+          reason: 'Grade ${grade.label} must have 6 distinct categories in a session: $uniqueCategories',
+        );
+
+        // Vérifie qu'au moins 3 domaines officiels distincts sont représentés dans la session
+        final uniqueDomains = session.map((q) => q.domain).toSet();
+        expect(
+          uniqueDomains.length,
+          greaterThanOrEqualTo(3),
+          reason: 'Grade ${grade.label} must cover at least 3 official domains in a session: $uniqueDomains',
+        );
       }
     });
 

@@ -38,7 +38,7 @@ void main() {
     // Header & App Info
     expect(find.text('MathPup'), findsWidgets);
     expect(find.text('À propos de MathPup'), findsOneWidget);
-    expect(find.text('Version 1.0.0 (Build 1)'), findsOneWidget);
+    expect(find.text('Version 1.0.2 (Build 4)'), findsOneWidget);
     expect(find.text('100% Hors-ligne'), findsOneWidget);
     expect(find.text('Zéro Publicité'), findsOneWidget);
 

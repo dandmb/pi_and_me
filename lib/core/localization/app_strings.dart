@@ -639,7 +639,7 @@ class AppStrings {
   String versionLabel(String version, String buildNumber) =>
       'Version $version (Build $buildNumber)';
   String get aboutVersionLabel =>
-      'Version 1.0.1 (Build 3)';
+      'Version 1.0.2 (Build 4)';
   String get aboutCopyright => isFrench
       ? '© 2026 Dan Bizwa. Tous droits réservés.'
       : '© 2026 Dan Bizwa. All rights reserved.';
